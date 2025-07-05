@@ -1,0 +1,96 @@
+{
+  "app": {
+    "name": "Aplicativo de Estudos para Concursos",
+    "description": "Plataforma de preparação para concursos públicos",
+    "loading": "Carregando...",
+    "error": {
+      "generic": "Ocorreu um erro. Por favor, tente novamente mais tarde.",
+      "notFound": "O recurso solicitado não foi encontrado.",
+      "unauthorized": "Você não está autorizado a acessar este recurso.",
+      "forbidden": "Você não tem permissão para acessar este recurso.",
+      "serverError": "Ocorreu um erro no servidor. Por favor, tente novamente mais tarde."
+    },
+    "actions": {
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "edit": "Editar",
+      "delete": "Excluir",
+      "confirm": "Confirmar",
+      "close": "Fechar",
+      "back": "Voltar",
+      "next": "Próximo",
+      "previous": "Anterior",
+      "submit": "Enviar",
+      "reset": "Limpar",
+      "search": "Pesquisar",
+      "viewMore": "Ver Mais",
+      "showLess": "Mostrar Menos"
+    },
+    "form": {
+      "required": "Este campo é obrigatório",
+      "invalidEmail": "Por favor, insira um e-mail válido",
+      "passwordsDontMatch": "As senhas não conferem",
+      "minLength": "Deve ter pelo menos {min} caracteres",
+      "maxLength": "Deve ter no máximo {max} caracteres"
+    },
+    "theme": {
+      "light": "Claro",
+      "dark": "Escuro",
+      "system": "Sistema"
+    }
+  },
+  "navigation": {
+    "home": "Início",
+    "dashboard": "Painel",
+    "profile": "Perfil",
+    "settings": "Configurações",
+    "logout": "Sair",
+    "login": "Entrar",
+    "register": "Cadastrar",
+    "forgotPassword": "Esqueceu a senha?",
+    "resetPassword": "Redefinir Senha"
+  },
+  "auth": {
+    "login": {
+      "title": "Bem-vindo de volta",
+      "subtitle": "Insira suas credenciais para acessar sua conta",
+      "email": "E-mail",
+      "password": "Senha",
+      "rememberMe": "Lembrar de mim",
+      "noAccount": "Não tem uma conta?",
+      "signUp": "Cadastre-se"
+    },
+    "register": {
+      "title": "Criar uma Conta",
+      "subtitle": "Preencha seus dados para criar uma conta",
+      "name": "Nome Completo",
+      "email": "E-mail",
+      "password": "Senha",
+      "confirmPassword": "Confirme a Senha",
+      "alreadyHaveAccount": "Já tem uma conta?",
+      "signIn": "Entrar"
+    },
+    "forgotPassword": {
+      "title": "Esqueceu a Senha",
+      "subtitle": "Informe seu e-mail para receber um link de redefinição",
+      "email": "E-mail",
+      "sendResetLink": "Enviar Link de Redefinição",
+      "backToLogin": "Voltar para o login"
+    },
+    "resetPassword": {
+      "title": "Redefinir Senha",
+      "subtitle": "Informe sua nova senha",
+      "newPassword": "Nova Senha",
+      "confirmPassword": "Confirme a Nova Senha",
+      "resetPassword": "Redefinir Senha"
+    }
+  },
+  "validation": {
+    "required": "O campo {field} é obrigatório",
+    "email": "Por favor, insira um e-mail válido",
+    "minLength": "O campo {field} deve ter pelo menos {min} caracteres",
+    "maxLength": "O campo {field} deve ter no máximo {max} caracteres",
+    "passwordsDontMatch": "As senhas não conferem",
+    "invalidCpf": "Por favor, insira um CPF válido"
+  }
+}
