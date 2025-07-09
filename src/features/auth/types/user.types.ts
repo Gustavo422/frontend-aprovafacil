@@ -16,7 +16,7 @@ export type UserStatsUpdate = {
 
 /**
  * Tipo completo do usuário com todos os campos necessários para a aplicação
- * Inclui campos do Supabase Auth e campos adicionais do banco de dados
+ * Baseado no schema real do banco de dados
  */
 export interface AppUser extends Omit<SupabaseUser, 'user_metadata' | 'app_metadata'> {
   // Campos obrigatórios do Supabase Auth
@@ -26,17 +26,12 @@ export interface AppUser extends Omit<SupabaseUser, 'user_metadata' | 'app_metad
   updated_at: string;
   
   // Campos do banco de dados
-  nome: string | null;
+  name: string;
   total_questions_answered: number;
   total_correct_answers: number;
   study_time_minutes: number;
   average_score: number;
-  
-  // Campos opcionais para compatibilidade
-  full_name?: string | null;
-  avatar_url?: string | null;
-  is_active?: boolean;
-  role?: string;
+  last_login?: string;
   
   // Campos calculados para compatibilidade
   total_questions?: number;
@@ -67,14 +62,14 @@ export function mapUserRowToAppUser(userRow: UserRow | null): AppUser | null {
     aud: 'authenticated', // Campo obrigatório do Supabase
     
     // Campos do banco de dados
-    nome: userRow.nome || userRow.email.split('@')[0],
+    name: userRow.name || userRow.email.split('@')[0],
     total_questions_answered: totalQuestions,
     total_correct_answers: correctAnswers,
     study_time_minutes: studyTime,
     average_score: avgScore,
     
     // Campos para compatibilidade
-    full_name: userRow.nome,
+    full_name: userRow.name,
     is_active: true, // Valor padrão
     role: 'user', // Valor padrão
     

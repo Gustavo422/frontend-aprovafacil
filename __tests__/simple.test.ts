@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 // Função de exemplo para testar
 function sum(a: number, b: number): number {
   return a + b;

@@ -14,14 +14,14 @@ export async function GET(_request: Request) {
   try {
     const supabase = await createRouteHandlerClient();
 
-    // Verificar se o usuário está autenticado
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // Categorias são públicas - não precisam de autenticação
+    // const {
+    //   data: { user },
+    // } = await supabase.auth.getUser();
 
-    if (!user) {
-      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
-    }
+    // if (!user) {
+    //   return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+    // }
 
     // Construir query base
     let query = supabase.from('concurso_categorias').select('*');
@@ -41,7 +41,6 @@ export async function GET(_request: Request) {
     if (error) {
       logger.error('Erro ao buscar categorias:', {
         error: error.message,
-        userId: user.id,
       });
       return NextResponse.json(
         { error: 'Erro ao buscar categorias' },

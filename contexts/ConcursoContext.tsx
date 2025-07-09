@@ -237,14 +237,6 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
     } catch (error: unknown) {
       if (error instanceof Error) {
         // Add eslint exceptions for debug logs
-        const loadConcurso = async () => {
-          try {
-            // ...
-          } catch (error) {
-            // eslint-disable-next-line no-console
-            console.error('Error loading competition:', error);
-          }
-        };
       }
       dispatch({ type: 'SET_CONCURSOS', payload: [] });
     }

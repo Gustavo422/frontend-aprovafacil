@@ -1,4 +1,4 @@
-import { chromium, FullConfig } from '@playwright/test'
+import { chromium, FullConfig, Page } from '@playwright/test'
 
 // Replace 'any' with proper types
 export default async function globalSetup(config: FullConfig) {
@@ -24,7 +24,7 @@ export default async function globalSetup(config: FullConfig) {
           console.log('✅ Server is ready!')
           break
         }
-      } catch (error) {
+      } catch (error: unknown) {
         retries++
         if (retries === maxRetries) {
           throw new Error(`Server not ready after ${maxRetries} attempts`)
@@ -47,7 +47,7 @@ export default async function globalSetup(config: FullConfig) {
     
     console.log('✅ Global setup completed successfully!')
     
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Global setup failed:', error)
     throw error
   } finally {
@@ -56,7 +56,7 @@ export default async function globalSetup(config: FullConfig) {
   }
 }
 
-async function setupTestUser(page: any, baseURL: string) {
+async function setupTestUser(page: Page, baseURL: string) {
   try {
     // Navigate to the app
     await page.goto(baseURL)
@@ -65,7 +65,7 @@ async function setupTestUser(page: any, baseURL: string) {
     // This is where you might create test users or setup auth state
     
     console.log('👤 Test user setup completed')
-  } catch (error) {
+  } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     console.warn('⚠️ Test user setup failed (this might be expected):', errorMessage)
   }

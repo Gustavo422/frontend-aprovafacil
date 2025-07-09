@@ -2,9 +2,6 @@ import { FullConfig } from '@playwright/test'
 
 async function globalTeardown(config: FullConfig) {
   try {
-    // Cleanup test data
-    // TODO: Implement test data cleanup logic
-    
     // Clear any temporary files
     // TODO: Implement temporary files cleanup logic
     

@@ -88,7 +88,7 @@ export async function signIn(formData: FormData) {
     await auditLogger.logLogin(data.user.id);
   }
 
-  redirect('/dashboard');
+  redirect('/');
 }
 
 export async function signOut() {

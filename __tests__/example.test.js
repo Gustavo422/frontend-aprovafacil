@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 // Teste simples para verificar se o Jest está configurado corretamente
 describe('Example Test', () => {
   it('should pass a simple test', () => {

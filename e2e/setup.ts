@@ -125,7 +125,7 @@ export const e2eHelpers = {
   /**
    * Mock API response
    */
-  async mockApiResponse(url: string | RegExp, response: any) {
+  async mockApiResponse(url: string | RegExp, response: unknown) {
     await page.route(url, route => {
       route.fulfill({
         status: 200,

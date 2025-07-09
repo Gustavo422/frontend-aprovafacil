@@ -60,15 +60,15 @@ interface SchemaValidationResult {
 const EXPECTED_SCHEMA: ExpectedSchema = {
   users: {
     id: { type: 'uuid', nullable: false, default: 'gen_random_uuid()' },
-    email: { type: 'text', nullable: false, default: null },
     name: { type: 'text', nullable: false, default: null },
+    email: { type: 'text', nullable: false, default: null },
+    last_login: { type: 'timestamp with time zone', nullable: true, default: null },
     created_at: { type: 'timestamp with time zone', nullable: true, default: 'CURRENT_TIMESTAMP' },
     updated_at: { type: 'timestamp with time zone', nullable: true, default: 'CURRENT_TIMESTAMP' },
     total_questions_answered: { type: 'integer', nullable: true, default: '0' },
     total_correct_answers: { type: 'integer', nullable: true, default: '0' },
     study_time_minutes: { type: 'integer', nullable: true, default: '0' },
     average_score: { type: 'numeric', nullable: true, default: '0' },
-    last_login: { type: 'timestamp with time zone', nullable: true, default: null },
   },
   concurso_categorias: {
     id: { type: 'uuid', nullable: false, default: 'gen_random_uuid()' },

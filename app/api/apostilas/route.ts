@@ -3,9 +3,6 @@ import { logger } from '@/lib/logger';
 import { NextResponse } from 'next/server';
 
 export async function GET(_request: Request) {
-  const { searchParams } = new URL(_request.url);
-  const concursoId = searchParams.get('concurso_id');
-
   const supabase = await createRouteHandlerClient();
 
   try {
@@ -18,13 +15,8 @@ export async function GET(_request: Request) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    // Construir a query base
+    // Construir a query base - o RLS automaticamente filtrará pelo concurso do usuário
     let query = supabase.from('apostilas').select('*');
-
-    // Aplicar filtro por concurso se fornecido
-    if (concursoId) {
-      query = query.eq('concurso_id', concursoId);
-    }
 
     // Executar a query
     const { data: apostilas, error } = await query;

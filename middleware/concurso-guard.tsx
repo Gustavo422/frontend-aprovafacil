@@ -6,6 +6,7 @@ import { createRouteHandlerClient } from '@/lib/supabase';
 // ========================================
 
 const PUBLIC_ROUTES = [
+  '/',
   '/login',
   '/register',
   '/auth',
@@ -147,10 +148,14 @@ export async function middleware(request: NextRequest): Promise<NextResponse | n
   if (pathname.startsWith('/dashboard') || 
       pathname.startsWith('/simulados') || 
       pathname.startsWith('/flashcards') || 
-      pathname.startsWith('/apostilas') || 
+      pathname.startsWith('/cartoes-memorizacao') ||
+      pathname.startsWith('/apostila-customizada') ||
+      pathname.startsWith('/mapa-materias') ||
+      pathname.startsWith('/questoes-semanais') ||
       pathname.startsWith('/plano-estudos') || 
+      pathname.startsWith('/cronograma') ||
+      pathname.startsWith('/guru-da-aprovacao') ||
       pathname.startsWith('/configuracoes') ||
-      pathname === '/' || // Proteger a página inicial
       pathname.startsWith('/api/') && !isApiPublicRoute(pathname)) {
     
     return await verificarConcursoSelecionado(request);

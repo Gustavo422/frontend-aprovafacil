@@ -16,7 +16,12 @@ export async function GET(_request: Request) {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+      // Se não estiver autenticado, retornar que não tem preferência
+      return NextResponse.json({ 
+        data: null,
+        canChange: true,
+        daysUntilChange: 0
+      });
     }
 
     // Buscar preferência ativa do usuário

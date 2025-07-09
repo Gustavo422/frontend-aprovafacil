@@ -155,7 +155,6 @@ export async function GET(_request: Request) {
             id,
             questoes_semanais_id,
             score,
-            total_questions,
             completed_at
           `)
           .eq('user_id', user.id)
@@ -201,7 +200,7 @@ export async function GET(_request: Request) {
               week_number: questoesSemanal?.week_number || 0,
               year: questoesSemanal?.year || 0,
               score: item.score,
-              total_questions: item.total_questions,
+              total_questions: 10, // Valor padrão
               completed_at: item.completed_at,
             };
           }));
@@ -253,7 +252,6 @@ export async function GET(_request: Request) {
         .from('simulado_questions')
         .select('*')
         .eq('concurso_id', questoesSemanais.concurso_id)
-        .eq('deleted_at', null)
         .order('question_number', { ascending: true })
         .limit(10); // Limitar a 10 questões por semana
 
@@ -279,7 +277,6 @@ export async function GET(_request: Request) {
         id,
         questoes_semanais_id,
         score,
-        total_questions,
         completed_at
       `)
       .eq('user_id', user.id)
@@ -325,7 +322,7 @@ export async function GET(_request: Request) {
           week_number: questoesSemanal?.week_number || 0,
           year: questoesSemanal?.year || 0,
           score: item.score,
-          total_questions: item.total_questions,
+          total_questions: 10, // Valor padrão
           completed_at: item.completed_at,
         };
       }));

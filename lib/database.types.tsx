@@ -8,15 +8,15 @@ export type Json =
 
 export type User = {
   id: string;
+  name: string;
   email: string;
-  nome: string;
+  last_login?: Date;
   created_at: string;
   updated_at: string;
   study_time_minutes: number;
   total_questions_answered: number;
   total_correct_answers: number;
   average_score: number;
-  last_login?: Date;
 }
 
 export interface Database {

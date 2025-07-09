@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "dev:no-turbo": "next dev",
     "build": "next build",
     "start": "next start",
@@ -32,8 +32,6 @@
     "fix:env": "powershell -ExecutionPolicy Bypass -File scripts/fix-env.ps1",
     "analyze": "npx cross-env ANALYZE=true next build",
     "type-check": "tsc --noEmit",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
     "prepare": "husky install || true"
   },
   "dependencies": {
@@ -105,12 +103,12 @@
     "react-virtualized": "9.22.6",
     "react-window": "1.8.11",
     "recharts": "3.0.2",
+    "swagger-ui-react": "^5.9.0",
     "tailwind-merge": "^2.0.0",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "11.1.0",
     "zod": "3.25.67",
-    "zustand": "5.0.6",
-    "swagger-ui-react": "^5.9.0"
+    "zustand": "5.0.6"
   },
   "devDependencies": {
     "@babel/core": "^7.23.0",
@@ -122,6 +120,7 @@
     "@babel/preset-typescript": "^7.23.0",
     "@emotion/babel-plugin": "11.13.5",
     "@playwright/test": "1.53.2",
+    "@testing-library/dom": "10.4.0",
     "@testing-library/jest-dom": "6.6.3",
     "@testing-library/react": "16.3.0",
     "@testing-library/user-event": "14.6.1",
@@ -130,6 +129,7 @@
     "@types/node": "20.19.4",
     "@types/react": "19.1.8",
     "@types/react-dom": "19.1.6",
+    "@types/swagger-ui-react": "^5.0.2",
     "@types/uuid": "10.0.0",
     "@vitejs/plugin-react": "4.6.0",
     "@vitest/coverage-v8": "3.2.4",
@@ -153,8 +153,7 @@
     "vite": "7.0.2",
     "vite-tsconfig-paths": "^4.2.0",
     "vitest": "3.2.4",
-    "webpack": "5.99.9",
-    "@types/swagger-ui-react": "^5.0.2"
+    "webpack": "5.99.9"
   },
   "engines": {
     "node": ">=16.0.0"

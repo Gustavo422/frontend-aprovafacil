@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import type React from 'react';
 import { useState, useCallback } from 'react';
@@ -10,63 +10,22 @@ import { Menu } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-// Add underscore prefix for intentional unused var
-const _sidebarNavItems = [
-  {
-    title: 'Dashboard',
-    href: '/dashboard',
-    icon: 'LayoutDashboard',
-  },
-  {
-    title: 'Simulados',
-    href: '/dashboard/simulados',
-    icon: 'FileText',
-  },
-  {
-    title: 'Questões Semanais',
-    href: '/dashboard/questoes-semanais',
-    icon: 'ListChecks',
-  },
-  {
-    title: 'Plano de Estudos',
-    href: '/dashboard/plano-estudos',
-    icon: 'Calendar',
-  },
-  {
-    title: 'Mapa de Assuntos',
-    href: '/dashboard/mapa-assuntos',
-    icon: 'Map',
-  },
-  {
-    title: 'Flashcards',
-    href: '/dashboard/flashcards',
-    icon: 'Layers',
-  },
-  {
-    title: 'Apostilas',
-    href: '/dashboard/apostilas',
-    icon: 'BookOpen',
-  },
-  {
-    title: 'Configurações',
-    href: '/dashboard/configuracoes',
-    icon: 'Settings',
-  },
+const sidebarNavItems = [
+  { title: 'Guru Da Aprovação', href: '/guru-da-aprovacao', icon: 'Compass' },
+  { title: 'Simulados', href: '/simulados', icon: 'FileCheck' },
+  { title: 'Questões Semanais', href: '/questoes-semanais', icon: 'RotateCcwSquare' },
+  { title: 'Plano de Estudos', href: '/plano-estudos', icon: 'Bot' },
+  { title: 'Mapa de Matérias', href: '/mapa-materias', icon: 'Map' },
+  { title: 'Cartões de Memorização', href: '/cartoes-memorizacao', icon: 'Layers' },
+  { title: 'Apostila Customizada', href: '/apostila-customizada', icon: 'BookMarked' },
+  { title: 'Cronograma', href: '/cronograma', icon: 'CalendarCheck' },
 ];
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function MainLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
   const handleSidebarToggle = useCallback(() => {
     setSidebarOpen(prev => !prev);
   }, []);
-
-  // Removed unused memoizedSidebarItems reference
-  // Fixed sidebar items usage
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -80,7 +39,7 @@ export default function DashboardLayout({
           <SheetTitle className="sr-only">Menu de Navegação</SheetTitle>
           <div className="flex flex-col h-full">
             <nav className="flex-1 px-4 py-12">
-              <SidebarNav items={_sidebarNavItems} />
+              <SidebarNav items={sidebarNavItems} />
             </nav>
           </div>
         </SheetContent>
@@ -101,10 +60,9 @@ export default function DashboardLayout({
                 <span className="sr-only">Abrir menu</span>
               </Button>
             </div>
-
             {/* Logo Centralizada */}
             <div className="absolute left-1/2 transform -translate-x-1/2">
-              <Link href="/dashboard" className="flex items-center space-x-3">
+              <Link href="/" className="flex items-center space-x-3">
                 <Image
                   src="/aprova_facil_logo.png"
                   alt="AprovaFácil Logo"
@@ -118,16 +76,14 @@ export default function DashboardLayout({
                 </span>
               </Link>
             </div>
-
             <div className="flex items-center space-x-4">
               <UserNav />
             </div>
           </div>
         </header>
-
         {/* Page Content */}
         <main className="flex-1 container-padding py-8">{children}</main>
       </div>
     </div>
   );
-}
+} 

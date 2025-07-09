@@ -56,7 +56,7 @@ export default function LoginPage() {
   // Redirecionar se já estiver logado
   useEffect(() => {
     if (!loading && user) {
-      const redirectTo = redirectedFrom || '/dashboard';
+      const redirectTo = redirectedFrom || '/';
       // Usar replace para evitar problemas de navegação
       router.replace(redirectTo);
     }
@@ -134,8 +134,8 @@ export default function LoginPage() {
           description: 'Redirecionando...',
         });
 
-        // Redirecionar para a página original ou dashboard
-        const redirectTo = redirectedFrom || '/dashboard';
+        // Redirecionar para a página original ou página inicial
+        const redirectTo = redirectedFrom || '/';
         router.replace(redirectTo);
       } else {
         toast({

@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { logger } from '@/lib/logger';
-import { ExportDashboardButton } from '@/components/dashboard/export-dashboard-button';
 
 // Icons
 import { 
@@ -141,24 +140,24 @@ export default function DashboardPage() {
       try {
         setLoading(true);
         
-        // Fetch performance stats
+        // Buscar estatísticas de desempenho
         const statsResponse = await fetch('/api/dashboard/enhanced-stats');
         if (statsResponse.ok) {
           const statsData = await statsResponse.json();
           setPerformanceStats(statsData);
         }
         
-        // Fetch recent activities
+        // Buscar atividades recentes
         const activitiesResponse = await fetch('/api/dashboard/activities');
         if (activitiesResponse.ok) {
           const activitiesData = await activitiesResponse.json();
           setRecentActivities(activitiesData);
         }
       } catch (error) {
-        logger.error('Error fetching dashboard data:', {
+        logger.error('Erro ao buscar dados do dashboard:', {
           error: error instanceof Error ? error.message : String(error),
         });
-        setError('Error loading dashboard data. Please try again.');
+        setError('Erro ao carregar dados do dashboard. Tente novamente.');
       } finally {
         setLoading(false);
       }
@@ -167,19 +166,19 @@ export default function DashboardPage() {
     fetchData();
   }, []);
 
-  // Format study time
+  // Formatar tempo de estudo
   const formatStudyTime = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return hours > 0 ? `${hours}h ${mins}min` : `${mins}min`;
   };
 
-  // Get approval status
+  // Obter status de aprovação
   const getApprovalStatus = (probability: number) => {
-    if (probability >= 80) return { text: 'Excellent', bg: 'bg-green-100', color: 'text-green-800' };
-    if (probability >= 60) return { text: 'Good', bg: 'bg-blue-100', color: 'text-blue-800' };
-    if (probability >= 40) return { text: 'Average', bg: 'bg-yellow-100', color: 'text-yellow-800' };
-    return { text: 'Needs Improvement', bg: 'bg-red-100', color: 'text-red-800' };
+    if (probability >= 80) return { text: 'Excelente', bg: 'bg-green-100', color: 'text-green-800' };
+    if (probability >= 60) return { text: 'Bom', bg: 'bg-blue-100', color: 'text-blue-800' };
+    if (probability >= 40) return { text: 'Médio', bg: 'bg-yellow-100', color: 'text-yellow-800' };
+    return { text: 'Precisa Melhorar', bg: 'bg-red-100', color: 'text-red-800' };
   };
 
   // Adicionar funções utilitárias fictícias para evitar erro de função não definida
@@ -192,7 +191,40 @@ export default function DashboardPage() {
 
   // Adicionar função fictícia para evitar erro de função não definida
   function formatRelativeTime(date: string) {
-    return date;
+    try {
+      const now = new Date();
+      const activityDate = new Date(date);
+      const diffInMs = now.getTime() - activityDate.getTime();
+      const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+      const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+      const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+      // Formatar data completa para português
+      const formatDate = (date: Date) => {
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        
+        return `${day}/${month}/${year} às ${hours}:${minutes}`;
+      };
+
+      if (diffInMinutes < 1) {
+        return 'Agora mesmo';
+      } else if (diffInMinutes < 60) {
+        return `${diffInMinutes} min atrás`;
+      } else if (diffInHours < 24) {
+        return `${diffInHours}h atrás`;
+      } else if (diffInDays < 7) {
+        return `${diffInDays} dias atrás`;
+      } else {
+        return formatDate(activityDate);
+      }
+    } catch (error) {
+      // Fallback para caso a data seja inválida
+      return 'Data não disponível';
+    }
   }
 
   if (loading) {
@@ -200,34 +232,25 @@ export default function DashboardPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center space-y-4">
           <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
-          <p className="text-muted-foreground">Loading your dashboard...</p>
+          <p className="text-muted-foreground">Carregando seu dashboard...</p>
         </div>
       </div>
     );
   }
 
-  // Get dashboard data for export
-  const getDashboardData = () => {
-    return {
-      performanceStats,
-      recentActivities,
-      exportedAt: new Date().toISOString(),
-      version: '1.0',
-      source: 'AprovaFácil Dashboard'
-    };
-  };
+  // Removido ExportDashboardButton e getDashboardData não utilizados
 
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
         <AlertCircle className="h-12 w-12 text-red-500" />
-        <h2 className="text-xl font-semibold">Error loading dashboard</h2>
+        <h2 className="text-xl font-semibold">Erro ao carregar dashboard</h2>
         <p className="text-muted-foreground">{error}</p>
         <Button 
           onClick={() => window.location.reload()}
           className="px-4 py-2"
         >
-          Try again
+          Tentar novamente
         </Button>
       </div>
     );
@@ -237,21 +260,21 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Cabeçalho */}
       <div className="flex flex-col space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard Overview</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Visão Geral</h1>
         <p className="text-muted-foreground">
-          Track your progress and performance
+          Acompanhe seu progresso e desempenho
         </p>
       </div>
 
-      {/* Stats Grid */}
+      {/* Grid de Estatísticas */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatusCard
-          title="Total Tests"
+          title="Simulados Realizados"
           value={performanceStats.totalSimulados}
           icon={<FileText className="h-4 w-4 text-muted-foreground" />}
-          description={`${performanceStats.weeklyProgress.simulados} this week`}
+          description={`${performanceStats.weeklyProgress.simulados} esta semana`}
           trend={{
             value: performanceStats.weeklyProgress.simulados > 0 ? `+${performanceStats.weeklyProgress.simulados}` : '0',
             type: performanceStats.weeklyProgress.simulados > 0 ? 'up' : 'neutral'
@@ -259,10 +282,10 @@ export default function DashboardPage() {
         />
         
         <StatusCard
-          title="Questions Answered"
+          title="Questões Respondidas"
           value={performanceStats.totalQuestoes}
           icon={<ListChecks className="h-4 w-4 text-muted-foreground" />}
-          description={`${performanceStats.weeklyProgress.questoes} this week`}
+          description={`${performanceStats.weeklyProgress.questoes} esta semana`}
           trend={{
             value: performanceStats.weeklyProgress.questoes > 0 ? `+${performanceStats.weeklyProgress.questoes}` : '0',
             type: performanceStats.weeklyProgress.questoes > 0 ? 'up' : 'neutral'
@@ -270,10 +293,10 @@ export default function DashboardPage() {
         />
         
         <StatusCard
-          title="Study Time"
+          title="Tempo de Estudo"
           value={formatStudyTime(performanceStats.totalStudyTime)}
           icon={<Clock className="h-4 w-4 text-muted-foreground" />}
-          description={`${formatStudyTime(performanceStats.weeklyProgress.studyTime)} this week`}
+          description={`${formatStudyTime(performanceStats.weeklyProgress.studyTime)} esta semana`}
           trend={{
             value: performanceStats.weeklyProgress.studyTime > 0 ? `+${performanceStats.weeklyProgress.studyTime}%` : '0%',
             type: performanceStats.weeklyProgress.studyTime > 0 ? 'up' : 'neutral'
@@ -281,26 +304,31 @@ export default function DashboardPage() {
         />
         
         <StatusCard
-          title="Approval Probability"
+          title="Probabilidade de Aprovação"
           value={`${Math.round(performanceStats.approvalProbability)}%`}
           icon={<Award className="h-4 w-4 text-muted-foreground" />}
-          description={approvalStatus.text}
+          description={
+            approvalStatus.text === 'Excelente' ? 'Excelente' :
+            approvalStatus.text === 'Bom' ? 'Bom' :
+            approvalStatus.text === 'Médio' ? 'Médio' :
+            'Precisa Melhorar'
+          }
           className={cn(
             'border-2',
-            approvalStatus.text === 'Excellent' ? 'border-green-500/20' :
-            approvalStatus.text === 'Good' ? 'border-blue-500/20' :
-            approvalStatus.text === 'Average' ? 'border-yellow-500/20' :
+            approvalStatus.text === 'Excelente' ? 'border-green-500/20' :
+            approvalStatus.text === 'Bom' ? 'border-blue-500/20' :
+            approvalStatus.text === 'Médio' ? 'border-yellow-500/20' :
             'border-red-500/20'
           )}
         />
       </div>
 
-      {/* Charts and Activities */}
+      {/* Gráficos e Atividades */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        {/* Performance Chart */}
+        {/* Gráfico de Desempenho */}
         <Card className="col-span-4">
           <CardHeader>
-            <CardTitle>Performance Over Time</CardTitle>
+            <CardTitle>Evolução do Desempenho</CardTitle>
           </CardHeader>
           <CardContent className="pl-2">
             <div className="h-[300px]">
@@ -334,7 +362,7 @@ export default function DashboardPage() {
                       borderRadius: 'var(--radius)',
                       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
                     }}
-                    formatter={(value: number) => [`${value}%`, 'Score']}
+                    formatter={(value: number) => [`${value}%`, 'Pontuação']}
                   />
                   <Line 
                     type="monotone" 
@@ -350,10 +378,10 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Recent Activities */}
+        {/* Atividades Recentes */}
         <Card className="col-span-3">
           <CardHeader>
-            <CardTitle>Recent Activities</CardTitle>
+            <CardTitle>Atividades Recentes</CardTitle>
           </CardHeader>
           <CardContent>
             <RecentActivity 
@@ -367,14 +395,14 @@ export default function DashboardPage() {
               }))} 
             />
             <Button variant="ghost" className="w-full mt-4">
-              View all activities
+              Ver todas as atividades
               <ArrowUpRight className="ml-2 h-4 w-4" />
             </Button>
           </CardContent>
         </Card>
       </div>
 
-      {/* Stats Cards Melhorados */}
+      {/* Cards de Estatísticas Melhorados */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card className="card-hover border-l-4 border-l-blue-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -481,9 +509,9 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Main Content Grid */}
+      {/* Grid de Conteúdo Principal */}
       <div className="grid gap-6 lg:grid-cols-7">
-        {/* Performance Chart */}
+        {/* Gráfico de Desempenho */}
         <Card className="lg:col-span-4">
           <CardHeader>
             <CardTitle>Evolução do Desempenho</CardTitle>
@@ -499,7 +527,7 @@ export default function DashboardPage() {
                   <XAxis dataKey="date" />
                   <YAxis />
                   <Tooltip />
-                  <Legend />
+                  <Legend formatter={(value) => value === 'score' ? 'Pontuação' : value === 'accuracy' ? 'Taxa de Acerto' : value} />
                   <Line 
                     type="monotone" 
                     dataKey="score" 
@@ -527,7 +555,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Discipline Performance */}
+        {/* Desempenho por Disciplina */}
         <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle>Desempenho por Disciplina</CardTitle>
@@ -576,9 +604,9 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Secondary Grid */}
+      {/* Grid Secundário */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Goal Progress */}
+        {/* Progresso da Meta */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
@@ -587,12 +615,6 @@ export default function DashboardPage() {
                 Acompanhe seu progresso e desempenho nos simulados
               </CardDescription>
             </div>
-            <ExportDashboardButton 
-              data={JSON.parse(JSON.stringify(performanceStats))}
-              filename={`dashboard-export-${new Date().toISOString().split('T')[0]}.json`}
-              size="sm"
-              variant="outline"
-            />
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
@@ -624,7 +646,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Recent Activity */}
+        {/* Atividade Recente */}
         <Card>
           <CardHeader>
             <CardTitle>Atividades Recentes</CardTitle>
@@ -675,76 +697,8 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Link href="/dashboard/simulados">
-          <Card className="card-hover cursor-pointer group transition-all duration-200 hover:shadow-lg hover:scale-105">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Simulados</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground group-hover:text-blue-500 transition-colors" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground">
-                Pratique com simulados completos
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/dashboard/questoes-semanais">
-          <Card className="card-hover cursor-pointer group transition-all duration-200 hover:shadow-lg hover:scale-105">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Questões Semanais
-              </CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground group-hover:text-green-500 transition-colors" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground">
-                Questões selecionadas semanalmente
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/dashboard/flashcards">
-          <Card className="card-hover cursor-pointer group transition-all duration-200 hover:shadow-lg hover:scale-105">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Flashcards</CardTitle>
-              <BookOpen className="h-4 w-4 text-muted-foreground group-hover:text-purple-500 transition-colors" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground">
-                Revisão com flashcards dinâmicos
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/dashboard/apostilas">
-          <Card className="card-hover cursor-pointer group transition-all duration-200 hover:shadow-lg hover:scale-105">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Apostilas</CardTitle>
-              <BookOpen className="h-4 w-4 text-muted-foreground group-hover:text-orange-500 transition-colors" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground">
-                Material de estudo organizado
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-      </div>
-
-      {/* Botão de Exportação */}
-      <div className="flex justify-end pt-6 border-t">
-        <ExportDashboardButton
-          data={getDashboardData()}
-          filename="dashboard-performance-report"
-          variant="default"
-          className="bg-indigo-600 hover:bg-indigo-700 text-white"
-        />
-      </div>
+      {/* Ações Rápidas */}
+      {/* REMOVIDO: Grid de links rápidos para Simulados, Questões Semanais, Flashcards e Apostilas */}
     </div>
   );
 }

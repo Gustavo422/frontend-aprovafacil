@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest';
 // Teste de depuração
 console.log('Teste de depuração iniciado');
 

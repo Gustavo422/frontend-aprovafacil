@@ -5,14 +5,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
-  LayoutDashboard,
-  FileText,
-  ListChecks,
-  Calendar,
+  FileCheck,
+  RotateCcwSquare,
+  Bot,
   Map,
   Layers,
-  BookOpen,
-  Settings,
+  Compass,
+  BookMarked,
+  CalendarCheck,
 } from 'lucide-react';
 import { useMemo } from 'react';
 
@@ -28,14 +28,14 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
   const pathname = usePathname();
 
   const iconMap = useMemo(() => ({
-    LayoutDashboard,
-    FileText,
-    ListChecks,
-    Calendar,
+    FileCheck,
+    RotateCcwSquare,
+    Bot,
     Map,
     Layers,
-    BookOpen,
-    Settings,
+    Compass,
+    BookMarked,
+    CalendarCheck,
   }), []);
 
   return (

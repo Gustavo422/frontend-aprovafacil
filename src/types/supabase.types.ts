@@ -1195,45 +1195,39 @@ export type Database = {
       users: {
         Row: {
           id: string
+          name: string
           email: string
-          nome: string | null
+          last_login: string | null
           created_at: string
           updated_at: string
           total_questions_answered: number
           total_correct_answers: number
           study_time_minutes: number
           average_score: number
-          avatar_url: string | null
-          is_active: boolean
-          last_login: string | null
         }
         Insert: {
           id?: string
+          name: string
           email: string
-          nome?: string | null
+          last_login?: string | null
           created_at?: string
           updated_at?: string
           total_questions_answered?: number
           total_correct_answers?: number
           study_time_minutes?: number
           average_score?: number
-          avatar_url?: string | null
-          is_active?: boolean
-          last_login?: string | null
         }
         Update: {
           id?: string
+          name?: string
           email?: string
-          nome?: string | null
+          last_login?: string | null
           created_at?: string
           updated_at?: string
           total_questions_answered?: number
           total_correct_answers?: number
           study_time_minutes?: number
           average_score?: number
-          avatar_url?: string | null
-          is_active?: boolean
-          last_login?: string | null
         }
         Relationships: []
       }

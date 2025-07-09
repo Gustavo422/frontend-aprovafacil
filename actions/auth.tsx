@@ -69,7 +69,7 @@ export async function signIn(formData: FormData) {
   const result = await signInLogic(email, password, { supabase, serverClient, auditLogger });
 
   if (result.success) {
-    redirect('/dashboard');
+    redirect('/');
   }
   return result;
 }

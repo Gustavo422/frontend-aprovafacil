@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata = {
   title: 'AprovaFacil',
   description: 'Plataforma de estudos para concursos públicos',
-  generator: 'v0.dev',
+  generator: 'aprovafacil',
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: 'white' },
