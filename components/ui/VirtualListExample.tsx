@@ -1,10 +1,10 @@
-import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
+import { FixedSizeList as List } from 'react-window';
 import React from 'react';
 
 const items = Array.from({ length: 1000 }, (_, i) => `Item #${i + 1}`);
 
 export function VirtualListExample() {
-  const Row = ({ index, style }: ListChildComponentProps) => (
+  const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => (
     <div style={style} key={index}>
       {items[index]}
     </div>

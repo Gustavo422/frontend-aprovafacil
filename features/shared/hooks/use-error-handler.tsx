@@ -2,7 +2,19 @@
 
 import { useState, useCallback } from 'react';
 import { useToast } from './use-toast';
-import { logger } from '../../../core/utils/logger';
+
+// Logger simples para substituir o import que não existe
+const logger = {
+  error: (context: string, data: unknown) => {
+    console.error(`[${context}]`, data);
+  },
+  info: (context: string, data: unknown) => {
+    console.info(`[${context}]`, data);
+  },
+  warn: (context: string, data: unknown) => {
+    console.warn(`[${context}]`, data);
+  }
+};
 
 interface ErrorHandlerOptions {
   showToast?: boolean;

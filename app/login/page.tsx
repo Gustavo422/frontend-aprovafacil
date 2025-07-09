@@ -57,7 +57,8 @@ export default function LoginPage() {
   useEffect(() => {
     if (!loading && user) {
       const redirectTo = redirectedFrom || '/dashboard';
-      router.push(redirectTo);
+      // Usar replace para evitar problemas de navegação
+      router.replace(redirectTo);
     }
   }, [user, loading, router, redirectedFrom]);
 
@@ -135,7 +136,7 @@ export default function LoginPage() {
 
         // Redirecionar para a página original ou dashboard
         const redirectTo = redirectedFrom || '/dashboard';
-        router.push(redirectTo);
+        router.replace(redirectTo);
       } else {
         toast({
           variant: 'destructive',

@@ -1,5 +1,5 @@
 import { logger } from './logger';
-import { AppError } from '../types';
+import { AppError } from '../src/types/app-error';
 
 export class ErrorHandler {
   private static instance: ErrorHandler;

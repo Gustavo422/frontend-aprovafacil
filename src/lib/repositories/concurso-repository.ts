@@ -1,11 +1,5 @@
 import { BaseRepository } from './base-repository';
-import type { Database } from '@/types/supabase';
-
-// Tipos específicos para o repositório de concursos
-type ConcursoTable = Database['public']['Tables']['concursos'];
-type ConcursoRow = ConcursoTable['Row'];
-type ConcursoInsert = ConcursoTable['Insert'];
-type ConcursoUpdate = ConcursoTable['Update'];
+import type { Concurso, TablesInsert, TablesUpdate } from '@/types/supabase.types';
 
 // Tipos para filtros de concursos
 type ConcursoFilters = {
@@ -14,6 +8,7 @@ type ConcursoFilters = {
   ativo?: boolean;
   anoMinimo?: number;
   anoMaximo?: number;
+  search?: string;
 };
 
 export class ConcursoRepository extends BaseRepository<'concursos'> {
@@ -26,7 +21,7 @@ export class ConcursoRepository extends BaseRepository<'concursos'> {
    * @param categoriaId ID da categoria
    * @returns Lista de concursos da categoria especificada
    */
-  async findByCategoria(categoriaId: string): Promise<ConcursoRow[]> {
+  async findByCategoria(categoriaId: string): Promise<Concurso[]> {
     const { data, error } = await this.client
       .from('concursos')
       .select('*')
@@ -41,7 +36,7 @@ export class ConcursoRepository extends BaseRepository<'concursos'> {
    * Busca concursos ativos
    * @returns Lista de concursos ativos ordenados por data de prova
    */
-  async findAtivos(): Promise<ConcursoRow[]> {
+  async findAtivos(): Promise<Concurso[]> {
     const { data, error } = await this.client
       .from('concursos')
       .select('*')
@@ -57,7 +52,7 @@ export class ConcursoRepository extends BaseRepository<'concursos'> {
    * @param banca Nome ou parte do nome da banca
    * @returns Lista de concursos da banca especificada
    */
-  async findByBanca(banca: string): Promise<ConcursoRow[]> {
+  async findByBanca(banca: string): Promise<Concurso[]> {
     const { data, error } = await this.client
       .from('concursos')
       .select('*')
@@ -73,7 +68,7 @@ export class ConcursoRepository extends BaseRepository<'concursos'> {
    * @param filters Filtros para a busca
    * @returns Lista de concursos que atendem aos filtros
    */
-  async buscarComFiltros(filters: ConcursoFilters): Promise<ConcursoRow[]> {
+  async buscarComFiltros(filters: ConcursoFilters): Promise<Concurso[]> {
     let query = this.client
       .from('concursos')
       .select('*');
@@ -98,6 +93,10 @@ export class ConcursoRepository extends BaseRepository<'concursos'> {
       query = query.lte('ano', filters.anoMaximo);
     }
 
+    if (filters.search) {
+      query = query.or(`nome.ilike.%${filters.search}%,descricao.ilike.%${filters.search}%`);
+    }
+
     const { data, error } = await query.order('ano', { ascending: false });
     
     if (error) throw error;
@@ -112,8 +111,8 @@ export class ConcursoRepository extends BaseRepository<'concursos'> {
    */
   async atualizarConcurso(
     id: string, 
-    dados: Partial<ConcursoUpdate>
-  ): Promise<ConcursoRow> {
+    dados: Partial<TablesUpdate<'concursos'>>
+  ): Promise<Concurso> {
     return this.update(id, {
       ...dados,
       updated_at: new Date().toISOString()
@@ -125,7 +124,7 @@ export class ConcursoRepository extends BaseRepository<'concursos'> {
    * @param dados Dados do concurso a ser criado
    * @returns O concurso criado
    */
-  async criarConcurso(dados: ConcursoInsert): Promise<ConcursoRow> {
+  async criarConcurso(dados: TablesInsert<'concursos'>): Promise<Concurso> {
     return this.create({
       ...dados,
       is_active: dados.is_active ?? true,
@@ -139,7 +138,7 @@ export class ConcursoRepository extends BaseRepository<'concursos'> {
    * @param id ID do concurso a ser desativado
    * @returns O concurso desativado
    */
-  async desativarConcurso(id: string): Promise<ConcursoRow> {
+  async desativarConcurso(id: string): Promise<Concurso> {
     return this.update(id, {
       is_active: false,
       updated_at: new Date().toISOString()
@@ -151,10 +150,11 @@ export class ConcursoRepository extends BaseRepository<'concursos'> {
    * @param id ID do concurso a ser ativado
    * @returns O concurso ativado
    */
-  async ativarConcurso(id: string): Promise<ConcursoRow> {
+  async ativarConcurso(id: string): Promise<Concurso> {
     return this.update(id, {
       is_active: true,
       updated_at: new Date().toISOString()
     });
   }
 }
+

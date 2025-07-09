@@ -88,9 +88,9 @@ export function ConcursoSelector() {
   const filteredConcursos =
     concursos?.filter(concurso => {
       const matchesSearch =
-        concurso.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (concurso.concurso_categorias?.name &&
-          concurso.concurso_categorias.name
+        concurso.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (concurso.concurso_categorias?.nome &&
+          concurso.concurso_categorias.nome
             .toLowerCase()
             .includes(searchTerm.toLowerCase())) ||
         (concurso.banca &&
@@ -223,7 +223,7 @@ export function ConcursoSelector() {
                 <SelectItem value="todos">Todas as categorias</SelectItem>
                 {categorias.map(categoria => (
                   <SelectItem key={categoria.id} value={categoria.id}>
-                    {categoria.name}
+                    {categoria.nome}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -291,10 +291,10 @@ export function ConcursoSelector() {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="space-y-2">
-                      <CardTitle className="text-lg">{concurso.name}</CardTitle>
+                      <CardTitle className="text-lg">{concurso.nome}</CardTitle>
                       <div className="flex flex-wrap gap-2">
                         <Badge variant="secondary">
-                          {concurso.concurso_categorias?.name || 'Sem categoria'}
+                          {concurso.concurso_categorias?.nome || 'Sem categoria'}
                         </Badge>
                         {concurso.banca && (
                           <Badge variant="outline">{concurso.banca}</Badge>
@@ -317,7 +317,7 @@ export function ConcursoSelector() {
                     <div className="flex items-center space-x-1">
                       <Building2 className="h-4 w-4" />
                       <span>
-                        {concurso.concurso_categorias?.name || 'Sem categoria'}
+                        {concurso.concurso_categorias?.nome || 'Sem categoria'}
                       </span>
                     </div>
                     {concurso.data_prova && (

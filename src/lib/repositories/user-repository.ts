@@ -5,7 +5,7 @@ import type { Database } from '@/types/supabase';
 // Tipos específicos para o repositório de usuários
 type UserTable = Database['public']['Tables']['users'];
 type UserRow = UserTable['Row'];
-type UserInsert = UserTable['Insert'];
+
 type UserUpdate = UserTable['Update'];
 
 // Tipo para as estatísticas do usuário
@@ -88,14 +88,14 @@ export class UserRepository extends BaseRepository<'users'> {
    */
   async deactivateAccount(userId: string): Promise<boolean> {
     try {
+      // @ts-expect-error - Supabase RPC call with dynamic parameters
       const { error } = await this.client.rpc('desativar_conta', { 
         user_id: userId 
       });
       
       if (error) throw error;
       return true;
-    } catch (error) {
-      console.error('Erro ao desativar conta:', error);
+    } catch {
       throw new Error('Falha ao desativar a conta do usuário');
     }
   }

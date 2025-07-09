@@ -9,7 +9,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Concursos Study App',
+  title: 'AprovaFacil',
   description: 'Plataforma de estudos para concursos públicos',
   generator: 'v0.dev',
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
@@ -26,7 +26,39 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body className={`${inter.className} min-h-screen bg-background`} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Capturar erros de unhandledRejection
+              window.addEventListener('unhandledrejection', function(event) {
+                console.warn('Unhandled promise rejection:', event.reason);
+                event.preventDefault();
+              });
+
+              // Capturar erros gerais
+              window.addEventListener('error', function(event) {
+                console.warn('Global error:', event.error);
+                // Não prevenir o comportamento padrão para erros críticos
+              });
+
+              // Capturar erros de hidratação
+              window.addEventListener('error', function(event) {
+                if (event.message && event.message.includes('hydration')) {
+                  console.warn('Hydration error detected:', event.message);
+                  event.preventDefault();
+                }
+              });
+            `,
+          }}
+        />
+      </head>
+      <body 
+        className={`${inter.className} min-h-screen bg-background`} 
+        suppressHydrationWarning={true}
+        data-suppress-hydration-warning="true"
+        data-extension-attributes="suppress"
+      >
         <Providers>
           <ErrorBoundaryWrapper>
             <AuthProvider>

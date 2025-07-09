@@ -138,7 +138,7 @@ export class CategoriaRepository extends BaseRepository<'concurso_categorias'> {
       query = query.ilike('nome', `%${filtros.search}%`);
     }
 
-    if (filtros.parentId !== undefined) {
+    if (filtros.parentId !== undefined && filtros.parentId !== null) {
       query = query.eq('parent_id', filtros.parentId);
     }
 
@@ -157,13 +157,17 @@ export class CategoriaRepository extends BaseRepository<'concurso_categorias'> {
    * @returns Lista de categorias filhas
    */
   async findByParentId(parentId: string | null): Promise<CategoriaRow[]> {
-    const { data, error } = await this.client
+    let query = this.client
       .from('concurso_categorias')
       .select('*')
-      .eq('parent_id', parentId)
       .eq('is_active', true)
       .order('nome', { ascending: true });
-
+    if (parentId !== null) {
+      query = query.eq('parent_id', parentId);
+    } else {
+      query = query.is('parent_id', null);
+    }
+    const { data, error } = await query;
     if (error) throw error;
     return data || [];
   }

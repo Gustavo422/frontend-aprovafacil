@@ -253,7 +253,7 @@ export function useAuth() {
     // Check both user_metadata and app_metadata for role
     return user.user_metadata?.role === role || 
            user.app_metadata?.role === role ||
-           (user as any).role === role; // Check the role from the users table
+           (user as AppUser & { role?: string }).role === role; // Check the role from the users table
   };
 
   return {

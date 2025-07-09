@@ -56,7 +56,7 @@ class ApostilasService {
         count: count || 0,
       };
     } catch (error) {
-      console.error('Erro ao buscar apostilas:', error);
+
       throw new Error(
         error instanceof Error ? error.message : 'Erro ao buscar apostilas'
       );
@@ -81,7 +81,7 @@ class ApostilasService {
 
       return data;
     } catch (error) {
-      console.error('Erro ao buscar apostila:', error);
+
       throw new Error(
         error instanceof Error ? error.message : 'Erro ao buscar apostila'
       );
@@ -108,7 +108,7 @@ class ApostilasService {
 
       return data;
     } catch (error) {
-      console.error('Erro ao criar apostila:', error);
+
       throw new Error(
         error instanceof Error ? error.message : 'Erro ao criar apostila'
       );
@@ -138,7 +138,7 @@ class ApostilasService {
 
       return data;
     } catch (error) {
-      console.error('Erro ao atualizar apostila:', error);
+
       throw new Error(
         error instanceof Error ? error.message : 'Erro ao atualizar apostila'
       );
@@ -160,7 +160,7 @@ class ApostilasService {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Erro ao remover apostila:', error);
+
       throw new Error(
         error instanceof Error ? error.message : 'Erro ao remover apostila'
       );
@@ -182,7 +182,7 @@ class ApostilasService {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Erro ao buscar apostilas recentes:', error);
+
       throw new Error(
         error instanceof Error ? error.message : 'Erro ao buscar apostilas recentes'
       );
@@ -204,7 +204,7 @@ class ApostilasService {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Erro ao buscar apostilas por concurso:', error);
+
       throw new Error(
         error instanceof Error ? error.message : 'Erro ao buscar apostilas por concurso'
       );
@@ -226,7 +226,7 @@ class ApostilasService {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Erro ao buscar apostilas por categoria:', error);
+
       throw new Error(
         error instanceof Error ? error.message : 'Erro ao buscar apostilas por categoria'
       );
@@ -248,7 +248,7 @@ class ApostilasService {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Erro ao buscar apostilas do usuário:', error);
+
       throw new Error(
         error instanceof Error ? error.message : 'Erro ao buscar apostilas do usuário'
       );

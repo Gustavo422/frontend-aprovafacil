@@ -674,24 +674,24 @@ export interface Database {
         Row: {
           id: string;
           cache_key: string;
-          ttl_minutes: number;
-          description: string;
+          ttl_minutos: number;
+          descricao: string | null;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id?: string;
           cache_key: string;
-          ttl_minutes: number;
-          description: string;
+          ttl_minutos?: number;
+          descricao?: string | null;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
           cache_key?: string;
-          ttl_minutes?: number;
-          description?: string;
+          ttl_minutos?: number;
+          descricao?: string | null;
           created_at?: string;
           updated_at?: string;
         };

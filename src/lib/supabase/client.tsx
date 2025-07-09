@@ -1,204 +1,138 @@
-import { createClient } from '@supabase/supabase-js';
-import type {
-  SupabaseClient,
-  Session,
-  User,
-  AuthChangeEvent,
-  AuthSession,
-} from '@supabase/supabase-js';
-import type { Database } from '@/types/supabase.types';
+import { createClient } from '@supabase/supabase-js'
+import type { Database } from '@/types/supabase.types'
 
-declare global {
-  interface Window {
-    ENV: {
-      NEXT_PUBLIC_SUPABASE_URL: string;
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: string;
-    };
-  }
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+if (!supabaseUrl) {
+  throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_URL')
 }
 
-// Helper types for better type safety
-type Schema = Database['public'];
-type Tables = Schema['Tables'];
-type TableName = keyof Tables;
-
-type TableRow<T extends TableName> = Tables[T] extends { Row: infer R } ? R : never;
-type TableInsert<T extends TableName> = Tables[T] extends { Insert: infer I } ? I : never;
-type TableUpdate<T extends TableName> = Tables[T] extends { Update: infer U } ? U : never;
-
-// Type for Supabase response with data
-type SupabaseResponse<T> = {
-  data: T | null;
-  error: Error | null;
-  status: number;
-  statusText: string;
-};
-
-// Use environment variables from window.ENV for client-side usage
-const getSupabaseUrl = (): string => {
-  if (typeof window !== 'undefined' && window.ENV?.NEXT_PUBLIC_SUPABASE_URL) {
-    return window.ENV.NEXT_PUBLIC_SUPABASE_URL;
-  }
-  return process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-};
-
-const getSupabaseAnonKey = (): string => {
-  if (typeof window !== 'undefined' && window.ENV?.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    return window.ENV.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  }
-  return process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-};
-
-// Create a new Supabase client for the given context
-const createSupabaseClient = (): SupabaseClient<Database> => {
-  const supabaseUrl = getSupabaseUrl();
-  const supabaseAnonKey = getSupabaseAnonKey();
-  
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase URL or Anon Key');
-  }
-  
-  return createClient<Database>(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-      flowType: 'pkce',
-    },
-  });
-};
-
-// Create a singleton instance for client-side usage
-let browserClient: SupabaseClient<Database> | null = null;
-
-// Function to get or create the browser client
-export const getBrowserClient = (): SupabaseClient<Database> => {
-  if (typeof window === 'undefined') {
-    throw new Error('This function can only be called on the client side');
-  }
-  
-  if (!browserClient) {
-    browserClient = createSupabaseClient();
-  }
-  
-  return browserClient;
-};
-
-// For backward compatibility, export a client that works in both environments
-export const supabase = (typeof window !== 'undefined' 
-  ? getBrowserClient() 
-  : createSupabaseClient()
-);
-
-// Re-export types from Supabase
-export type { Session, User, AuthChangeEvent, AuthSession, Database };
-
-// Export table types for external use
-export type { TableName, TableRow, TableInsert, TableUpdate };
-
-// Helper function to get typed table
-export function getTable<T extends TableName>(tableName: T) {
-  return supabase.from(tableName);
+if (!supabaseAnonKey) {
+  throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_ANON_KEY')
 }
 
-// Auth helpers
-export const getCurrentUser = async (): Promise<User | null> => {
-  const { data: { user } } = await supabase.auth.getUser();
-  return user;
-};
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10
+    }
+  }
+})
 
-export const getSession = async (): Promise<AuthSession | null> => {
-  const { data: { session } } = await supabase.auth.getSession();
-  return session;
-};
+// Helper functions for common operations
+export const getCurrentUser = async () => {
+  const { data: { user }, error } = await supabase.auth.getUser()
+  if (error) throw error
+  return user
+}
 
-export const onAuthStateChange = (
-  callback: (event: AuthChangeEvent, session: Session | null) => void
+export const getCurrentSession = async () => {
+  const { data: { session }, error } = await supabase.auth.getSession()
+  if (error) throw error
+  return session
+}
+
+export const signOut = async () => {
+  const { error } = await supabase.auth.signOut()
+  if (error) throw error
+}
+
+export const signInWithEmail = async (email: string, password: string) => {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  })
+  if (error) throw error
+  return data
+}
+
+export const signUpWithEmail = async (email: string, password: string, metadata?: Record<string, unknown>) => {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: metadata
+    }
+  })
+  if (error) throw error
+  return data
+}
+
+export const resetPassword = async (email: string) => {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/auth/reset-password`
+  })
+  if (error) throw error
+}
+
+export const updatePassword = async (password: string) => {
+  const { error } = await supabase.auth.updateUser({ password })
+  if (error) throw error
+}
+
+export const updateProfile = async (updates: { nome?: string; avatar_url?: string }) => {
+  const { error } = await supabase.auth.updateUser({
+    data: updates
+  })
+  if (error) throw error
+}
+
+// Storage helpers
+export const uploadFile = async (bucket: string, path: string, file: File) => {
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .upload(path, file, {
+      cacheControl: '3600',
+      upsert: false
+    })
+  if (error) throw error
+  return data
+}
+
+export const getPublicUrl = (bucket: string, path: string) => {
+  const { data } = supabase.storage
+    .from(bucket)
+    .getPublicUrl(path)
+  return data.publicUrl
+}
+
+export const deleteFile = async (bucket: string, path: string) => {
+  const { error } = await supabase.storage
+    .from(bucket)
+    .remove([path])
+  if (error) throw error
+}
+
+// Real-time subscriptions
+export const subscribeToTable = <T extends keyof Database['public']['Tables']>(
+  table: T,
+  callback: (payload: Record<string, unknown>) => void,
+  filter?: string
 ) => {
-  return supabase.auth.onAuthStateChange(callback);
-};
+  const channel = supabase
+    .channel(`public:${table}`)
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: table as string,
+        filter
+      },
+      callback
+    )
+    .subscribe()
 
-// Error handling
-export class SupabaseError extends Error {
-  status: number;
-  details: string;
-  hint?: string;
-  code?: string;
-
-  constructor(error: any) {
-    super(error?.message || 'An unknown error occurred');
-    this.name = 'SupabaseError';
-    this.status = error?.status || 500;
-    this.details = error?.details || 'An error occurred with the database';
-    this.hint = error?.hint;
-    this.code = error?.code;
+  return () => {
+    supabase.removeChannel(channel)
   }
 }
 
-// Helper to handle Supabase errors
-function handleSupabaseError<T>(result: { data: T | null; error: any }): T {
-  if (result.error) {
-    throw new SupabaseError(result.error);
-  }
-  if (!result.data) {
-    throw new SupabaseError({ message: 'No data returned', status: 404 });
-  }
-  return result.data;
-}
+export default supabase
 
-// Typed query builder for common operations
-type QueryBuilder<T extends TableName> = {
-  findById(id: string): Promise<TableRow<T> | null>;
-  insert(payload: TableInsert<T>): Promise<TableRow<T> | null>;
-  update(id: string, payload: Partial<TableUpdate<T>>): Promise<TableRow<T> | null>;
-  delete(id: string): Promise<boolean>;
-};
-
-// Helper function to create a typed query builder
-export function createQuery<T extends TableName>(tableName: T): QueryBuilder<T> {
-  return {
-    async findById(id: string) {
-      const { data, error } = await supabase
-        .from(tableName)
-        .select('*')
-        .eq('id', id)
-        .single();
-      
-      if (error) throw new SupabaseError(error);
-      return data;
-    },
-    
-    async insert(payload: TableInsert<T>) {
-      const { data, error } = await supabase
-        .from(tableName)
-        .insert(payload as any)
-        .select()
-        .single();
-      
-      if (error) throw new SupabaseError(error);
-      return data;
-    },
-    
-    async update(id: string, payload: Partial<TableUpdate<T>>) {
-      const { data, error } = await supabase
-        .from(tableName)
-        .update(payload as any)
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw new SupabaseError(error);
-      return data;
-    },
-    
-    async delete(id: string) {
-      const { error } = await supabase
-        .from(tableName)
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw new SupabaseError(error);
-      return true;
-    },
-  };
-}

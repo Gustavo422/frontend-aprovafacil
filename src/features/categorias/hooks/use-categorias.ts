@@ -1,11 +1,11 @@
 import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { CategoriaRepository } from '@/lib/repositories/categoria-repository';
-import type { 
-  CategoriaRow, 
-  CategoriaInsert, 
-  CategoriaUpdate 
-} from '@/types/database.types';
-import type { PostgrestError } from '@supabase/supabase-js';
+import type { Database } from '@/src/types/supabase.types';
+
+type CategoriaRow = Database['public']['Tables']['concurso_categorias']['Row'];
+type CategoriaInsert = Database['public']['Tables']['concurso_categorias']['Insert'];
+type CategoriaUpdate = Database['public']['Tables']['concurso_categorias']['Update'];
+
 
 const categoriaRepo = new CategoriaRepository();
 
@@ -126,7 +126,6 @@ export const useCriarCategoria = () => {
       if (context?.previousCategorias) {
         queryClient.setQueryData(categoriaKeys.lists(), context.previousCategorias);
       }
-      console.error('Erro ao criar categoria:', error);
     },
     // Sempre revalidar os dados após a mutação
     onSettled: () => {
@@ -150,7 +149,7 @@ export const useAtualizarCategoria = () => {
   >({
     mutationFn: ({ id, data }) => categoriaRepo.atualizarCategoria(id, {
       ...data,
-      updated_at: new Date().toISOString()
+      // updated_at: new Date().toISOString()
     }),
     // Otimista UI update
     onMutate: async ({ id, data }) => {
@@ -180,7 +179,6 @@ export const useAtualizarCategoria = () => {
       if (context?.previousCategoria) {
         queryClient.setQueryData(categoriaKeys.detail(id), context.previousCategoria);
       }
-      console.error('Erro ao atualizar categoria:', error);
     },
     // Sempre revalidar os dados após a mutação
     onSettled: (data) => {
@@ -229,7 +227,6 @@ export const useDesativarCategoria = () => {
       if (context?.previousCategoria) {
         queryClient.setQueryData(categoriaKeys.detail(id), context.previousCategoria);
       }
-      console.error('Erro ao desativar categoria:', error);
     },
     // Sempre revalidar os dados após a mutação
     onSettled: (data) => {
@@ -278,7 +275,6 @@ export const useAtivarCategoria = () => {
       if (context?.previousCategoria) {
         queryClient.setQueryData(categoriaKeys.detail(id), context.previousCategoria);
       }
-      console.error('Erro ao ativar categoria:', error);
     },
     // Sempre revalidar os dados após a mutação
     onSettled: (data) => {
@@ -313,7 +309,6 @@ export const usePodeExcluirCategoria = (
 };
 
 // Hook para buscar categorias filhas
-// @ts-ignore - Ignorar erro de tipo temporariamente
 export const useListarCategoriasFilhas = (
   parentId: string | null,
   options?: Omit<UseQueryOptions<CategoriaRow[], Error>, 'queryKey' | 'queryFn'>

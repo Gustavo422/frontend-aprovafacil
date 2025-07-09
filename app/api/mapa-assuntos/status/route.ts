@@ -47,7 +47,7 @@ export async function PUT(request: Request) {
       .select();
 
     if (error) {
-      logger.error('Erro ao atualizar status:', error);
+      logger.error('Erro ao atualizar status:', error as unknown as Record<string, unknown>);
       return NextResponse.json(
         { error: 'Erro ao atualizar status' },
         { status: 500 }
@@ -59,7 +59,7 @@ export async function PUT(request: Request) {
       data,
     });
   } catch (error) {
-    logger.error('Erro ao processar requisição:', error);
+    logger.error('Erro ao processar requisição:', error as unknown as Record<string, unknown>);
     return NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }

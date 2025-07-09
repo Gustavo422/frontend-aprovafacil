@@ -99,7 +99,6 @@ export function useFlashcards(options: UseFlashcardsOptions = {}): UseFlashcards
           const result = await service.getFlashcards(page, limit, filters as Record<string, unknown> | undefined);
           if (!result.success) throw new Error(result.error || 'Erro desconhecido ao buscar flashcards.');
           if (Array.isArray(result.data)) return result.data;
-          if (result.data && Array.isArray(result.data.data)) return result.data.data;
           return [];
         },
         setFlashcards
@@ -158,14 +157,32 @@ export function useFlashcards(options: UseFlashcardsOptions = {}): UseFlashcards
         async () => {
           const result = await service.getUserStats(userId);
           if (!result.success) throw new Error(result.error || 'Erro desconhecido ao buscar estatísticas do usuário.');
-          // Padroniza nomes para camelCase e garante que todos os campos sejam number
-          const { total_flashcards, flashcards_estudados, acertos, erros, taxa_acerto } = result.data || {};
+          
+          // Como getUserStats retorna unknown, vamos tratar como dados básicos
+          // e calcular as estatísticas a partir dos dados de progresso
+          const progressData = result.data as FlashcardProgressData[] | null;
+          
+          if (!progressData || !Array.isArray(progressData)) {
+            return {
+              totalFlashcards: 0,
+              studiedFlashcards: 0,
+              correctAnswers: 0,
+              wrongAnswers: 0,
+              accuracyRate: 0,
+            };
+          }
+
+          const totalStudied = progressData.length;
+          const correctAnswers = progressData.filter(p => p.status === 'correct').length;
+          const wrongAnswers = progressData.filter(p => p.status === 'incorrect').length;
+          const accuracyRate = totalStudied > 0 ? (correctAnswers / totalStudied) * 100 : 0;
+
           return {
-            totalFlashcards: total_flashcards ?? 0,
-            studiedFlashcards: flashcards_estudados ?? 0,
-            correctAnswers: acertos ?? 0,
-            wrongAnswers: erros ?? 0,
-            accuracyRate: taxa_acerto ?? 0,
+            totalFlashcards: 0, // Seria calculado separadamente
+            studiedFlashcards: totalStudied,
+            correctAnswers,
+            wrongAnswers,
+            accuracyRate,
           };
         },
         setStats

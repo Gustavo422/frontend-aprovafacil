@@ -1,18 +1,11 @@
-import { createServerSupabaseClient } from './supabase';
 import { logger } from '@/lib/logger';
 import { getAuditLogger } from './audit';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/types/supabase.types';
+import { createServerSupabaseClient } from './supabase';
 
 export class OwnershipValidator {
   private static instance: OwnershipValidator;
-  private supabase: SupabaseClient<Database>;
-  private auditLogger: ReturnType<typeof getAuditLogger>;
 
-  private constructor() {
-    this.supabase = createServerSupabaseClient();
-    this.auditLogger = getAuditLogger(this.supabase);
-  }
+  private constructor() {}
 
   public static getInstance(): OwnershipValidator {
     if (!OwnershipValidator.instance) {
@@ -31,7 +24,9 @@ export class OwnershipValidator {
     resourceUserIdField: string = 'user_id'
   ): Promise<boolean> {
     try {
-      const { data, error } = await this.supabase
+      const supabase = await createServerSupabaseClient();
+      const auditLogger = getAuditLogger(supabase);
+      const { data, error } = await supabase
         .from(tableName)
         .select(resourceUserIdField)
         .eq('id', recordId)
@@ -46,7 +41,7 @@ export class OwnershipValidator {
 
       // Registrar tentativa de acesso
       if (!isOwner) {
-        await this.auditLogger.log({
+        await auditLogger.log({
           userId,
           action: 'ACCESS',
           tableName,
@@ -72,7 +67,8 @@ export class OwnershipValidator {
     recordId: string
   ): Promise<boolean> {
     try {
-      const { data, error } = await this.supabase
+      const supabase = await createServerSupabaseClient();
+      const { data, error } = await supabase
         .from(tableName)
         .select('is_public')
         .eq('id', recordId)
@@ -125,7 +121,8 @@ export class OwnershipValidator {
     resourceUserIdField: string = 'user_id'
   ): Promise<unknown[]> {
     try {
-      const { data, error } = await this.supabase
+      const supabase = await createServerSupabaseClient();
+      const { data, error } = await supabase
         .from(tableName)
         .select('*')
         .eq(resourceUserIdField, userId)
@@ -158,7 +155,8 @@ export class OwnershipValidator {
     resourceUserIdField: string = 'user_id'
   ): Promise<unknown[]> {
     try {
-      const { data, error } = await this.supabase
+      const supabase = await createServerSupabaseClient();
+      const { data, error } = await supabase
         .from(tableName)
         .select('*')
         .or(`${resourceUserIdField}.eq.${userId},is_public.eq.true`)
@@ -187,7 +185,8 @@ export class OwnershipValidator {
    */
   async validateAdminAccess(userId: string): Promise<boolean> {
     try {
-      const { data, error } = await this.supabase
+      const supabase = await createServerSupabaseClient();
+      const { data, error } = await supabase
         .from('users')
         .select('role')
         .eq('id', userId)
@@ -215,17 +214,22 @@ export class OwnershipValidator {
     recordId: string,
     resourceUserIdField: string = 'user_id'
   ): Promise<boolean> {
-    // Apenas proprietários podem modificar recursos
-    return await this.validateOwnership(
+    // Verifica se é proprietário ou admin
+    const isOwner = await this.validateOwnership(
       userId,
       tableName,
       recordId,
       resourceUserIdField
     );
+    if (isOwner) {
+      return true;
+    }
+
+    return await this.validateAdminAccess(userId);
   }
 
   /**
-   * Verifica se um usuário pode excluir um recurso
+   * Verifica se um usuário pode deletar um recurso
    */
   async validateDeletionAccess(
     userId: string,
@@ -233,13 +237,18 @@ export class OwnershipValidator {
     recordId: string,
     resourceUserIdField: string = 'user_id'
   ): Promise<boolean> {
-    // Apenas proprietários podem excluir recursos
-    return await this.validateOwnership(
+    // Verifica se é proprietário ou admin
+    const isOwner = await this.validateOwnership(
       userId,
       tableName,
       recordId,
       resourceUserIdField
     );
+    if (isOwner) {
+      return true;
+    }
+
+    return await this.validateAdminAccess(userId);
   }
 
   /**
@@ -250,16 +259,16 @@ export class OwnershipValidator {
     tableName: string
   ): Promise<unknown[]> {
     try {
-      const { data, error } = await this.supabase
+      const supabase = await createServerSupabaseClient();
+      const { data, error } = await supabase
         .from(tableName)
         .select('*')
-        .eq('is_public', true)
-        .neq('user_id', userId)
+        .or(`shared_with.cs.{${userId}},is_public.eq.true`)
         .is('deleted_at', null)
         .order('created_at', { ascending: false });
 
       if (error) {
-        logger.error('Erro ao buscar recursos compartilhados:', {
+        logger.error('Erro ao obter recursos compartilhados:', {
           error: error.message,
           details: error,
         });
@@ -268,7 +277,7 @@ export class OwnershipValidator {
 
       return data || [];
     } catch (error) {
-      logger.error('Erro ao buscar recursos compartilhados:', {
+      logger.error('Erro ao obter recursos compartilhados:', {
         error: error instanceof Error ? error.message : String(error),
       });
       return [];
@@ -276,7 +285,7 @@ export class OwnershipValidator {
   }
 
   /**
-   * Verifica permissões específicas para diferentes tipos de recursos
+   * Validação específica para diferentes tipos de recursos
    */
   async validateResourceAccess(
     userId: string,
@@ -286,38 +295,32 @@ export class OwnershipValidator {
   ): Promise<boolean> {
     const tableMap = {
       simulado: 'simulados',
-      questao: 'questoes_semanais',
+      questao: 'questoes',
       apostila: 'apostilas',
       flashcard: 'flashcards',
-      plano: 'planos_estudo',
+      plano: 'planos_estudos',
     };
 
     const tableName = tableMap[resourceType];
-    if (!tableName) {
-      return false;
-    }
+    const resourceUserIdField = 'user_id';
 
     switch (action) {
       case 'read':
-        return await this.validateAccess(userId, tableName, recordId);
+        return await this.validateAccess(userId, tableName, recordId, resourceUserIdField);
       case 'write':
-        return await this.validateModificationAccess(
-          userId,
-          tableName,
-          recordId
-        );
+        return await this.validateModificationAccess(userId, tableName, recordId, resourceUserIdField);
       case 'delete':
-        return await this.validateDeletionAccess(userId, tableName, recordId);
+        return await this.validateDeletionAccess(userId, tableName, recordId, resourceUserIdField);
       default:
         return false;
     }
   }
 }
 
-// Função utilitária para obter instância do validador
+// Singleton instance
 export const getOwnershipValidator = () => OwnershipValidator.getInstance();
 
-// Middleware de validação para uso em Server Actions
+// Utility functions
 export async function withOwnershipValidation<T>(
   userId: string,
   tableName: string,
@@ -326,32 +329,20 @@ export async function withOwnershipValidation<T>(
   resourceUserIdField: string = 'user_id'
 ): Promise<T | null> {
   const validator = getOwnershipValidator();
-
-  if (
-    !(await validator.validateOwnership(
-      userId,
-      tableName,
-      recordId,
-      resourceUserIdField
-    ))
-  ) {
-    throw new Error(
-      'Acesso negado: você não tem permissão para acessar este recurso'
-    );
+  const hasAccess = await validator.validateAccess(userId, tableName, recordId, resourceUserIdField);
+  
+  if (!hasAccess) {
+    return null;
   }
-
+  
   return await action();
 }
 
-// Middleware de validação para criação de recursos
 export async function withCreationValidation<T>(
   userId: string,
   action: () => Promise<T>
 ): Promise<T> {
-  // Para criação, apenas verificar se o usuário está autenticado
-  if (!userId) {
-    throw new Error('Usuário não autenticado');
-  }
-
+  // Para criação, apenas verifica se o usuário está autenticado
+  // A validação específica deve ser feita na action
   return await action();
 }

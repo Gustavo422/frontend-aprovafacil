@@ -1,10 +1,39 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/types/database.types';
+import type { Database } from '@/src/types/supabase.types';
 
 // Tipos específicos do serviço para clareza
-type Flashcard = Database['public']['Tables']['flashcards']['Row'];
-type FlashcardProgressInsert = Database['public']['Tables']['user_flashcard_progress']['Insert'];
-type FlashcardProgressData = Database['public']['Tables']['user_flashcard_progress']['Row'];
+export type Flashcard = Database['public']['Tables']['flashcards']['Row'];
+export type FlashcardProgressInsert = Database['public']['Tables']['user_flashcard_progress']['Insert'];
+export type FlashcardProgressData = Database['public']['Tables']['user_flashcard_progress']['Row'];
+
+// Tipos adicionais para compatibilidade
+export interface FlashcardFilters {
+  concurso_id?: string;
+  categoria_id?: string;
+  disciplina_id?: string;
+  is_active?: boolean;
+}
+
+export interface FlashcardInsert {
+  titulo: string;
+  conteudo: string;
+  resposta: string;
+  concurso_id: string;
+  categoria_id?: string;
+  disciplina_id?: string;
+  is_active?: boolean;
+  user_id: string;
+}
+
+export interface FlashcardUpdate {
+  titulo?: string;
+  conteudo?: string;
+  resposta?: string;
+  concurso_id?: string;
+  categoria_id?: string;
+  disciplina_id?: string;
+  is_active?: boolean;
+}
 
 // Mock do Supabase - substitua pelas suas variáveis de ambiente
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'your-supabase-url';
@@ -82,7 +111,14 @@ export class FlashcardsService {
     async getUserStats(userId: string): Promise<ServiceResult<unknown>> {
     // Idealmente, isso seria uma RPC (Remote Procedure Call) no Supabase
     // para calcular as estatísticas de forma eficiente.
-    const query = supabase.rpc('get_user_flashcard_stats', { p_user_id: userId });
+    // const query = supabase.rpc('get_user_flashcard_stats', { p_user_id: userId });
+    // return this.handleRequest(query);
+    
+    // Implementação temporária - buscar dados básicos
+    const query = supabase
+      .from('user_flashcard_progress')
+      .select('*')
+      .eq('user_id', userId);
     return this.handleRequest(query);
   }
 

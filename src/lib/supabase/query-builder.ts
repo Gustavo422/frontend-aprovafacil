@@ -1,118 +1,210 @@
-import { Database } from '@/types/supabase.types';
-import { SupabaseClient } from '@supabase/supabase-js';
-import type {
-  PostgrestFilterBuilder,
-  PostgrestQueryBuilder,
-  PostgrestSingleResponse,
-} from '@supabase/postgrest-js';
-import { supabase } from './client';
+import { supabase } from './client'
+import type { Database, Tables } from '@/types/supabase.types'
 
-type TableName = keyof Database['public']['Tables'];
-type TableRow<T extends TableName> = Database['public']['Tables'][T]['Row'];
-type TableInsert<T extends TableName> = Database['public']['Tables'][T]['Insert'];
-type TableUpdate<T extends TableName> = Database['public']['Tables'][T]['Update'];
+export class QueryBuilder<T extends keyof Database['public']['Tables']> {
+  private table: T
+  private query: ReturnType<typeof supabase.from>
 
-export class TypedQueryBuilder<T extends TableName> {
-  constructor(
-    private readonly tableName: T,
-    private readonly supabaseClient: SupabaseClient<Database> = supabase
-  ) {}
-
-  // Get a query builder for the table
-  get query() {
-    return this.supabaseClient.from(this.tableName);
+  constructor(table: T) {
+    this.table = table
+    this.query = supabase.from(table).select('*')
   }
 
-  // Helper methods for common operations
-  async findById(id: string): Promise<TableRow<T> | null> {
-    const { data, error } = await this.query
-      .select('*')
-      .eq('id', id as string)
-      .single();
+  /**
+   * Add a WHERE clause
+   */
+  where(column: string, operator: string, value: unknown): this {
+    switch (operator) {
+      case '=':
+      case 'eq':
+        this.query = this.query.eq(column, value)
+        break
+      case '!=':
+      case 'neq':
+        this.query = this.query.neq(column, value)
+        break
+      case '>':
+      case 'gt':
+        this.query = this.query.gt(column, value)
+        break
+      case '>=':
+      case 'gte':
+        this.query = this.query.gte(column, value)
+        break
+      case '<':
+      case 'lt':
+        this.query = this.query.lt(column, value)
+        break
+      case '<=':
+      case 'lte':
+        this.query = this.query.lte(column, value)
+        break
+      case 'like':
+        this.query = this.query.like(column, value)
+        break
+      case 'ilike':
+        this.query = this.query.ilike(column, value)
+        break
+      case 'in':
+        this.query = this.query.in(column, value)
+        break
+      case 'is':
+        this.query = this.query.is(column, value)
+        break
+      default:
+        throw new Error(`Unsupported operator: ${operator}`)
+    }
+    return this
+  }
+
+  /**
+   * Add an OR condition
+   */
+  or(conditions: string): this {
+    this.query = this.query.or(conditions)
+    return this
+  }
+
+  /**
+   * Add ordering
+   */
+  orderBy(column: string, ascending: boolean = true): this {
+    this.query = this.query.order(column, { ascending })
+    return this
+  }
+
+  /**
+   * Add limit
+   */
+  limit(count: number): this {
+    this.query = this.query.limit(count)
+    return this
+  }
+
+  /**
+   * Add range (pagination)
+   */
+  range(from: number, to: number): this {
+    this.query = this.query.range(from, to)
+    return this
+  }
+
+  /**
+   * Select specific columns
+   */
+  select(columns: string): this {
+    this.query = supabase.from(this.table).select(columns)
+    return this
+  }
+
+  /**
+   * Get single result
+   */
+  async single(): Promise<Tables<T> | null> {
+    const { data, error } = await this.query.single()
     
-    if (error) throw error;
-    return data;
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return null
+      }
+      throw error
+    }
+    
+    return data as Tables<T>
   }
 
-  async findAll(): Promise<TableRow<T>[]> {
-    const { data, error } = await this.query.select('*');
-    if (error) throw error;
-    return data || [];
-  }
-
-  async create(
-    payload: TableInsert<T>
-  ): Promise<PostgrestSingleResponse<TableRow<T>[]>> {
+  /**
+   * Get multiple results
+   */
+  async execute(): Promise<Tables<T>[]> {
     const { data, error } = await this.query
-      .insert(payload as any)
-      .select()
-      .single();
-      
-    if (error) throw error;
-    return data;
+    
+    if (error) throw error
+    return data as Tables<T>[]
   }
 
-  async update(
-    id: string,
-    payload: Partial<TableUpdate<T>>
-  ): Promise<TableRow<T> | null> {
-    const { data, error } = await this.query
-      .update(payload as any)
-      .eq('id', id as string)
-      .select()
-      .single();
-      
-    if (error) throw error;
-    return data;
+  /**
+   * Get results with count
+   */
+  async executeWithCount(): Promise<{ data: Tables<T>[]; count: number }> {
+    const { data, count, error } = await this.query
+    
+    if (error) throw error
+    return { data: data as Tables<T>[], count: count || 0 }
   }
 
-  async delete(id: string): Promise<boolean> {
-    const { error } = await this.query
-      .delete()
-      .eq('id', id as string);
-      
-    if (error) throw error;
-    return true;
-  }
-
-  // Advanced querying
-  async findOneBy(
-    column: keyof TableRow<T>,
-    value: any
-  ): Promise<TableRow<T> | null> {
-    const { data, error } = await this.query
-      .select('*')
-      .eq(column as string, value)
-      .single();
-      
-    if (error) return null;
-    return data;
-  }
-
-  async findManyBy(
-    column: keyof TableRow<T>,
-    value: any
-  ): Promise<TableRow<T>[]> {
-    const { data, error } = await this.query
-      .select('*')
-      .eq(column as string, value);
-      
-    if (error) return [];
-    return data || [];
+  /**
+   * Check if any records exist
+   */
+  async exists(): Promise<boolean> {
+    const { count, error } = await this.query.select('id', { count: 'exact', head: true })
+    
+    if (error) throw error
+    return (count || 0) > 0
   }
 }
 
-// Helper function to create a typed query builder
-export function createQueryBuilder<T extends TableName>(
-  tableName: T,
-  client: SupabaseClient<Database> = supabase
-): TypedQueryBuilder<T> {
-  return new TypedQueryBuilder(tableName, client);
+/**
+ * Factory function to create a query builder
+ */
+export function createQueryBuilder<T extends keyof Database['public']['Tables']>(
+  table: T
+): QueryBuilder<T> {
+  return new QueryBuilder(table)
 }
 
-// Export types for external use
-export type { TableName, TableRow, TableInsert, TableUpdate };
+/**
+ * Convenience functions for common queries
+ */
+export const QueryHelpers = {
+  /**
+   * Find active records
+   */
+  findActive<T extends keyof Database['public']['Tables']>(table: T) {
+    return createQueryBuilder(table).where('is_active', 'eq', true)
+  },
 
-// Example usage:
-// const userQuery = createQueryBuilder('users');
-// const user = await userQuery.findById('user-id');
+  /**
+   * Find by user ID
+   */
+  findByUser<T extends keyof Database['public']['Tables']>(table: T, userId: string) {
+    return createQueryBuilder(table).where('user_id', 'eq', userId)
+  },
+
+  /**
+   * Find recent records
+   */
+  findRecent<T extends keyof Database['public']['Tables']>(table: T, limit: number = 10) {
+    return createQueryBuilder(table)
+      .orderBy('created_at', false)
+      .limit(limit)
+  },
+
+  /**
+   * Search by text
+   */
+  search<T extends keyof Database['public']['Tables']>(
+    table: T, 
+    column: string, 
+    searchTerm: string
+  ) {
+    return createQueryBuilder(table).where(column, 'ilike', `%${searchTerm}%`)
+  },
+
+  /**
+   * Find by date range
+   */
+  findByDateRange<T extends keyof Database['public']['Tables']>(
+    table: T,
+    dateColumn: string,
+    startDate: string,
+    endDate: string
+  ) {
+    return createQueryBuilder(table)
+      .where(dateColumn, 'gte', startDate)
+      .where(dateColumn, 'lte', endDate)
+  }
+}
+
+export default QueryBuilder
+

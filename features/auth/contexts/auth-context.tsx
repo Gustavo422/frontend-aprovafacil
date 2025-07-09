@@ -30,10 +30,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     let mounted = true;
+    let timeoutId: NodeJS.Timeout;
 
     const initializeAuth = async () => {
       try {
-        const { session: currentSession, user: currentUser } = await authService.getSession();
+        // Timeout de 10 segundos para evitar loading infinito
+        const timeoutPromise = new Promise((_, reject) => {
+          timeoutId = setTimeout(() => {
+            reject(new Error('Timeout ao conectar com Supabase'));
+          }, 10000);
+        });
+
+        const authPromise = authService.getSession();
+        
+        const result = await Promise.race([
+          authPromise,
+          timeoutPromise
+        ]) as { session: Session | null; user: User | null };
+        
+        const { session: currentSession, user: currentUser } = result;
+        
+        clearTimeout(timeoutId);
         
         if (mounted) {
           setSession(currentSession);
@@ -44,13 +61,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
       } catch (error) {
         logger.error('Failed to initialize auth', { error });
         if (mounted) {
+          // Em caso de erro, definir como não autenticado mas não em loading
+          setSession(null);
+          setUser(null);
           setLoading(false);
           setInitialized(true);
+          // Log adicional para debug
+          console.warn('Auth initialization failed, continuing as unauthenticated:', error);
         }
       }
     };
 
-    initializeAuth();
+    // Aguardar um pouco antes de inicializar para evitar problemas de hidratação
+    const initTimer = setTimeout(() => {
+      initializeAuth();
+    }, 100);
 
     const { subscription } = authService.onAuthStateChange((event, session) => {
       logger.info('Auth state changed', { event, userId: session?.user?.id });
@@ -65,6 +90,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     return () => {
       mounted = false;
+      clearTimeout(timeoutId);
+      clearTimeout(initTimer);
       subscription?.unsubscribe();
     };
   }, [authService]);

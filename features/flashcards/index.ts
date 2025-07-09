@@ -7,10 +7,10 @@ export { Flashcard } from './components/flashcard';
 // Hooks
 export { useFlashcards, useFlashcardStudy } from './hooks/use-flashcards';
 
-// Types (re-export from central types)
+// Types (re-export from service)
 export type {
   FlashcardProgressData,
   FlashcardFilters,
   FlashcardInsert,
   FlashcardUpdate,
-} from '../../core/database/types'; 
+} from './services/flashcards-service'; 

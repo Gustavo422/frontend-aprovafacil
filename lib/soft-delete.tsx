@@ -2,10 +2,24 @@ import { createServerSupabaseClient } from './supabase';
 import { logger } from '@/lib/logger';
 import { getAuditLogger } from './audit';
 
+export interface SoftDeleteOptions {
+  tableName: string;
+  recordId: string;
+  userId: string;
+  reason?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface SoftDeleteResult {
+  success: boolean;
+  error?: string;
+  deletedAt?: Date;
+}
+
 export class SoftDeleteManager {
   private static instance: SoftDeleteManager;
   private supabase = createServerSupabaseClient();
-  private auditLogger = getAuditLogger();
+  private auditLogger: unknown;
 
   private constructor() {}
 
@@ -16,124 +30,262 @@ export class SoftDeleteManager {
     return SoftDeleteManager.instance;
   }
 
-  /**
-   * Executa soft delete de um registro
-   */
-  async softDelete(
-    userId: string,
-    tableName: string,
-    recordId: string,
-    reason?: string
-  ): Promise<boolean> {
-    try {
-      // Buscar dados atuais antes do soft delete
-      const { data: currentData, error: fetchError } = await this.supabase
-        .from(tableName)
-        .select('*')
-        .eq('id', recordId)
-        .single();
-
-      if (fetchError || !currentData) {
-        logger.error('Erro ao buscar dados para soft delete:', {
-          error: fetchError?.message || 'Dados não encontrados',
-          details: fetchError,
-        });
-        return false;
-      }
-
-      // Executar soft delete
-      const { error } = await this.supabase
-        .from(tableName)
-        .update({
-          deleted_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', recordId);
-
-      if (error) {
-        logger.error('Erro ao executar soft delete:', {
-          error: error.message,
-          details: error,
-        });
-        return false;
-      }
-
-      // Registrar no log de auditoria
-      await this.auditLogger.log({
-        userId,
-        action: 'DELETE',
-        tableName,
-        recordId,
-        oldValues: currentData,
-        newValues: { deleted_at: new Date().toISOString(), reason },
-      });
-
-      return true;
-    } catch (error) {
-      logger.error('Erro ao executar soft delete:', {
-        error: error instanceof Error ? error.message : String(error),
-      });
-      return false;
+  private async initialize() {
+    if (!this.auditLogger) {
+      const supabaseClient = await this.supabase;
+      this.auditLogger = getAuditLogger(supabaseClient);
     }
   }
 
   /**
-   * Restaura um registro soft deleted
+   * Realiza soft delete de um registro
    */
-  async restore(
-    userId: string,
-    tableName: string,
-    recordId: string
-  ): Promise<boolean> {
+  async softDelete(options: SoftDeleteOptions): Promise<SoftDeleteResult> {
     try {
-      // Buscar dados atuais
-      const { data: currentData, error: fetchError } = await this.supabase
-        .from(tableName)
-        .select('*')
-        .eq('id', recordId)
+      const supabase = await this.supabase;
+      const { data, error } = await supabase
+        .from(options.tableName)
+        .update({
+          deleted_at: new Date().toISOString(),
+          deleted_by: options.userId,
+          delete_reason: options.reason,
+          delete_metadata: options.metadata,
+        })
+        .eq('id', options.recordId)
+        .is('deleted_at', null)
+        .select()
         .single();
 
-      if (fetchError || !currentData) {
-        logger.error('Erro ao buscar dados para restauração:', {
-          error: fetchError?.message || 'Dados não encontrados',
-          details: fetchError,
+      if (error) {
+        logger.error('Erro ao realizar soft delete:', {
+          error: error.message,
+          details: error,
+          options,
         });
-        return false;
+        return {
+          success: false,
+          error: error.message,
+        };
       }
 
-      // Restaurar registro
-      const { error } = await this.supabase
-        .from(tableName)
+      if (!data) {
+        return {
+          success: false,
+          error: 'Registro não encontrado ou já deletado',
+        };
+      }
+
+      logger.info('Soft delete realizado com sucesso:', {
+        tableName: options.tableName,
+        recordId: options.recordId,
+        userId: options.userId,
+      });
+
+      return {
+        success: true,
+        deletedAt: new Date(data.deleted_at),
+      };
+    } catch (error) {
+      logger.error('Erro inesperado ao realizar soft delete:', {
+        error: error instanceof Error ? error.message : String(error),
+        options,
+      });
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  }
+
+  /**
+   * Restaura um registro deletado via soft delete
+   */
+  async restore(options: Omit<SoftDeleteOptions, 'reason' | 'metadata'>): Promise<SoftDeleteResult> {
+    try {
+      const supabase = await this.supabase;
+      const { data, error } = await supabase
+        .from(options.tableName)
         .update({
           deleted_at: null,
-          updated_at: new Date().toISOString(),
+          deleted_by: null,
+          delete_reason: null,
+          delete_metadata: null,
         })
-        .eq('id', recordId);
+        .eq('id', options.recordId)
+        .not('deleted_at', 'is', null)
+        .select()
+        .single();
 
       if (error) {
         logger.error('Erro ao restaurar registro:', {
           error: error.message,
           details: error,
+          options,
         });
-        return false;
+        return {
+          success: false,
+          error: error.message,
+        };
       }
 
-      // Registrar no log de auditoria
-      await this.auditLogger.log({
-        userId,
-        action: 'UPDATE',
-        tableName,
-        recordId,
-        oldValues: currentData,
-        newValues: { deleted_at: null },
+      if (!data) {
+        return {
+          success: false,
+          error: 'Registro não encontrado ou não estava deletado',
+        };
+      }
+
+      logger.info('Registro restaurado com sucesso:', {
+        tableName: options.tableName,
+        recordId: options.recordId,
+        userId: options.userId,
       });
 
-      return true;
+      return {
+        success: true,
+      };
     } catch (error) {
-      logger.error('Erro ao restaurar registro:', {
+      logger.error('Erro inesperado ao restaurar registro:', {
         error: error instanceof Error ? error.message : String(error),
+        options,
       });
-      return false;
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  }
+
+  /**
+   * Realiza hard delete de um registro (deletado via soft delete)
+   */
+  async hardDelete(options: Omit<SoftDeleteOptions, 'reason' | 'metadata'>): Promise<SoftDeleteResult> {
+    try {
+      const supabase = await this.supabase;
+      const { error } = await supabase
+        .from(options.tableName)
+        .delete()
+        .eq('id', options.recordId)
+        .not('deleted_at', 'is', null);
+
+      if (error) {
+        logger.error('Erro ao realizar hard delete:', {
+          error: error.message,
+          details: error,
+          options,
+        });
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
+
+      logger.info('Hard delete realizado com sucesso:', {
+        tableName: options.tableName,
+        recordId: options.recordId,
+        userId: options.userId,
+      });
+
+      return {
+        success: true,
+      };
+    } catch (error) {
+      logger.error('Erro inesperado ao realizar hard delete:', {
+        error: error instanceof Error ? error.message : String(error),
+        options,
+      });
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  }
+
+  /**
+   * Lista registros deletados via soft delete
+   */
+  async listDeleted(
+    tableName: string,
+    filters?: Record<string, unknown>
+  ): Promise<Record<string, unknown>[]> {
+    try {
+      const supabase = await this.supabase;
+      let query = supabase
+        .from(tableName)
+        .select('*')
+        .not('deleted_at', 'is', null)
+        .order('deleted_at', { ascending: false });
+
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          query = query.eq(key, value);
+        });
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        logger.error('Erro ao listar registros deletados:', {
+          error: error.message,
+          details: error,
+          tableName,
+          filters,
+        });
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      logger.error('Erro inesperado ao listar registros deletados:', {
+        error: error instanceof Error ? error.message : String(error),
+        tableName,
+        filters,
+      });
+      return [];
+    }
+  }
+
+  /**
+   * Limpa registros deletados há mais de X dias
+   */
+  async cleanupOldDeleted(
+    tableName: string,
+    daysToKeep: number = 30
+  ): Promise<{ deleted: number; errors: number }> {
+    try {
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
+
+      const supabase = await this.supabase;
+      const { error } = await supabase
+        .from(tableName)
+        .delete()
+        .lt('deleted_at', cutoffDate.toISOString())
+        .not('deleted_at', 'is', null);
+
+      if (error) {
+        logger.error('Erro ao limpar registros antigos:', {
+          error: error.message,
+          details: error,
+          tableName,
+          daysToKeep,
+        });
+        return { deleted: 0, errors: 1 };
+      }
+
+      logger.info('Limpeza de registros antigos concluída:', {
+        tableName,
+        daysToKeep,
+      });
+
+      return { deleted: 0, errors: 0 };
+    } catch (error) {
+      logger.error('Erro inesperado ao limpar registros antigos:', {
+        error: error instanceof Error ? error.message : String(error),
+        tableName,
+        daysToKeep,
+      });
+      return { deleted: 0, errors: 1 };
     }
   }
 
@@ -145,12 +297,13 @@ export class SoftDeleteManager {
     daysToKeep: number = 365
   ): Promise<number> {
     try {
+      const supabaseClient = await this.supabase;
       const cutoffDate = new Date(
         Date.now() - daysToKeep * 24 * 60 * 60 * 1000
       ).toISOString();
 
       // Buscar registros soft deleted antigos
-      const { data: oldRecords, error: fetchError } = await this.supabase
+      const { data: oldRecords, error: fetchError } = await supabaseClient
         .from(tableName)
         .select('id')
         .not('deleted_at', 'is', null)
@@ -169,12 +322,12 @@ export class SoftDeleteManager {
       }
 
       // Executar hard delete
-      const { error } = await this.supabase
+      const { error } = await supabaseClient
         .from(tableName)
         .delete()
         .in(
           'id',
-          oldRecords.map(record => record.id)
+          oldRecords.map((record: Record<string, unknown>) => record.id)
         );
 
       if (error) {
@@ -186,7 +339,7 @@ export class SoftDeleteManager {
       }
 
       // Registrar no log de auditoria
-      await this.auditLogger.log({
+      await (this.auditLogger as { log: (entry: Record<string, unknown>) => Promise<void> }).log({
         action: 'DELETE',
         tableName,
         newValues: {
@@ -214,7 +367,8 @@ export class SoftDeleteManager {
     limit: number = 50
   ): Promise<unknown[]> {
     try {
-      let query = this.supabase
+      const supabaseClient = await this.supabase;
+      let query = supabaseClient
         .from(tableName)
         .select('*')
         .not('deleted_at', 'is', null)
@@ -249,7 +403,8 @@ export class SoftDeleteManager {
    */
   async isSoftDeleted(tableName: string, recordId: string): Promise<boolean> {
     try {
-      const { data, error } = await this.supabase
+      const supabaseClient = await this.supabase;
+      const { data, error } = await supabaseClient
         .from(tableName)
         .select('deleted_at')
         .eq('id', recordId)
@@ -272,6 +427,8 @@ export class SoftDeleteManager {
    * Executa limpeza automática de registros antigos
    */
   async performAutomaticCleanup(): Promise<void> {
+    await this.initialize();
+    
     const tables = [
       'user_simulado_progress',
       'user_questoes_semanais_progress',
@@ -297,7 +454,7 @@ export class SoftDeleteManager {
 
     // Registrar resultado da limpeza
     if (cleanupResults.length > 0) {
-      await this.auditLogger.log({
+      await (this.auditLogger as { log: (entry: Record<string, unknown>) => Promise<void> }).log({
         action: 'DELETE',
         tableName: 'system',
         newValues: {
@@ -316,7 +473,8 @@ export class SoftDeleteManager {
     recordIds: string[]
   ): Promise<unknown[]> {
     try {
-      const { data, error } = await this.supabase
+      const supabaseClient = await this.supabase;
+      const { data, error } = await supabaseClient
         .from(tableName)
         .select('*')
         .in('id', recordIds);
@@ -343,19 +501,16 @@ export class SoftDeleteManager {
 export const getSoftDeleteManager = () => SoftDeleteManager.getInstance();
 
 // Middleware para soft delete automático
-export async function withSoftDelete<T>(
-  userId: string,
-  tableName: string,
-  recordId: string,
-  action: () => Promise<T>
-): Promise<T> {
-  const softDeleteManager = getSoftDeleteManager();
+export async function withSoftDelete(
+  options: SoftDeleteOptions
+): Promise<SoftDeleteResult> {
+  const manager = getSoftDeleteManager();
+  return await manager.softDelete(options);
+}
 
-  // Verificar se o registro já está soft deleted
-  const isDeleted = await softDeleteManager.isSoftDeleted(tableName, recordId);
-  if (isDeleted) {
-    throw new Error('Registro não encontrado ou foi excluído');
-  }
-
-  return await action();
+export async function withRestore(
+  options: Omit<SoftDeleteOptions, 'reason' | 'metadata'>
+): Promise<SoftDeleteResult> {
+  const manager = getSoftDeleteManager();
+  return await manager.restore(options);
 }

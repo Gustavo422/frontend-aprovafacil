@@ -53,7 +53,7 @@ export function withApiErrorHandler<T extends unknown[]>(
       // Se é um erro operacional, retornar mensagem amigável
       if (isOperationalError(error)) {
         const message = getErrorMessage(error);
-        const status = error.status || 400;
+        const status = (error as { status?: number }).status || 400;
 
         return NextResponse.json({ error: message }, { status });
       }

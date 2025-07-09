@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { supabase } from '@/lib/supabase/client';
-import type { Database } from '@/types/supabase';
+import type { Database, Tables, TablesInsert, TablesUpdate } from '@/types/supabase.types';
 
 type TableName = keyof Database['public']['Tables'] & string;
 
@@ -12,11 +13,11 @@ export abstract class BaseRepository<T extends TableName> {
   }
 
   // Basic CRUD operations
-  async findById(id: string | number): Promise<Database['public']['Tables'][T]['Row'] | null> {
+  async findById(id: string): Promise<Tables<T> | null> {
     const { data, error } = await this.client
-      .from(this.tableName as string)
+      .from(this.tableName)
       .select('*')
-      .eq('id', id)
+      .eq('id', id as any)
       .single();
 
     if (error) {
@@ -25,14 +26,14 @@ export abstract class BaseRepository<T extends TableName> {
       }
       throw error;
     }
-    return data as Database['public']['Tables'][T]['Row'];
+    return data as Tables<T>;
   }
 
   async findAll(
-    filters?: Partial<Database['public']['Tables'][T]['Row']>
-  ): Promise<Database['public']['Tables'][T]['Row'][]> {
+    filters?: Partial<Tables<T>>
+  ): Promise<Tables<T>[]> {
     let query = this.client
-      .from(this.tableName as string)
+      .from(this.tableName)
       .select('*');
 
     if (filters) {
@@ -42,64 +43,64 @@ export abstract class BaseRepository<T extends TableName> {
     const { data, error } = await query;
     if (error) throw error;
 
-    return data as Database['public']['Tables'][T]['Row'][];
+    return data as Tables<T>[];
   }
 
   async create(
-    data: Database['public']['Tables'][T]['Insert']
-  ): Promise<Database['public']['Tables'][T]['Row']> {
+    data: TablesInsert<T>
+  ): Promise<Tables<T>> {
     const { data: result, error } = await this.client
-      .from(this.tableName as string)
-      .insert(data)
+      .from(this.tableName)
+      .insert(data as any)
       .select()
       .single();
 
     if (error) throw error;
-    return result as Database['public']['Tables'][T]['Row'];
+    return result as Tables<T>;
   }
 
   async update(
-    id: string | number, 
-    data: Partial<Database['public']['Tables'][T]['Update']>
-  ): Promise<Database['public']['Tables'][T]['Row']> {
+    id: string, 
+    data: Partial<TablesUpdate<T>>
+  ): Promise<Tables<T>> {
     const { data: result, error } = await this.client
-      .from(this.tableName as string)
+      .from(this.tableName)
       .update({
         ...data,
         updated_at: new Date().toISOString(),
-      })
-      .eq('id', id)
+      } as any)
+      .eq('id', id as any)
       .select()
       .single();
 
     if (error) throw error;
-    return result as Database['public']['Tables'][T]['Row'];
+    return result as Tables<T>;
   }
 
-  async delete(id: string | number): Promise<boolean> {
+  async delete(id: string): Promise<boolean> {
     const { error } = await this.client
-      .from(this.tableName as string)
+      .from(this.tableName)
       .delete()
-      .eq('id', id);
+      .eq('id', id as any);
 
     if (error) throw error;
     return true;
   }
 
   // Soft delete implementation
-  async softDelete(id: string | number): Promise<Database['public']['Tables'][T]['Row']> {
+  async softDelete(id: string): Promise<Tables<T>> {
     return this.update(id, {
       deleted_at: new Date().toISOString(),
-    } as unknown as Partial<Database['public']['Tables'][T]['Update']>);
+    } as any);
   }
 
   // Pagination support
   async paginate(
     page: number = 1,
     pageSize: number = 10,
-    filters?: Partial<Database['public']['Tables'][T]['Row']>
+    filters?: Partial<Tables<T>>
   ): Promise<{
-    data: Database['public']['Tables'][T]['Row'][];
+    data: Tables<T>[];
     count: number | null;
     page: number;
     pageSize: number;
@@ -109,7 +110,7 @@ export abstract class BaseRepository<T extends TableName> {
     const to = from + pageSize - 1;
 
     let query = this.client
-      .from(this.tableName as string)
+      .from(this.tableName)
       .select('*', { count: 'exact' });
 
     if (filters) {
@@ -120,10 +121,8 @@ export abstract class BaseRepository<T extends TableName> {
 
     if (error) throw error;
 
-    const totalPages = count ? Math.ceil(count / pageSize) : 0;
-
     return {
-      data: data as Database['public']['Tables'][T]['Row'][],
+      data: data as Tables<T>[],
       count,
       page,
       pageSize,
@@ -131,3 +130,4 @@ export abstract class BaseRepository<T extends TableName> {
     };
   }
 }
+

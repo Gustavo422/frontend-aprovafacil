@@ -109,5 +109,5 @@ export const POST = composeMiddleware(handlePost, [
   withAuthValidation,
   handler =>
     withRateLimit(handler, { maxRequests: 10, windowMs: 5 * 60 * 1000 }), // 10 requests por 5 minutos
-  handler => withInputValidation(handler, validateUserData),
+  handler => withInputValidation(handler, (data: unknown) => validateUserData(data as Record<string, unknown>)),
 ]);

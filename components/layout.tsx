@@ -4,7 +4,7 @@ import './globals.css';
 import ClientLayout from './client-layout';
 
 export const metadata = {
-  title: 'AprovaJá',
+  title: 'AprovaFacil',
   description: 'Sua plataforma de estudos para concursos',
 };
 

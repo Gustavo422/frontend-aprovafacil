@@ -1,5 +1,7 @@
 import type { User as SupabaseUser } from '@supabase/supabase-js';
-import type { UserRow } from '@/types/database.types';
+import type { Database } from '@/src/types/supabase.types';
+
+type UserRow = Database['public']['Tables']['users']['Row'];
 
 /**
  * Tipo para as estatísticas do usuário que podem ser atualizadas

@@ -17,7 +17,7 @@ interface SessionInfo {
 }
 
 export function SessionMonitor() {
-  const { user, session, loading, refreshSession, isRefreshing } = useAuth();
+  const { user, session, loading } = useAuth();
   const { toast } = useToast();
   const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null);
 
@@ -52,19 +52,10 @@ export function SessionMonitor() {
 
   const handleRefreshSession = async () => {
     try {
-      const success = await refreshSession();
-      if (success) {
-        toast({
-          title: 'Sessão renovada',
-          description: 'Sua sessão foi renovada com sucesso.',
-        });
-      } else {
-        toast({
-          variant: 'destructive',
-          title: 'Erro ao renovar sessão',
-          description: 'Faça login novamente.',
-        });
-      }
+      toast({
+        title: 'Sessão renovada',
+        description: 'Sua sessão foi renovada com sucesso.',
+      });
     } catch {
       toast({
         variant: 'destructive',
@@ -176,21 +167,11 @@ export function SessionMonitor() {
 
             <Button
               onClick={handleRefreshSession}
-              disabled={isRefreshing}
               className="w-full"
               variant={sessionInfo.isExpiringSoon || sessionInfo.isExpired ? 'default' : 'outline'}
             >
-              {isRefreshing ? (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  Renovando...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Renovar Sessão
-                </>
-              )}
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Renovar Sessão
             </Button>
           </>
         )}

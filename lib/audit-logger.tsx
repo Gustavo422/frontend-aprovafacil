@@ -25,11 +25,11 @@ export class AuditLogger {
         .insert({
           user_id: entry.userId,
           action: entry.action,
-          details: entry.details,
+          table_name: 'auth_events',
+          record_id: null,
+          new_values: entry.details,
           ip_address: entry.ipAddress,
           user_agent: entry.userAgent,
-          success: entry.success,
-          error_message: entry.errorMessage,
           created_at: logEntry.created_at
         });
 

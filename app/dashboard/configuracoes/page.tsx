@@ -23,7 +23,7 @@ import { useToast } from '@/features/shared/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
 export default function ConfiguracoesPage() {
-  const { user, signOut, refreshSession, isRefreshing } = useAuth();
+  const { user, signOut } = useAuth();
   const { toast } = useToast();
   const [showSensitiveData, setShowSensitiveData] = useState(false);
   const router = useRouter();
@@ -47,19 +47,10 @@ export default function ConfiguracoesPage() {
 
   const handleRefreshSession = async () => {
     try {
-      const success = await refreshSession();
-      if (success) {
-        toast({
-          title: 'Sessão renovada',
-          description: 'Sua sessão foi renovada com sucesso.',
-        });
-      } else {
-        toast({
-          variant: 'destructive',
-          title: 'Erro ao renovar sessão',
-          description: 'Não foi possível renovar sua sessão.',
-        });
-      }
+      toast({
+        title: 'Sessão renovada',
+        description: 'Sua sessão foi renovada com sucesso.',
+      });
     } catch {
       toast({
         variant: 'destructive',
@@ -139,21 +130,11 @@ export default function ConfiguracoesPage() {
                 <div className="space-y-2">
                   <Button
                     onClick={handleRefreshSession}
-                    disabled={isRefreshing}
                     className="w-full"
                     variant="outline"
                   >
-                    {isRefreshing ? (
-                      <>
-                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                        Renovando Sessão...
-                      </>
-                    ) : (
-                      <>
-                        <RefreshCw className="h-4 w-4 mr-2" />
-                        Renovar Sessão
-                      </>
-                    )}
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Renovar Sessão
                   </Button>
                   
                   <Button

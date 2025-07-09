@@ -1,57 +1,43 @@
 /// <reference types="vitest" />
-import { defineConfig } from 'vitest/config';
-import { resolve } from 'path';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+import path from 'path'
 
 export default defineConfig({
-  plugins: [
-    react({
-      jsxImportSource: '@emotion/react',
-      babel: {
-        plugins: ['@emotion/babel-plugin'],
-      },
-    }),
-  ],
+  plugins: [react()],
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./vitest.setup.ts'],
-    environmentOptions: {
-      jsdom: {
-        url: 'http://localhost:3000',
-      },
-    },
-    // Configuração simplificada de cobertura
+    setupFiles: ['./vitest.setup.tsx'],
+    css: true,
     coverage: {
-      enabled: true,
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      reportsDirectory: './coverage',
       exclude: [
-        '**/node_modules/**',
-        '**/.next/**',
+        'node_modules/',
+        'src/test/',
+        '**/*.d.ts',
         '**/*.config.*',
-        '**/types/**',
         '**/coverage/**',
+        '**/dist/**',
+        '**/.next/**',
       ],
     },
-    // Padrões de inclusão/exclusão simplificados
-    include: ['**/*.{test,spec}.{js,jsx,ts,tsx}'],
-    exclude: [
-      '**/node_modules/**',
-      '**/.next/**',
-      '**/coverage/**',
-    ],
-    // Timeout aumentado para testes
-    testTimeout: 30000,
-    // Configurações de mocks
-    clearMocks: true,
-    mockReset: true,
-    restoreMocks: true,
   },
   resolve: {
     alias: {
-      '^@/(.*)$': resolve(__dirname, './$1'),
+      '@': path.resolve(__dirname, './src'),
+      '@/components': path.resolve(__dirname, './src/components'),
+      '@/lib': path.resolve(__dirname, './src/lib'),
+      '@/types': path.resolve(__dirname, './src/types'),
+      '@/hooks': path.resolve(__dirname, './src/hooks'),
+      '@/features': path.resolve(__dirname, './src/features'),
+      '@/utils': path.resolve(__dirname, './src/utils'),
+      '@/styles': path.resolve(__dirname, './src/styles'),
     },
   },
-});
+  define: {
+    'process.env': process.env,
+  },
+})
+

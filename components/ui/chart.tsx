@@ -3,9 +3,6 @@
 import * as React from 'react';
 import * as RechartsPrimitive from 'recharts';
 
-
-
-
 import { cn } from '@/lib/utils';
 
 export type ChartConfig = {
@@ -103,14 +100,8 @@ const ChartTooltip = RechartsPrimitive.Tooltip;
 
 const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
-    React.ComponentProps<'div'> & {
-      hideLabel?: boolean;
-      hideIndicator?: boolean;
-      indicator?: 'line' | 'dot' | 'dashed';
-      nameKey?: string;
-      labelKey?: string;
-    }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Record<string, any>
 >(
   (
     {
@@ -131,8 +122,6 @@ const ChartTooltipContent = React.forwardRef<
     ref
   ) => {
     const { config } = useChart();
-
-
 
     const tooltipLabel = React.useMemo(() => {
       if (hideLabel || !payload?.length) {
@@ -186,15 +175,17 @@ const ChartTooltipContent = React.forwardRef<
       >
         {!nestLabel ? tooltipLabel : null}
         <div className="grid gap-1.5">
-          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-          {payload.map((item: any, index) => {
+          {payload.map((item: any, index: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
             const key = `${nameKey || item.name || item.dataKey || 'value'}`;
             const itemConfig = getPayloadConfigFromPayload(config, key);
-            const indicatorColor = color || item.payload.fill || item.color;
+            let indicatorColor = color || item.color;
+            if (item.payload && typeof item.payload === 'object' && 'fill' in item.payload) {
+              indicatorColor = color || (item.payload.fill as string) || item.color;
+            }
 
             return (
               <div
-                key={item.dataKey}
+                key={String(item.dataKey ?? index)}
                 className={cn(
                   'flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground',
                   indicator === 'dot' && 'items-center'
@@ -219,8 +210,8 @@ const ChartTooltipContent = React.forwardRef<
                       {itemConfig?.icon && <itemConfig.icon />}
                       <span className="font-medium tabular-nums">
                         {formatter
-                          ? formatter(item.value || 0, item.name || '', item, index, payload)
-                          : item.value}
+                          ? formatter(item.value ?? 0, item.name ?? '', item, index, payload)
+                          : String(item.value ?? '')}
                       </span>
                     </div>
                   </div>
@@ -277,7 +268,5 @@ const ChartLegend = React.forwardRef<
   );
 });
 ChartLegend.displayName = 'ChartLegend';
-
-
 
 export { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend };

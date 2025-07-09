@@ -1,4 +1,4 @@
-import { Database } from '@/lib/supabase/client';
+import { Database } from '@/types/supabase.types';
 
 declare global {
   // Extend the Window interface to include ENV variables
@@ -16,13 +16,9 @@ declare global {
   interface TypedSupabaseClient extends SupabaseClient {
     from<T extends keyof Database['public']['Tables']>(
       table: T
-    ): import('@supabase/supabase-js').SupabaseQueryBuilder<
-      Database['public']['Tables'][T]['Row'],
-      Database['public']['Tables'][T]['Insert'],
-      Database['public']['Tables'][T]['Update']
-    >;
+    ): ReturnType<SupabaseClient['from']>;
   }
 }
 
 // Export database types for use in other files
-export type { Database } from '@/lib/supabase/client';
+export type { Database } from '@/types/supabase.types';

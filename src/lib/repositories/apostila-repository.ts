@@ -1,13 +1,10 @@
 import { BaseRepository } from './base-repository';
-import type { 
-  ApostilaRow, 
-  ApostilaInsert, 
-  ApostilaUpdate,
-  ApostilaContentRow,
-  UserApostilaProgressRow,
-  UserApostilaProgressInsert,
-  UserApostilaProgressUpdate
-} from '@/types/database.types';
+import type { Database } from '@/src/types/supabase.types';
+
+type ApostilaRow = Database['public']['Tables']['apostilas']['Row'];
+type ApostilaContentRow = Database['public']['Tables']['apostila_content']['Row'];
+type UserApostilaProgressRow = Database['public']['Tables']['user_apostila_progress']['Row'];
+type UserApostilaProgressUpdate = Database['public']['Tables']['user_apostila_progress']['Update'];
 
 export class ApostilaRepository extends BaseRepository<'apostilas'> {
   constructor() {
@@ -56,6 +53,9 @@ export class ApostilaRepository extends BaseRepository<'apostilas'> {
     apostilaContentId: string,
     progresso: { completed: boolean; progressPercentage: number }
   ): Promise<UserApostilaProgressRow> {
+    if (!userId || !apostilaContentId) {
+      throw new Error('userId e apostilaContentId são obrigatórios');
+    }
     const updateData: UserApostilaProgressUpdate = {
       user_id: userId,
       apostila_content_id: apostilaContentId,
@@ -66,7 +66,7 @@ export class ApostilaRepository extends BaseRepository<'apostilas'> {
 
     const { data, error } = await this.client
       .from('user_apostila_progress')
-      .upsert(updateData, { onConflict: 'user_id,apostila_content_id' })
+      .upsert(updateData as Required<UserApostilaProgressUpdate>, { onConflict: 'user_id,apostila_content_id' })
       .select()
       .single();
 

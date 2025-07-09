@@ -26,6 +26,11 @@ export function useAuthService() {
       };
     } catch (error) {
       logger.error('Failed to get session', { error });
+      // Em caso de erro de rede, retornar null em vez de throw
+      if (error instanceof Error && error.message.includes('fetch')) {
+        console.warn('Network error getting session, returning null');
+        return { session: null, user: null };
+      }
       throw error;
     }
   };

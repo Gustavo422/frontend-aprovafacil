@@ -224,11 +224,17 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
           disciplinasResponse.json()
         ]);
         
+        const userPref = data.data;
         const context: ConcursoContextType = {
+          concurso_id: userPref?.concurso_id || concursoData.data?.id || '',
+          categoria_id: userPref?.categoria_id || categoriaData.data?.id || '',
+          can_change_until: userPref?.can_change_until || '',
+          created_at: userPref?.created_at || '',
+          updated_at: userPref?.updated_at || '',
           categoria: categoriaData.data,
           concurso: concursoData.data,
           disciplines: disciplinasData.data,
-          userPreference: data.data
+          userPreference: userPref
         };
         
         dispatch({ type: 'SET_CONTEXT', payload: context });
@@ -324,8 +330,8 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
       dispatch({ type: 'SET_LOADING', payload: true });
       
       const params = new URLSearchParams({
-        categoria_id: state.context.categoria.id,
-        concurso_id: state.context.concurso.id,
+        categoria_id: state.context.categoria?.id || '',
+        concurso_id: state.context.concurso?.id || '',
         ...(filters && Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== undefined)))
       });
       
@@ -349,7 +355,7 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       
-      const response = await fetch(`/api/dashboard/stats?concurso_id=${state.context.concurso.id}`);
+      const response = await fetch(`/api/dashboard/stats?concurso_id=${state.context.concurso?.id || ''}`);
       
       if (!response.ok) {
         throw new Error('Erro ao carregar progresso');

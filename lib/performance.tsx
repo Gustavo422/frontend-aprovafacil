@@ -1,9 +1,7 @@
-import { createServerSupabaseClient } from './supabase';
 import { logger } from '@/lib/logger';
 import { CacheManager } from './cache';
 import { getAuditLogger } from './audit';
-import { SupabaseClient } from '@supabase/supabase-js';
-import { Database } from '@/types/supabase';
+import { createServerSupabaseClient } from './supabase';
 
 export interface PerformanceStats {
   totalSimulados: number;
@@ -54,11 +52,17 @@ interface DisciplineStatsRow {
   last_activity: string;
 }
 
+export interface PerformanceMetrics {
+  operation: string;
+  duration: number;
+  timestamp: Date;
+  metadata?: Record<string, unknown>;
+}
+
 export class PerformanceCalculator {
   private static instance: PerformanceCalculator;
-  private supabase: SupabaseClient<Database> = createServerSupabaseClient();
   private cache = CacheManager.getInstance();
-  private auditLogger = getAuditLogger();
+  private auditLogger: ReturnType<typeof getAuditLogger> | null = null;
 
   private constructor() {}
 
@@ -67,6 +71,13 @@ export class PerformanceCalculator {
       PerformanceCalculator.instance = new PerformanceCalculator();
     }
     return PerformanceCalculator.instance;
+  }
+
+  private async initialize() {
+    if (!this.auditLogger) {
+      const supabaseClient = await createServerSupabaseClient();
+      this.auditLogger = getAuditLogger(supabaseClient);
+    }
   }
 
   /**
@@ -114,7 +125,8 @@ export class PerformanceCalculator {
     totalTime: number;
   }> {
     try {
-      const { data, error } = await this.supabase
+      const supabaseClient = await createServerSupabaseClient();
+      const { data, error } = await supabaseClient
         .from('user_simulados')
         .select('score, time_taken_minutes')
         .eq('user_id', userId)
@@ -146,8 +158,6 @@ export class PerformanceCalculator {
       });
       return { total: 0, averageScore: 0, totalTime: 0 };
     }
-
-
   }
 
   /**
@@ -159,7 +169,8 @@ export class PerformanceCalculator {
     totalTime: number;
   }> {
     try {
-      const { data, error } = await this.supabase
+      const supabaseClient = await createServerSupabaseClient();
+      const { data, error } = await supabaseClient
         .from('user_questoes_semanais_progress')
         .select('score, answers')
         .eq('user_id', userId)
@@ -209,7 +220,8 @@ export class PerformanceCalculator {
     userId: string
   ): Promise<DisciplinePerformance[]> {
     try {
-      const { data, error } = await this.supabase
+      const supabaseClient = await createServerSupabaseClient();
+      const { data, error } = await supabaseClient
         .from('user_discipline_stats')
         .select('*')
         .eq('user_id', userId)
@@ -256,19 +268,20 @@ export class PerformanceCalculator {
     scoreImprovement: number;
   }> {
     try {
+      const supabaseClient = await createServerSupabaseClient();
       const weekAgo = new Date(
         Date.now() - 7 * 24 * 60 * 60 * 1000
       ).toISOString();
 
       // Buscar dados da semana atual
       const [simuladosResult, questoesResult] = await Promise.all([
-        this.supabase
+        supabaseClient
           .from('user_simulados')
           .select('score, time_taken_minutes')
           .eq('user_id', userId)
           .gte('created_at', weekAgo)
           .is('deleted_at', null),
-        this.supabase
+        supabaseClient
           .from('user_questoes_semanais_progress')
           .select('score')
           .eq('user_id', userId)
@@ -296,14 +309,14 @@ export class PerformanceCalculator {
       ).toISOString();
 
       const [previousWeekResult, currentWeekResult] = await Promise.all([
-        this.supabase
+        supabaseClient
           .from('user_simulados')
           .select('score')
           .eq('user_id', userId)
           .gte('created_at', twoWeeksAgo)
           .lt('created_at', weekAgo2)
           .is('deleted_at', null),
-        this.supabase
+        supabaseClient
           .from('user_simulados')
           .select('score')
           .eq('user_id', userId)
@@ -369,7 +382,8 @@ export class PerformanceCalculator {
     studyTimeMinutes: number
   ): Promise<void> {
     try {
-      const { data: existingStats } = await this.supabase
+      const supabaseClient = await createServerSupabaseClient();
+      const { data: existingStats } = await supabaseClient
         .from('user_discipline_stats')
         .select('*')
         .eq('user_id', userId)
@@ -391,7 +405,7 @@ export class PerformanceCalculator {
         const newStudyTime =
           existingStats.study_time_minutes + studyTimeMinutes;
 
-        await this.supabase
+        await supabaseClient
           .from('user_discipline_stats')
           .update({
             total_questions: newTotalQuestions,
@@ -404,7 +418,7 @@ export class PerformanceCalculator {
           .eq('id', existingStats.id);
       } else {
         // Criar novas estatísticas
-        await this.supabase.from('user_discipline_stats').insert({
+        await supabaseClient.from('user_discipline_stats').insert({
           user_id: userId,
           disciplina,
           total_questions: questionsAnswered,
@@ -444,7 +458,8 @@ export class PerformanceCalculator {
     studyTimeMinutes: number
   ): Promise<void> {
     try {
-      const { data: user } = await this.supabase
+      const supabaseClient = await createServerSupabaseClient();
+      const { data: user } = await supabaseClient
         .from('users')
         .select(
           'total_questions_answered, total_correct_answers, study_time_minutes, average_score'
@@ -462,7 +477,7 @@ export class PerformanceCalculator {
             ? (newCorrectAnswers / newTotalQuestions) * 100
             : 0;
 
-        await this.supabase
+        await supabaseClient
           .from('users')
           .update({
             total_questions_answered: newTotalQuestions,
@@ -498,7 +513,8 @@ export class PerformanceCalculator {
   ): Promise<void> {
     try {
       // Registrar no progresso
-      await this.supabase.from('user_simulado_progress').insert({
+      const supabaseClient = await createServerSupabaseClient();
+      await supabaseClient.from('user_simulado_progress').insert({
         user_id: userId,
         simulado_id: simuladoId,
         score,
@@ -511,12 +527,14 @@ export class PerformanceCalculator {
       await this.updateUserStats(userId, 1, score > 50 ? 1 : 0, timeTaken);
 
       // Registrar no log de auditoria
-      await this.auditLogger.logSimuladoComplete(
-        userId,
-        simuladoId,
-        score,
-        timeTaken
-      );
+      if (this.auditLogger) {
+        await this.auditLogger.logSimuladoComplete(
+          userId,
+          simuladoId,
+          score,
+          timeTaken
+        );
+      }
 
       // Limpar cache
       await this.cache.delete(
@@ -545,7 +563,8 @@ export class PerformanceCalculator {
   ): Promise<void> {
     try {
       // Registrar no progresso
-      await this.supabase.from('user_questoes_semanais_progress').insert({
+      const supabaseClient = await createServerSupabaseClient();
+      await supabaseClient.from('user_questoes_semanais_progress').insert({
         user_id: userId,
         questoes_semanais_id: questaoId,
         score,
@@ -571,7 +590,9 @@ export class PerformanceCalculator {
       // TODO: Extrair disciplina das questões
 
       // Registrar no log de auditoria
-      await this.auditLogger.logQuestaoComplete(userId, questaoId, score);
+      if (this.auditLogger) {
+        await this.auditLogger.logQuestaoComplete(userId, questaoId, score);
+      }
 
       // Limpar cache
       await this.cache.delete(
@@ -593,3 +614,170 @@ export class PerformanceCalculator {
 // Função utilitária para obter instância do calculador
 export const getPerformanceCalculator = () =>
   PerformanceCalculator.getInstance();
+
+export class PerformanceMonitor {
+  private static instance: PerformanceMonitor;
+  private metrics: PerformanceMetrics[] = [];
+
+  private constructor() {}
+
+  public static getInstance(): PerformanceMonitor {
+    if (!PerformanceMonitor.instance) {
+      PerformanceMonitor.instance = new PerformanceMonitor();
+    }
+    return PerformanceMonitor.instance;
+  }
+
+  /**
+   * Mede o tempo de execução de uma operação
+   */
+  async measureOperation<T>(
+    operation: string,
+    fn: () => Promise<T>,
+    metadata?: Record<string, unknown>
+  ): Promise<T> {
+    const startTime = Date.now();
+    
+    try {
+      const result = await fn();
+      const duration = Date.now() - startTime;
+      
+      this.recordMetric({
+        operation,
+        duration,
+        timestamp: new Date(),
+        metadata,
+      });
+      
+      return result;
+    } catch (error) {
+      const duration = Date.now() - startTime;
+      
+      this.recordMetric({
+        operation: `${operation}_error`,
+        duration,
+        timestamp: new Date(),
+        metadata: {
+          ...metadata,
+          error: error instanceof Error ? error.message : String(error),
+        },
+      });
+      
+      throw error;
+    }
+  }
+
+  /**
+   * Registra uma métrica de performance
+   */
+  recordMetric(metric: PerformanceMetrics): void {
+    this.metrics.push(metric);
+    
+    // Log para operações lentas (>1s)
+    if (metric.duration > 1000) {
+      logger.warn('Operação lenta detectada:', {
+        operation: metric.operation,
+        duration: metric.duration,
+        metadata: metric.metadata,
+      });
+    }
+  }
+
+  /**
+   * Obtém métricas de performance
+   */
+  getMetrics(
+    operation?: string,
+    timeRange?: { start: Date; end: Date }
+  ): PerformanceMetrics[] {
+    let filteredMetrics = this.metrics;
+
+    if (operation) {
+      filteredMetrics = filteredMetrics.filter(m => m.operation === operation);
+    }
+
+    if (timeRange) {
+      filteredMetrics = filteredMetrics.filter(
+        m => m.timestamp >= timeRange.start && m.timestamp <= timeRange.end
+      );
+    }
+
+    return filteredMetrics;
+  }
+
+  /**
+   * Calcula estatísticas de performance
+   */
+  getStats(operation?: string): {
+    count: number;
+    avgDuration: number;
+    minDuration: number;
+    maxDuration: number;
+    totalDuration: number;
+  } {
+    const metrics = this.getMetrics(operation);
+    
+    if (metrics.length === 0) {
+      return {
+        count: 0,
+        avgDuration: 0,
+        minDuration: 0,
+        maxDuration: 0,
+        totalDuration: 0,
+      };
+    }
+
+    const durations = metrics.map(m => m.duration);
+    const totalDuration = durations.reduce((sum, duration) => sum + duration, 0);
+    
+    return {
+      count: metrics.length,
+      avgDuration: totalDuration / metrics.length,
+      minDuration: Math.min(...durations),
+      maxDuration: Math.max(...durations),
+      totalDuration,
+    };
+  }
+
+  /**
+   * Limpa métricas antigas (mais de 24 horas)
+   */
+  cleanup(): void {
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    this.metrics = this.metrics.filter(m => m.timestamp > oneDayAgo);
+  }
+
+  /**
+   * Exporta métricas para análise
+   */
+  exportMetrics(): PerformanceMetrics[] {
+    return [...this.metrics];
+  }
+}
+
+// Singleton instance
+export const getPerformanceMonitor = () => PerformanceMonitor.getInstance();
+
+// Decorator para medir performance de métodos
+export function measurePerformance(operation?: string) {
+  return function (
+    target: Record<string, unknown>,
+    propertyKey: string,
+    descriptor: PropertyDescriptor
+  ): PropertyDescriptor {
+    const originalMethod = descriptor.value;
+
+    descriptor.value = async function (...args: unknown[]) {
+      const monitor = getPerformanceMonitor();
+      const operationName = operation || `${target.constructor?.name || 'Unknown'}.${propertyKey}`;
+      
+      return await monitor.measureOperation(
+        operationName,
+        () => originalMethod.apply(this, args),
+        { args: args.length }
+      );
+    };
+
+    return descriptor;
+  };
+}

@@ -1,7 +1,7 @@
 // Services
 export { ApostilasService } from './services/apostilas-service';
 
-// Types (re-export from central types)
+// Types (re-export from service)
 export type {
   Apostila,
   ApostilaInsert,
@@ -12,4 +12,4 @@ export type {
   UserApostilaProgress,
   UserApostilaProgressInsert,
   ApostilaWithContent,
-} from '../../core/database/types'; 
+} from './services/apostilas-service'; 

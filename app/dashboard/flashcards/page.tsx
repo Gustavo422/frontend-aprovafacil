@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Flashcard, type FlashcardData } from '@/components/flashcard';
+import { Flashcard } from '@/components/flashcard';
 import { BookOpen, Plus, Loader2 } from 'lucide-react';
 import { logger } from '@/lib/logger';
 
@@ -31,6 +31,15 @@ interface FlashcardFromDB {
   subtema?: string;
   concurso_id?: string;
   created_at: string;
+}
+
+interface FlashcardData {
+  id: string;
+  front: string;
+  back: string;
+  disciplina: string;
+  tema: string;
+  subtema?: string;
 }
 
 interface WeakPoint {

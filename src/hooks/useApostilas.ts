@@ -12,7 +12,7 @@ interface ApostilasFilters {
  * Hook personalizado para gerenciar o estado das apostilas
  * Fornece métodos para buscar, criar, atualizar e remover apostilas
  */
-export function useApostilas(initialFilters: ApostilasFilters = {}) {
+export function useApostilas(initialFilters: ApostilasFilters = {}, userId?: string) {
   const [apostilas, setApostilas] = useState<Apostila[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
@@ -40,7 +40,7 @@ export function useApostilas(initialFilters: ApostilasFilters = {}) {
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Erro ao carregar apostilas');
       setError(error);
-      console.error('Erro ao carregar apostilas:', error);
+
     } finally {
       setLoading(false);
     }
@@ -54,9 +54,13 @@ export function useApostilas(initialFilters: ApostilasFilters = {}) {
   /**
    * Cria uma nova apostila
    */
-  const createApostila = async (apostilaData: Omit<Apostila, 'id' | 'created_at' | 'updated_at' | 'user_id' | 'is_active'>, userId: string) => {
+  const createApostila = async (apostilaData: Omit<Apostila, 'id' | 'created_at' | 'updated_at' | 'is_active'>) => {
     try {
       setLoading(true);
+      // Verificar se userId está disponível
+      if (!userId) {
+        throw new Error('Usuário não autenticado');
+      }
       const novaApostila = await apostilasService.create(apostilaData, userId);
       
       // Atualiza a lista localmente
@@ -213,3 +217,4 @@ export function useApostilas(initialFilters: ApostilasFilters = {}) {
 }
 
 export default useApostilas;
+

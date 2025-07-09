@@ -1,9 +1,11 @@
 import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { UserRepository } from '@/lib/repositories/user-repository';
-import type { PostgrestError, User as SupabaseUser } from '@supabase/supabase-js';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { mapUserRowToAppUser } from '../types/user.types';
 import type { AppUser, UserStatsUpdate } from '../types/user.types';
-import type { UserRow as DBUserRow } from '@/types/database.types';
+import type { Database } from '@/src/types/supabase.types';
+
+type DBUserRow = Database['public']['Tables']['users']['Row'];
 
 const userRepo = new UserRepository();
 
@@ -159,8 +161,6 @@ export const useAtualizarEstatisticasUsuario = () => {
     },
     // Em caso de erro, reverter para o estado anterior
     onError: (err: Error, _, context) => {
-      console.error('Erro ao atualizar estatísticas:', err);
-      
       if (context?.previousUser) {
         queryClient.setQueryData(
           userKeys.detail(context.previousUser.id),
@@ -207,7 +207,6 @@ export const useDesativarConta = () => {
       if (context?.previousUser) {
         queryClient.setQueryData(userKeys.detail(userId), context.previousUser);
       }
-      console.error('Erro ao desativar conta:', error);
     },
     // Sempre revalidar os dados após a mutação
     onSettled: (data, error, userId) => {

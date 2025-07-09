@@ -10,7 +10,16 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, XCircle, HelpCircle, CheckCircle } from 'lucide-react';
-import type { Flashcard as FlashcardType } from '@/core/database/types';
+
+// Definir o tipo Flashcard localmente
+interface FlashcardType {
+  id: string | number;
+  front: string;
+  back: string;
+  discipline?: string;
+  tema?: string;
+  subtema?: string;
+}
 
 interface FlashcardProps {
   flashcard: FlashcardType;

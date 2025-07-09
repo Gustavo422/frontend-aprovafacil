@@ -26,7 +26,7 @@ export async function GET(
       .order('module_number', { ascending: true });
 
     if (error) {
-      logger.error('Erro ao buscar módulos:', error);
+      logger.error('Erro ao buscar módulos:', error as unknown as Record<string, unknown>);
       return NextResponse.json(
         { error: 'Erro ao buscar módulos' },
         { status: 500 }
@@ -43,7 +43,7 @@ export async function GET(
       .in('apostila_content_id', moduloIds);
 
     if (progressosError) {
-      logger.error('Erro ao buscar progressos:', progressosError);
+      logger.error('Erro ao buscar progressos:', progressosError as unknown as Record<string, unknown>);
       return NextResponse.json(
         { error: 'Erro ao buscar progressos' },
         { status: 500 }
@@ -66,7 +66,7 @@ export async function GET(
       modulos: modulosComProgresso,
     });
   } catch (error) {
-    logger.error('Erro ao processar requisição:', error);
+    logger.error('Erro ao processar requisição:', error as unknown as Record<string, unknown>);
     return NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }

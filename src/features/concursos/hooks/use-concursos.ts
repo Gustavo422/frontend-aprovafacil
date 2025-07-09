@@ -1,11 +1,11 @@
 import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { ConcursoRepository } from '@/lib/repositories/concurso-repository';
 import type { 
-  ConcursoRow, 
-  ConcursoInsert, 
-  ConcursoUpdate 
-} from '@/types/database.types';
-import type { PostgrestError } from '@supabase/supabase-js';
+  Concurso, 
+  TablesInsert, 
+  TablesUpdate 
+} from '@/types/supabase.types';
+
 
 const concursoRepo = new ConcursoRepository();
 
@@ -35,9 +35,9 @@ const concursoKeys = {
 // Hook para listar concursos
 export const useListarConcursos = (
   filters: ConcursoFilters = {},
-  options?: Omit<UseQueryOptions<ConcursoRow[], Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<Concurso[], Error>, 'queryKey' | 'queryFn'>
 ) => {
-  return useQuery<ConcursoRow[], Error>({
+  return useQuery<Concurso[], Error>({
     queryKey: concursoKeys.list(filters),
     queryFn: () => concursoRepo.buscarComFiltros(filters),
     ...options,
@@ -46,9 +46,9 @@ export const useListarConcursos = (
 
 // Hook para buscar concursos ativos
 export const useListarConcursosAtivos = (
-  options?: Omit<UseQueryOptions<ConcursoRow[], Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<Concurso[], Error>, 'queryKey' | 'queryFn'>
 ) => {
-  return useQuery<ConcursoRow[], Error>({
+  return useQuery<Concurso[], Error>({
     queryKey: concursoKeys.ativos(),
     queryFn: () => concursoRepo.findAtivos(),
     ...options,
@@ -58,9 +58,9 @@ export const useListarConcursosAtivos = (
 // Hook para buscar concursos por categoria
 export const useListarConcursosPorCategoria = (
   categoriaId: string,
-  options?: Omit<UseQueryOptions<ConcursoRow[], Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<Concurso[], Error>, 'queryKey' | 'queryFn'>
 ) => {
-  return useQuery<ConcursoRow[], Error>({
+  return useQuery<Concurso[], Error>({
     queryKey: concursoKeys.byCategoria(categoriaId),
     queryFn: () => concursoRepo.findByCategoria(categoriaId),
     enabled: !!categoriaId,
@@ -71,9 +71,9 @@ export const useListarConcursosPorCategoria = (
 // Hook para buscar concursos por banca
 export const useListarConcursosPorBanca = (
   banca: string,
-  options?: Omit<UseQueryOptions<ConcursoRow[], Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<Concurso[], Error>, 'queryKey' | 'queryFn'>
 ) => {
-  return useQuery<ConcursoRow[], Error>({
+  return useQuery<Concurso[], Error>({
     queryKey: concursoKeys.byBanca(banca),
     queryFn: () => concursoRepo.findByBanca(banca),
     enabled: !!banca,
@@ -84,9 +84,9 @@ export const useListarConcursosPorBanca = (
 // Hook para buscar concurso por ID
 export const useBuscarConcurso = (
   id: string,
-  options?: Omit<UseQueryOptions<ConcursoRow | null, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<Concurso | null, Error>, 'queryKey' | 'queryFn'>
 ) => {
-  return useQuery<ConcursoRow | null, Error>({
+  return useQuery<Concurso | null, Error>({
     queryKey: concursoKeys.detail(id),
     queryFn: async () => {
       if (!id) return null;
@@ -98,39 +98,39 @@ export const useBuscarConcurso = (
 };
 
 // Tipo para os dados de criação de concurso
-type CriarConcursoData = Omit<ConcursoInsert, 'id' | 'created_at' | 'updated_at'>;
+type CriarConcursoData = Omit<TablesInsert<'concursos'>, 'id' | 'created_at' | 'updated_at'>;
 
 // Hook para criar concurso
 export const useCriarConcurso = () => {
   const queryClient = useQueryClient();
   
   return useMutation<
-    ConcursoRow, 
+    Concurso, 
     Error, 
     CriarConcursoData,
-    { previousConcursos: ConcursoRow[] | undefined }
+    { previousConcursos: Concurso[] | undefined }
   >({
     mutationFn: (data) => concursoRepo.criarConcurso({
       ...data,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       is_active: data.is_active ?? true
-    } as ConcursoInsert),
+    } as TablesInsert<'concursos'>),
     // Otimista UI update
     onMutate: async (newConcurso) => {
       // Cancelar queries em andamento
       await queryClient.cancelQueries({ queryKey: concursoKeys.lists() });
       
       // Salvar o estado anterior para rollback em caso de erro
-      const previousConcursos = queryClient.getQueryData<ConcursoRow[]>(
+      const previousConcursos = queryClient.getQueryData<Concurso[]>(
         concursoKeys.list()
       );
       
       // Atualizar o cache otimisticamente
       if (previousConcursos) {
-        queryClient.setQueryData<ConcursoRow[]>(
+        queryClient.setQueryData<Concurso[]>(
           concursoKeys.list(),
-          [...previousConcursos, { ...newConcurso, id: 'temp-id' } as ConcursoRow]
+          [...previousConcursos, { ...newConcurso, id: 'temp-id' } as Concurso]
         );
       }
       
@@ -141,7 +141,7 @@ export const useCriarConcurso = () => {
       if (context?.previousConcursos) {
         queryClient.setQueryData(concursoKeys.lists(), context.previousConcursos);
       }
-      console.error('Erro ao criar concurso:', error);
+
     },
     // Sempre revalidar os dados após a mutação
     onSettled: () => {
@@ -151,17 +151,17 @@ export const useCriarConcurso = () => {
 };
 
 // Tipo para os dados de atualização de concurso
-type AtualizarConcursoData = Partial<Omit<ConcursoUpdate, 'id' | 'created_at' | 'updated_at'>>;
+type AtualizarConcursoData = Partial<Omit<TablesUpdate<'concursos'>, 'id' | 'created_at' | 'updated_at'>>;
 
 // Hook para atualizar concurso
 export const useAtualizarConcurso = () => {
   const queryClient = useQueryClient();
   
   return useMutation<
-    ConcursoRow, 
+    Concurso, 
     Error, 
     { id: string; data: AtualizarConcursoData },
-    { previousConcurso: ConcursoRow | undefined }
+    { previousConcurso: Concurso | undefined }
   >({
     mutationFn: ({ id, data }) => concursoRepo.atualizarConcurso(id, {
       ...data,
@@ -173,7 +173,7 @@ export const useAtualizarConcurso = () => {
       await queryClient.cancelQueries({ queryKey: concursoKeys.detail(id) });
       
       // Salvar o estado anterior para rollback em caso de erro
-      const previousConcurso = queryClient.getQueryData<ConcursoRow>(
+      const previousConcurso = queryClient.getQueryData<Concurso>(
         concursoKeys.detail(id)
       );
       
@@ -195,7 +195,7 @@ export const useAtualizarConcurso = () => {
       if (context?.previousConcurso) {
         queryClient.setQueryData(concursoKeys.detail(id), context.previousConcurso);
       }
-      console.error('Erro ao atualizar concurso:', error);
+
     },
     // Sempre revalidar os dados após a mutação
     onSettled: (data) => {
@@ -212,10 +212,10 @@ export const useDesativarConcurso = () => {
   const queryClient = useQueryClient();
   
   return useMutation<
-    ConcursoRow, 
+    Concurso, 
     Error, 
     string,
-    { previousConcurso: ConcursoRow | undefined }
+    { previousConcurso: Concurso | undefined }
   >({
     mutationFn: (id: string) => concursoRepo.desativarConcurso(id),
     // Otimista UI update
@@ -224,7 +224,7 @@ export const useDesativarConcurso = () => {
       await queryClient.cancelQueries({ queryKey: concursoKeys.detail(id) });
       
       // Salvar o estado anterior para rollback em caso de erro
-      const previousConcurso = queryClient.getQueryData<ConcursoRow>(
+      const previousConcurso = queryClient.getQueryData<Concurso>(
         concursoKeys.detail(id)
       );
       
@@ -244,7 +244,7 @@ export const useDesativarConcurso = () => {
       if (context?.previousConcurso) {
         queryClient.setQueryData(concursoKeys.detail(id), context.previousConcurso);
       }
-      console.error('Erro ao desativar concurso:', error);
+
     },
     // Sempre revalidar os dados após a mutação
     onSettled: (data) => {
@@ -261,10 +261,10 @@ export const useAtivarConcurso = () => {
   const queryClient = useQueryClient();
   
   return useMutation<
-    ConcursoRow, 
+    Concurso, 
     Error, 
     string,
-    { previousConcurso: ConcursoRow | undefined }
+    { previousConcurso: Concurso | undefined }
   >({
     mutationFn: (id: string) => concursoRepo.ativarConcurso(id),
     // Otimista UI update
@@ -273,7 +273,7 @@ export const useAtivarConcurso = () => {
       await queryClient.cancelQueries({ queryKey: concursoKeys.detail(id) });
       
       // Salvar o estado anterior para rollback em caso de erro
-      const previousConcurso = queryClient.getQueryData<ConcursoRow>(
+      const previousConcurso = queryClient.getQueryData<Concurso>(
         concursoKeys.detail(id)
       );
       
@@ -293,7 +293,7 @@ export const useAtivarConcurso = () => {
       if (context?.previousConcurso) {
         queryClient.setQueryData(concursoKeys.detail(id), context.previousConcurso);
       }
-      console.error('Erro ao ativar concurso:', error);
+
     },
     // Sempre revalidar os dados após a mutação
     onSettled: (data) => {
@@ -304,3 +304,4 @@ export const useAtivarConcurso = () => {
     },
   });
 };
+

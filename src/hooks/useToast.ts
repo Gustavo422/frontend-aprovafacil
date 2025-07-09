@@ -1,152 +1,91 @@
 import { useCallback } from 'react';
 import toast from 'react-hot-toast';
+import type { ReactElement } from 'react';
 
 type ToastType = 'success' | 'error' | 'info' | 'warning' | 'loading';
 
-export const useToast = () => {
-  const showToast = useCallback(
-    (
-      message: string,
-      type: ToastType = 'info',
-      options: {
-        duration?: number;
-        position?: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
-        icon?: string | JSX.Element;
-        action?: {
-          label: string;
-          onClick: () => void;
-        };
-      } = {}
-    ) => {
-      const { duration = 5000, position = 'top-right', icon, action } = options;
+interface ToastOptions {
+  duration?: number;
+  icon?: string | ReactElement;
+  style?: React.CSSProperties;
+}
 
-      const toastOptions = {
-        duration,
-        position,
-        icon,
-        ...(action && {
-          action: {
-            label: action.label,
-            onClick: () => {
-              action.onClick();
-              toast.dismiss();
-            },
-          },
-        }),
-      };
+interface ToastConfig {
+  success: (message: string, options?: ToastOptions) => string;
+  error: (message: string, options?: ToastOptions) => string;
+  info: (message: string, options?: ToastOptions) => string;
+  warning: (message: string, options?: ToastOptions) => string;
+  loading: (message: string, options?: ToastOptions) => string;
+  dismiss: (toastId: string) => void;
+  remove: () => void;
+}
 
-      switch (type) {
-        case 'success':
-          return toast.success(message, toastOptions);
-        case 'error':
-          return toast.error(message, toastOptions);
-        case 'warning':
-          return toast(message, {
-            ...toastOptions,
-            style: {
-              background: '#FFA500',
-              color: '#fff',
-            },
-            icon: icon || '⚠️',
-          });
-        case 'loading':
-          return toast.loading(message, {
-            ...toastOptions,
-            style: {
-              background: '#3B82F6',
-              color: '#fff',
-            },
-          });
-        default:
-          return toast(message, {
-            ...toastOptions,
-            style: {
-              background: '#3B82F6',
-              color: '#fff',
-            },
-          });
-      }
-    },
-    []
-  );
+export const useToast = (): ToastConfig => {
+  const showToast = useCallback((type: ToastType, message: string, options: ToastOptions = {}) => {
+    const { duration = 4000, icon, style } = options;
 
-  const dismissToast = useCallback((toastId?: string) => {
-    if (toastId) {
-      toast.dismiss(toastId);
-    } else {
-      toast.dismiss();
+    const toastOptions = {
+      duration,
+      style: {
+        background: type === 'error' ? '#ef4444' : 
+                   type === 'success' ? '#22c55e' : 
+                   type === 'warning' ? '#f59e0b' : '#3b82f6',
+        color: '#fff',
+        ...style,
+      },
+    };
+
+    switch (type) {
+      case 'success':
+        return toast.success(message, toastOptions);
+      case 'error':
+        return toast.error(message, toastOptions);
+      case 'warning':
+        return toast(message, { ...toastOptions, icon: icon || '⚠️' });
+      case 'info':
+        return toast(message, { ...toastOptions, icon: icon || 'ℹ️' });
+      case 'loading':
+        return toast.loading(message, toastOptions);
+      default:
+        return toast(message, toastOptions);
     }
   }, []);
 
-  const updateToast = useCallback(
-    (
-      toastId: string,
-      message: string,
-      type: ToastType = 'info',
-      options: {
-        duration?: number;
-        position?: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
-        icon?: string | JSX.Element;
-      } = {}
-    ) => {
-      const { duration = 5000, position = 'top-right', icon } = options;
+  const dismiss = useCallback((toastId: string) => {
+    toast.dismiss(toastId);
+  }, []);
 
-      const toastOptions = {
-        ...options,
-        duration,
-        position,
-        icon,
-      };
-
-      switch (type) {
-        case 'success':
-          return toast.success(message, {
-            ...toastOptions,
-            id: toastId,
-          });
-        case 'error':
-          return toast.error(message, {
-            ...toastOptions,
-            id: toastId,
-          });
-        case 'warning':
-          return toast(message, {
-            ...toastOptions,
-            id: toastId,
-            style: {
-              background: '#FFA500',
-              color: '#fff',
-            },
-            icon: icon || '⚠️',
-          });
-        case 'loading':
-          return toast.loading(message, {
-            ...toastOptions,
-            id: toastId,
-            style: {
-              background: '#3B82F6',
-              color: '#fff',
-            },
-          });
-        default:
-          return toast(message, {
-            ...toastOptions,
-            id: toastId,
-            style: {
-              background: '#3B82F6',
-              color: '#fff',
-            },
-          });
-      }
-    },
-    []
-  );
+  const remove = useCallback(() => {
+    toast.remove();
+  }, []);
 
   return {
-    showToast,
-    dismissToast,
-    updateToast,
-    dismissAll: toast.dismiss,
+    success: (message: string, options?: ToastOptions) => showToast('success', message, options),
+    error: (message: string, options?: ToastOptions) => showToast('error', message, options),
+    info: (message: string, options?: ToastOptions) => showToast('info', message, options),
+    warning: (message: string, options?: ToastOptions) => showToast('warning', message, options),
+    loading: (message: string, options?: ToastOptions) => showToast('loading', message, options),
+    dismiss,
+    remove,
+  };
+};
+
+// Hook para toast com ícones personalizados
+export const useCustomToast = () => {
+  const toast = useToast();
+
+  const showSuccessWithIcon = useCallback((message: string, icon?: ReactElement) => {
+    return toast.success(message, { icon });
+  }, [toast]);
+
+  const showErrorWithIcon = useCallback((message: string, icon?: ReactElement) => {
+    return toast.error(message, { icon });
+  }, [toast]);
+
+  return {
+    ...toast,
+    showSuccessWithIcon,
+    showErrorWithIcon,
   };
 };
 

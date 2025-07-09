@@ -1,10 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase/client';
+import { logger } from '@/lib/logger';
 import { ApostilaRepository } from '@/lib/repositories/apostila-repository';
 import type { 
-  ApostilaRow, 
-  ApostilaContentRow, 
-  UserApostilaProgressRow 
-} from '@/types/database.types';
+  Database 
+} from '@/src/types/supabase.types';
+
+type ApostilaRow = Database['public']['Tables']['apostilas']['Row'];
+type ApostilaContentRow = Database['public']['Tables']['apostila_content']['Row'];
+type UserApostilaProgressRow = Database['public']['Tables']['user_apostila_progress']['Row'];
 
 const apostilaRepo = new ApostilaRepository();
 
@@ -12,7 +16,7 @@ const apostilaRepo = new ApostilaRepository();
 const apostilaKeys = {
   all: ['apostilas'] as const,
   lists: () => [...apostilaKeys.all, 'list'] as const,
-  list: (filters?: any) => [...apostilaKeys.lists(), { filters }] as const,
+  list: (filters?: unknown) => [...apostilaKeys.lists(), { filters }] as const,
   details: () => [...apostilaKeys.all, 'detail'] as const,
   detail: (id: string) => [...apostilaKeys.details(), id] as const,
   byConcurso: (concursoId: string) => 
@@ -104,3 +108,265 @@ export const useBuscarApostila = (id: string) => {
     enabled: !!id,
   });
 };
+
+interface Apostila {
+  id: string;
+  title: string;
+  description?: string | null;
+  concurso_id?: string | null;
+  categoria_id?: string | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  disciplinas?: any;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface ApostilaProgress {
+  id: string;
+  user_id: string;
+  apostila_content_id: string;
+  completed: boolean;
+  progress_percentage: number;
+  last_accessed: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface UseApostilasOptions {
+  userId?: string;
+  includePublic?: boolean;
+  limit?: number;
+}
+
+export function useApostilas(options: UseApostilasOptions = {}) {
+  const { userId, includePublic = false, limit = 50 } = options;
+  const queryClient = useQueryClient();
+
+  const {
+    data: apostilas,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['apostilas', userId, includePublic],
+    queryFn: async (): Promise<Apostila[]> => {
+      const supabaseClient = supabase;
+      let query = supabaseClient
+        .from('apostilas')
+        .select('*')
+        .is('deleted_at', null)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (userId) {
+        if (includePublic) {
+          query = query.or(`user_id.eq.${userId},is_public.eq.true`);
+        } else {
+          query = query.eq('user_id', userId);
+        }
+      } else if (includePublic) {
+        query = query.eq('is_public', true);
+      }
+
+      const { data, error: queryError } = await query;
+
+      if (queryError) {
+        logger.error('Erro ao buscar apostilas:', {
+          error: queryError.message,
+          details: queryError,
+        });
+        throw new Error('Erro ao buscar apostilas');
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (data as any) || [];
+    },
+    enabled: !!userId || includePublic,
+  });
+
+  const createApostilaMutation = useMutation({
+    mutationFn: async (apostilaData: Omit<Apostila, 'id' | 'created_at' | 'updated_at'>) => {
+      const supabaseClient = supabase;
+      const { data, error } = await supabaseClient
+        .from('apostilas')
+        .insert(apostilaData)
+        .select()
+        .single();
+
+      if (error) {
+        logger.error('Erro ao criar apostila:', {
+          error: error.message,
+          details: error,
+        });
+        throw new Error('Erro ao criar apostila');
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['apostilas'] });
+    },
+  });
+
+  const updateApostilaMutation = useMutation({
+    mutationFn: async ({
+      id,
+      ...apostilaData
+    }: Partial<Apostila> & { id: string }) => {
+      const supabaseClient = supabase;
+      const { data, error } = await supabaseClient
+        .from('apostilas')
+        .update({
+          ...apostilaData,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        logger.error('Erro ao atualizar apostila:', {
+          error: error.message,
+          details: error,
+        });
+        throw new Error('Erro ao atualizar apostila');
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['apostilas'] });
+    },
+  });
+
+  const deleteApostilaMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const supabaseClient = supabase;
+      const { error } = await supabaseClient
+        .from('apostilas')
+        .update({
+          is_active: false,
+        })
+        .eq('id', id);
+
+      if (error) {
+        logger.error('Erro ao deletar apostila:', {
+          error: error.message,
+          details: error,
+        });
+        throw new Error('Erro ao deletar apostila');
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['apostilas'] });
+    },
+  });
+
+  return {
+    apostilas,
+    isLoading,
+    error,
+    refetch,
+    createApostila: createApostilaMutation.mutateAsync,
+    updateApostila: updateApostilaMutation.mutateAsync,
+    deleteApostila: deleteApostilaMutation.mutateAsync,
+    isCreating: createApostilaMutation.isPending,
+    isUpdating: updateApostilaMutation.isPending,
+    isDeleting: deleteApostilaMutation.isPending,
+  };
+}
+
+export function useApostilaProgress(apostilaId: string, userId?: string) {
+  const queryClient = useQueryClient();
+
+  const {
+    data: progress,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['apostila-progress', apostilaId, userId],
+    queryFn: async (): Promise<ApostilaProgress | null> => {
+      if (!userId) return null;
+
+      const supabaseClient = supabase;
+      const { data, error: queryError } = await supabaseClient
+        .from('user_apostila_progress')
+        .select('*')
+        .eq('apostila_id', apostilaId)
+        .eq('user_id', userId)
+        .single();
+
+      if (queryError && queryError.code !== 'PGRST116') {
+        logger.error('Erro ao buscar progresso da apostila:', {
+          error: queryError.message,
+          details: queryError,
+        });
+        throw new Error('Erro ao buscar progresso da apostila');
+      }
+
+      return data;
+    },
+    enabled: !!userId && !!apostilaId,
+  });
+
+  const updateProgressMutation = useMutation({
+    mutationFn: async (progressData: Partial<ApostilaProgress>) => {
+      
+      if (progress) {
+        // Atualizar progresso existente
+        const { data, error } = await supabase
+          .from('user_apostila_progress')
+          .update({
+            ...progressData,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', progress.id)
+          .select()
+          .single();
+
+        if (error) {
+          logger.error('Erro ao atualizar progresso da apostila:', {
+            error: error.message,
+            details: error,
+          });
+          throw new Error('Erro ao atualizar progresso da apostila');
+        }
+
+        return data;
+      } else {
+        // Criar novo progresso
+        const { data, error } = await supabase
+          .from('user_apostila_progress')
+          .insert({
+            apostila_content_id: apostilaId,
+            user_id: userId!,
+            ...progressData,
+          })
+          .select()
+          .single();
+
+        if (error) {
+          logger.error('Erro ao criar progresso da apostila:', {
+            error: error.message,
+            details: error,
+          });
+          throw new Error('Erro ao criar progresso da apostila');
+        }
+
+        return data;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['apostila-progress', apostilaId, userId] });
+    },
+  });
+
+  return {
+    progress,
+    isLoading,
+    error,
+    updateProgress: updateProgressMutation.mutateAsync,
+    isUpdating: updateProgressMutation.isPending,
+  };
+}

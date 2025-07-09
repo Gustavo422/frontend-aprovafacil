@@ -2,7 +2,20 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@supabase/supabase-js';
 import { logger } from '../logger';
 import { errorHandler, DatabaseError } from '../error-handler';
-import { BaseEntity, ApiResponse, PaginatedResponse } from '../../types';
+// Tipos básicos para o repositório
+interface BaseEntity {
+  id: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+interface ApiResponse<T = unknown> {
+  data?: T;
+  message?: string;
+  error?: string;
+}
+
+
 
 export abstract class BaseRepository<T extends BaseEntity> {
   protected client: SupabaseClient;
@@ -51,7 +64,7 @@ export abstract class BaseRepository<T extends BaseEntity> {
   public async findAll(
     limit?: number,
     offset?: number
-  ): Promise<PaginatedResponse<T>> {
+  ): Promise<ApiResponse<T[]>> {
     let query = this.client
       .from(this.tableName)
       .select('*', { count: 'exact' });
