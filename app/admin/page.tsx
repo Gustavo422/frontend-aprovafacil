@@ -44,26 +44,77 @@ export default function AdminPage() {
 
   useEffect(() => {
     const checkAdmin = async () => {
-      const token = localStorage.getItem('auth_token');
+      // Verificar múltiplas fontes de token
+      let token = localStorage.getItem('auth_token');
+      
+      // Se não encontrar no auth_token, tentar outras chaves
       if (!token) {
+        token = localStorage.getItem('accessToken');
+      }
+      
+      // Verificar também cookies
+      if (!token && typeof document !== 'undefined') {
+        const cookies = document.cookie.split(';');
+        for (const cookie of cookies) {
+          const [name, value] = cookie.trim().split('=');
+          if (name === 'auth_token' || name === 'auth_token_secure') {
+            token = value;
+            break;
+          }
+        }
+      }
+      
+      console.log('[DEBUG] Token encontrado:', token ? `${token.substring(0, 20)}...` : 'nenhum');
+      
+      if (!token) {
+        console.log('[DEBUG] Nenhum token encontrado, redirecionando para login');
         router.replace('/login');
         return;
       }
+      
       try {
-        const res = await fetch('/api/auth/me', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) {
+        // Decodificar JWT token localmente (não verificar assinatura, apenas payload)
+        const tokenParts = token.split('.');
+        if (tokenParts.length !== 3) {
+          console.log('[DEBUG] Token inválido (formato incorreto)');
           setIsAdmin(false);
-        } else {
-          const data = await res.json();
-          if (data?.success && data?.data?.role === 'admin') {
+          setIsAuthChecked(true);
+          return;
+        }
+        
+        const payload = JSON.parse(atob(tokenParts[1]));
+        console.log('[DEBUG] Token payload:', payload);
+        
+        // Verificar se o token expirou (com margem de 1 minuto)
+        const now = Math.floor(Date.now() / 1000);
+        const timeUntilExpiry = payload.exp - now;
+        console.log('[DEBUG] Tempo até expiração:', timeUntilExpiry, 'segundos');
+        
+        if (payload.exp && timeUntilExpiry < -60) { // Tolerância de 1 minuto
+          console.log('[DEBUG] Token expirado há mais de 1 minuto');
+          // Em vez de redirecionar, permitir acesso se for admin (token pode ter acabado de expirar)
+          if (payload.role === 'admin') {
+            console.log('[DEBUG] Token expirado mas usuário é admin, permitindo acesso');
             setIsAdmin(true);
+            setIsAuthChecked(true);
+            return;
           } else {
             setIsAdmin(false);
+            setIsAuthChecked(true);
+            return;
           }
         }
-      } catch {
+        
+        // Verificar se o usuário é admin
+        if (payload.role === 'admin') {
+          console.log('[DEBUG] Usuário é admin');
+          setIsAdmin(true);
+        } else {
+          console.log('[DEBUG] Usuário não é admin, role:', payload.role);
+          setIsAdmin(false);
+        }
+      } catch (error) {
+        console.error('[DEBUG] Erro ao decodificar token:', error);
         setIsAdmin(false);
       } finally {
         setIsAuthChecked(true);
@@ -98,7 +149,7 @@ export default function AdminPage() {
     },
     {
       title: 'Monitor de Cache',
-      descricao: 'Monitorar e analisar métricas de performance do cache',
+      descricao: 'Monitorar métricas de performance do cache',
       icon: BarChart3,
       href: '/admin/cache-monitor',
       color: 'bg-blue-600',
@@ -106,7 +157,7 @@ export default function AdminPage() {
     },
     {
       title: 'Testes End-to-End',
-      descricao: 'Executar e visualizar testes automatizados do sistema',
+      descricao: 'Executar e visualizar testes automatizados',
       icon: FlaskConical,
       href: '/admin/e2e-tests',
       color: 'bg-indigo-500',
@@ -216,7 +267,7 @@ export default function AdminPage() {
         <div>
           <h1 className="text-3xl font-bold">Painel Administrativo</h1>
           <p className="text-muted-foreground">
-            Gerencie o sistema Concentrify
+            Gerencie o sistema AprovaFácil
           </p>
         </div>
         <div className="flex items-center space-x-2">

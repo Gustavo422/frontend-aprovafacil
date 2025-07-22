@@ -13,7 +13,7 @@ export default function DashboardUserInfo() {
     })
       .then(res => res.json())
       .then(data => {
-        if (data.success) setUser(data);
+        if (data.success && data.data) setUser(data.data);
       });
   }, []);
 

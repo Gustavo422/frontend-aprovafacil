@@ -18,6 +18,19 @@ export async function POST(request: Request) {
     const data = await res.json();
     console.log('[DEBUG] Login - Resposta:', { status: res.status, success: data.success });
 
+    // Converter resposta do backend para o formato esperado pelo frontend
+    if (res.status === 200 && data.success) {
+      // Se o backend retorna no formato antigo, converter para o novo
+      if (data.accessToken && data.user && !data.data) {
+        data.data = {
+          token: data.accessToken,
+          usuario: data.user,
+          expiresIn: data.expiresIn
+        };
+        console.log('[DEBUG] Convertendo resposta do backend para formato esperado');
+      }
+    }
+
     // Criar a resposta
     const response = NextResponse.json(data, { status: res.status });
 
@@ -48,4 +61,4 @@ export async function POST(request: Request) {
 
     return response;
   });
-}
+} 
