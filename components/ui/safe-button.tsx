@@ -135,7 +135,7 @@ const SafeButton = forwardRef(
   }
 );
 
-// Add display name for debugging
+// Add display nome for debugging
 SafeButton.displayName = 'SafeButton';
 
 export { SafeButton };

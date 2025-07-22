@@ -1,136 +1,51 @@
-import { createRouteHandlerClient } from '@/lib/supabase';
 import { NextResponse } from 'next/server';
-import { rateLimiter } from '@/lib/rate-limiter';
-import { logger } from '@/lib/logger';
+import { getBackendUrl, withErrorHandling } from '@/lib/api-utils';
 
 export async function POST(request: Request) {
-  try {
-    const supabase = await createRouteHandlerClient();
-    
-    const body = await request.json();
-    const { email, password } = body;
+  return withErrorHandling(async () => {
+    const { isValid, url, error } = getBackendUrl('/api/auth/login');
 
-    // Validação básica
-    if (!email || !password) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: { 
-            code: 'MISSING_CREDENTIALS', 
-            message: 'Email e senha são obrigatórios' 
-          } 
-        },
-        { status: 400 }
-      );
-    }
+    if (!isValid) return error!;
 
-    // Rate limiting por IP
-    const clientIP = request.headers.get('x-forwarded-for') || 
-                    request.headers.get('x-real-ip') || 
-                    'unknown';
-    
-    const rateLimitKey = `login:${clientIP}`;
-    
-    if (!rateLimiter.isAllowed(rateLimitKey, 5, 15 * 60 * 1000)) { // 5 tentativas em 15 minutos
-      const timeUntilReset = rateLimiter.getTimeUntilReset(rateLimitKey);
-      const minutesUntilReset = Math.ceil(timeUntilReset / (60 * 1000));
-      
-      logger.warn('Tentativa de login bloqueada por rate limiting', {
-        ip: clientIP,
-        email,
-        timeUntilReset
-      });
+    console.log('[DEBUG] Login - Fazendo requisição para:', url);
 
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: { 
-            code: 'RATE_LIMIT_EXCEEDED', 
-            message: `Muitas tentativas de login. Tente novamente em ${minutesUntilReset} minutos.`,
-            retryAfter: timeUntilReset
-          } 
-        },
-        { 
-          status: 429,
-          headers: {
-            'Retry-After': Math.ceil(timeUntilReset / 1000).toString()
-          }
-        }
-      );
-    }
-
-    // Tentativa de login
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: request.headers,
+      body: await request.text(),
     });
 
-    if (error) {
-      logger.warn('Tentativa de login falhou', {
-        ip: clientIP,
-        email,
-        error: error.message
+    const data = await res.json();
+    console.log('[DEBUG] Login - Resposta:', { status: res.status, success: data.success });
+
+    // Criar a resposta
+    const response = NextResponse.json(data, { status: res.status });
+
+    // Se o login for bem-sucedido, armazenar o token em cookies
+    if (res.status === 200 && data.success && data.data?.token) {
+      console.log('[DEBUG] Login bem-sucedido, armazenando token em cookies');
+
+      // Definir cookie HTTP-only para segurança (não acessível via JavaScript)
+      response.cookies.set('auth_token_secure', data.data.token, {
+        httpOnly: true, // Não permitir acesso pelo JavaScript (proteção contra XSS)
+        path: '/',
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24 * 7 // 7 dias
       });
-
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: { 
-            code: 'INVALID_CREDENTIALS', 
-            message: 'Email ou senha incorretos',
-            remainingAttempts: rateLimiter.getRemainingAttempts(rateLimitKey)
-          } 
-        },
-        { status: 401 }
-      );
-    }
-
-    if (data.user) {
-      // Login bem-sucedido - resetar rate limiting
-      rateLimiter.reset(rateLimitKey);
       
-      logger.info('Login realizado com sucesso', {
-        userId: data.user.id,
-        email: data.user.email,
-        ip: clientIP
+      // Definir cookie para acesso pelo cliente (para redundância)
+      response.cookies.set('auth_token', data.data.token, {
+        httpOnly: false, // Permitir acesso pelo JavaScript
+        path: '/',
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24 * 7 // 7 dias
       });
 
-      return NextResponse.json({
-        success: true,
-        user: {
-          id: data.user.id,
-          email: data.user.email,
-          name: data.user.user_metadata?.name
-        },
-        session: {
-          expiresAt: data.session?.expires_at
-        }
-      });
+      console.log('[DEBUG] Cookies definidos');
     }
 
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: { 
-          code: 'LOGIN_FAILED', 
-          message: 'Falha no login. Tente novamente.' 
-        } 
-      },
-      { status: 500 }
-    );
-
-  } catch (error) {
-    logger.error('Erro inesperado no login', { error });
-    
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: { 
-          code: 'INTERNAL_ERROR', 
-          message: 'Erro interno do servidor. Tente novamente.' 
-        } 
-      },
-      { status: 500 }
-    );
-  }
-} 
+    return response;
+  });
+}

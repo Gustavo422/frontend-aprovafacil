@@ -8,10 +8,10 @@ import { z } from 'zod';
 import {
   Card,
   CardContent,
-  CardDescription,
+  Carddescricao,
   CardFooter,
   CardHeader,
-  CardTitle,
+  Cardtitulo,
 } from '@/components/ui/card';
 import {
   Form,
@@ -26,7 +26,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/features/shared/hooks/use-toast';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, Alertdescricao } from '@/components/ui/alert';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { logger } from '@/lib/logger';
 
@@ -121,7 +121,7 @@ export default function ResetPasswordPage() {
         toast({
           variant: 'destructive',
           title: 'Erro ao redefinir senha',
-          description: data.error?.message || 'Ocorreu um erro. Tente novamente.',
+          descricao: data.error?.message || 'Ocorreu um erro. Tente novamente.',
         });
         return;
       }
@@ -129,7 +129,7 @@ export default function ResetPasswordPage() {
       if (data.success) {
         toast({
           title: 'Senha redefinida com sucesso',
-          description: 'Você pode agora fazer login com sua nova senha.',
+          descricao: 'Você pode agora fazer login com sua nova senha.',
         });
         router.push('/login');
       }
@@ -140,7 +140,7 @@ export default function ResetPasswordPage() {
       toast({
         variant: 'destructive',
         title: 'Erro ao redefinir senha',
-        description: 'Ocorreu um erro inesperado. Tente novamente.',
+        descricao: 'Ocorreu um erro inesperado. Tente novamente.',
       });
     } finally {
       setIsLoading(false);
@@ -180,20 +180,20 @@ export default function ResetPasswordPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <CardTitle className="text-2xl">Link inválido</CardTitle>
-                <CardDescription>
+                <Cardtitulo className="text-2xl">Link inválido</Cardtitulo>
+                <Carddescricao>
                   O link de redefinição de senha é inválido ou expirou
-                </CardDescription>
+                </Carddescricao>
               </div>
             </CardHeader>
 
             <CardContent>
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
+                <Alertdescricao>
                   Este link de redefinição de senha é inválido ou já expirou. 
                   Solicite um novo link para redefinir sua senha.
-                </AlertDescription>
+                </Alertdescricao>
               </Alert>
             </CardContent>
 
@@ -236,10 +236,10 @@ export default function ResetPasswordPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <CardTitle className="text-2xl">Redefinir senha</CardTitle>
-              <CardDescription>
+              <Cardtitulo className="text-2xl">Redefinir senha</Cardtitulo>
+              <Carddescricao>
                 Digite sua nova senha
-              </CardDescription>
+              </Carddescricao>
             </div>
           </CardHeader>
 
@@ -339,4 +339,3 @@ export default function ResetPasswordPage() {
     </div>
   );
 }
-

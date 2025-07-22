@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 
-const SIDEBAR_COOKIE_NAME = 'sidebar:state';
+const SIDEBAR_COOKIE_nome = 'sidebar:state';
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH = '16rem';
 const SIDEBAR_WIDTH_MOBILE = '18rem';
@@ -84,7 +84,7 @@ const SidebarProvider = React.forwardRef<
         }
 
         // This sets the cookie to keep the sidebar state.
-        document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+        document.cookie = `${SIDEBAR_COOKIE_nome}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
       },
       [setOpenProp, open]
     );
@@ -454,8 +454,8 @@ SidebarGroupLabel.displayName = 'SidebarGroupLabel';
 const SidebarGroupAction = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<'button'> & { asChild?: boolean }
->(({ className, asChild = false, ...props }, ref) => {
-  const Comp = asChild ? Slot : 'button';
+>(({ className, ...props }, ref) => {
+  const Comp = false ? Slot : 'button';
 
   return (
     <Comp
@@ -545,7 +545,7 @@ const SidebarMenuButton = React.forwardRef<
 >(
   (
     {
-      asChild = false,
+      // asChild = false, // Removido - não usado
       isActive = false,
       variant = 'default',
       size = 'default',
@@ -555,7 +555,7 @@ const SidebarMenuButton = React.forwardRef<
     },
     ref
   ) => {
-    const Comp = asChild ? Slot : 'button';
+    const Comp = false ? Slot : 'button';
     const { isMobile, state } = useSidebar();
 
     const button = (
@@ -597,11 +597,10 @@ SidebarMenuButton.displayName = 'SidebarMenuButton';
 const SidebarMenuAction = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<'button'> & {
-    asChild?: boolean;
     showOnHover?: boolean;
   }
->(({ className, asChild = false, showOnHover = false, ...props }, ref) => {
-  const Comp = asChild ? Slot : 'button';
+>(({ className, showOnHover = false, ...props }, ref) => {
+  const Comp = false ? Slot : 'button';
 
   return (
     <Comp
@@ -710,12 +709,11 @@ SidebarMenuSubItem.displayName = 'SidebarMenuSubItem';
 const SidebarMenuSubButton = React.forwardRef<
   HTMLAnchorElement,
   React.ComponentProps<'a'> & {
-    asChild?: boolean;
     size?: 'sm' | 'md';
     isActive?: boolean;
   }
->(({ asChild = false, size = 'md', isActive, className, ...props }, ref) => {
-  const Comp = asChild ? Slot : 'a';
+>(({ size = 'md', isActive, className, ...props }, ref) => {
+  const Comp = false ? Slot : 'a';
 
   return (
     <Comp
@@ -763,3 +761,6 @@ export {
   SidebarTrigger,
   useSidebar,
 };
+
+
+

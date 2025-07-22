@@ -5,7 +5,7 @@ describe('Dashboard E2E Tests', () => {
   const testUser = {
     email: 'test@aprovafacil.com',
     password: 'testpassword123',
-    name: 'Test User'
+    nome: 'Test User'
   }
 
   beforeEach(async () => {
@@ -15,7 +15,7 @@ describe('Dashboard E2E Tests', () => {
       user: {
         id: 'mock-user-id',
         email: testUser.email,
-        user_metadata: { name: testUser.name }
+        user_metadata: { nome: testUser.nome }
       }
     })
 
@@ -28,7 +28,7 @@ describe('Dashboard E2E Tests', () => {
           descricao: 'Concurso para diversos cargos',
           ano: 2024,
           banca: 'FCC',
-          is_active: true,
+          ativo: true,
           categoria_id: 'cat-1'
         }
       ]
@@ -38,10 +38,10 @@ describe('Dashboard E2E Tests', () => {
       data: [
         {
           id: '1',
-          title: 'Apostila de Português',
-          description: 'Material completo de português',
+          titulo: 'Apostila de Português',
+          descricao: 'Material completo de português',
           concurso_id: '1',
-          is_active: true
+          ativo: true
         }
       ]
     })
@@ -62,8 +62,8 @@ describe('Dashboard E2E Tests', () => {
     it('should display user information', async () => {
       await e2eHelpers.goto('/dashboard')
       
-      const userName = await e2eHelpers.getText('[data-testid="user-name"]')
-      expect(userName).toContain(testUser.name)
+      const usernome = await e2eHelpers.getText('[data-testid="user-nome"]')
+      expect(usernome).toContain(testUser.nome)
     })
 
     it('should have working navigation menu', async () => {
@@ -344,4 +344,7 @@ describe('Dashboard E2E Tests', () => {
     })
   })
 })
+
+
+
 

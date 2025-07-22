@@ -1,46 +1,88 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, Carddescricao, CardHeader, Cardtitulo } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ExportJsonButton } from '@/components/ui/export-json-button';
-import { 
-  Database, 
-  Settings, 
-  Users, 
-  BarChart3, 
-  Shield, 
+import {
+  Database,
+  Settings,
+  Users,
+  BarChart3,
+  Shield,
   Activity,
   Monitor,
   FileText,
   BookOpen,
   Target,
+  FlaskConical,
   TrendingUp
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface AdminStats {
-  totalUsers: number;
+  totalusuarios: number;
   totalSimulados: number;
   totalQuestions: number;
-  activeUsers: number;
+  activeusuarios: number;
   databaseStatus: 'healthy' | 'warning' | 'error';
 }
 
 export default function AdminPage() {
   const [stats] = useState<AdminStats>({
-    totalUsers: 0,
+    totalusuarios: 0,
     totalSimulados: 0,
     totalQuestions: 0,
-    activeUsers: 0,
+    activeusuarios: 0,
     databaseStatus: 'healthy'
   });
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        router.replace('/login');
+        return;
+      }
+      try {
+        const res = await fetch('/api/auth/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) {
+          setIsAdmin(false);
+        } else {
+          const data = await res.json();
+          if (data?.success && data?.data?.role === 'admin') {
+            setIsAdmin(true);
+          } else {
+            setIsAdmin(false);
+          }
+        }
+      } catch {
+        setIsAdmin(false);
+      } finally {
+        setIsAuthChecked(true);
+      }
+    };
+    checkAdmin();
+  }, [router]);
+
+  if (!isAuthChecked) {
+    return <div className="text-center mt-10 text-muted-foreground font-bold">Carregando...</div>;
+  }
+  if (!isAdmin) {
+    return <div className="text-center mt-10 text-red-600 font-bold">Acesso negado</div>;
+  }
 
   const adminFeatures = [
     {
       title: 'Monitor do Banco de Dados',
-      description: 'Validação de schema e análise de uso do banco de dados',
+      descricao: 'Validação de schema e análise do banco de dados',
       icon: Database,
       href: '/admin/database-monitor',
       color: 'bg-blue-500',
@@ -48,15 +90,31 @@ export default function AdminPage() {
     },
     {
       title: 'Gerenciar Usuários',
-      description: 'Visualizar, editar e gerenciar usuários do sistema',
+      descricao: 'Visualizar, editar e gerenciar usuários do sistema',
       icon: Users,
-      href: '/admin/users',
+      href: '/admin/usuarios',
       color: 'bg-green-500',
-      status: 'coming-soon'
+      status: 'active'
+    },
+    {
+      title: 'Monitor de Cache',
+      descricao: 'Monitorar e analisar métricas de performance do cache',
+      icon: BarChart3,
+      href: '/admin/cache-monitor',
+      color: 'bg-blue-600',
+      status: 'active'
+    },
+    {
+      title: 'Testes End-to-End',
+      descricao: 'Executar e visualizar testes automatizados do sistema',
+      icon: FlaskConical,
+      href: '/admin/e2e-tests',
+      color: 'bg-indigo-500',
+      status: 'active'
     },
     {
       title: 'Estatísticas do Sistema',
-      description: 'Métricas e relatórios de uso da plataforma',
+      descricao: 'Métricas e relatórios de uso da plataforma',
       icon: BarChart3,
       href: '/admin/stats',
       color: 'bg-purple-500',
@@ -64,7 +122,7 @@ export default function AdminPage() {
     },
     {
       title: 'Configurações do Sistema',
-      description: 'Configurações globais e parâmetros da aplicação',
+      descricao: 'Configurações globais e parâmetros da aplicação',
       icon: Settings,
       href: '/admin/settings',
       color: 'bg-orange-500',
@@ -72,7 +130,7 @@ export default function AdminPage() {
     },
     {
       title: 'Logs do Sistema',
-      description: 'Visualizar logs de auditoria e erros',
+      descricao: 'Visualizar logs de auditoria e erros',
       icon: FileText,
       href: '/admin/logs',
       color: 'bg-red-500',
@@ -80,7 +138,7 @@ export default function AdminPage() {
     },
     {
       title: 'Segurança',
-      description: 'Configurações de segurança e permissões',
+      descricao: 'Configurações de segurança e permissões',
       icon: Shield,
       href: '/admin/security',
       color: 'bg-yellow-500',
@@ -91,24 +149,39 @@ export default function AdminPage() {
   const quickActions = [
     {
       title: 'Validar Schema',
-      description: 'Executar validação do banco de dados',
+      descricao: 'Executar validação do banco de dados',
       action: () => window.open('/admin/validate-schema', '_blank'),
       icon: Database,
       color: 'bg-blue-500'
     },
     {
       title: 'Analisar Uso',
-      description: 'Analisar uso das tabelas',
+      descricao: 'Analisar uso das tabelas',
       action: () => window.open('/admin/database-usage', '_blank'),
       icon: Activity,
       color: 'bg-green-500'
     },
     {
+      title: 'Executar Testes E2E',
+      descricao: 'Rodar testes end-to-end do painel',
+      action: () => window.open('/admin/e2e-tests', '_blank'),
+      icon: FlaskConical,
+      color: 'bg-indigo-500',
+      dataTestId: 'e2e-tests-action'
+    },
+    {
       title: 'Limpar Cache',
-      description: 'Limpar cache do sistema',
+      descricao: 'Limpar cache do sistema',
       action: () => window.open('/admin/clear-cache', '_blank'),
       icon: Monitor,
       color: 'bg-purple-500'
+    },
+    {
+      title: 'Monitor de Cache',
+      descricao: 'Visualizar métricas de cache',
+      action: () => window.open('/admin/cache-monitor', '_blank'),
+      icon: BarChart3,
+      color: 'bg-blue-600'
     }
   ];
 
@@ -158,11 +231,11 @@ export default function AdminPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Usuários</CardTitle>
+            <Cardtitulo className="text-sm font-medium">Total de Usuários</Cardtitulo>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalUsers}</div>
+            <div className="text-2xl font-bold">{stats.totalusuarios}</div>
             <p className="text-xs text-muted-foreground">
               +20% em relação ao mês passado
             </p>
@@ -171,7 +244,7 @@ export default function AdminPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Simulados</CardTitle>
+            <Cardtitulo className="text-sm font-medium">Simulados</Cardtitulo>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -184,7 +257,7 @@ export default function AdminPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Questões</CardTitle>
+            <Cardtitulo className="text-sm font-medium">Questões</Cardtitulo>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -197,11 +270,11 @@ export default function AdminPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Usuários Ativos</CardTitle>
+            <Cardtitulo className="text-sm font-medium">Usuários Ativos</Cardtitulo>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.activeUsers}</div>
+            <div className="text-2xl font-bold">{stats.activeusuarios}</div>
             <p className="text-xs text-muted-foreground">
               Hoje
             </p>
@@ -222,14 +295,15 @@ export default function AdminPage() {
                   </div>
                   <div className="flex-1">
                     <h3 className="font-medium">{action.title}</h3>
-                    <p className="text-sm text-muted-foreground">{action.description}</p>
+                    <p className="text-sm text-muted-foreground">{action.descricao}</p>
                   </div>
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="w-full mt-3"
                   onClick={action.action}
+                  data-testid={action.dataTestId}
                 >
                   Executar
                 </Button>
@@ -252,8 +326,8 @@ export default function AdminPage() {
                   </div>
                   {getStatusBadge(feature.status)}
                 </div>
-                <CardTitle className="text-lg">{feature.title}</CardTitle>
-                <CardDescription>{feature.description}</CardDescription>
+                <Cardtitulo className="text-lg">{feature.title}</Cardtitulo>
+                <Carddescricao>{feature.descricao}</Carddescricao>
               </CardHeader>
               <CardContent>
                 {feature.status === 'active' ? (
@@ -279,17 +353,16 @@ export default function AdminPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
+              <Cardtitulo className="flex items-center space-x-2">
                 <Database className="h-5 w-5" />
                 <span>Banco de Dados</span>
-              </CardTitle>
+              </Cardtitulo>
             </CardHeader>
             <CardContent>
               <div className="flex items-center space-x-2">
-                <div className={`w-3 h-3 rounded-full ${
-                  stats.databaseStatus === 'healthy' ? 'bg-green-500' : 
+                <div className={`w-3 h-3 rounded-full ${stats.databaseStatus === 'healthy' ? 'bg-green-500' :
                   stats.databaseStatus === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
-                }`} />
+                  }`} />
                 <span className="capitalize">{stats.databaseStatus}</span>
               </div>
               <p className="text-sm text-muted-foreground mt-2">
@@ -300,10 +373,10 @@ export default function AdminPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
+              <Cardtitulo className="flex items-center space-x-2">
                 <Activity className="h-5 w-5" />
                 <span>Performance</span>
-              </CardTitle>
+              </Cardtitulo>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
@@ -355,11 +428,14 @@ export default function AdminPage() {
       <div className="flex justify-end pt-6 border-t">
         <ExportJsonButton
           data={getAdminData()}
-          filename="admin-dashboard-report"
+          filenome="admin-dashboard-report"
           variant="default"
           className="bg-purple-600 hover:bg-purple-700"
         />
       </div>
     </div>
   );
-} 
+}
+
+
+

@@ -87,9 +87,9 @@ export const e2eHelpers = {
   /**
    * Take a screenshot
    */
-  async screenshot(name: string) {
+  async screenshot(nome: string) {
     await page.screenshot({ 
-      path: `e2e/screenshots/${name}.png`,
+      path: `e2e/screenshots/${nome}.png`,
       fullPage: true 
     })
   },
@@ -214,4 +214,7 @@ export const e2eHelpers = {
 }
 
 export default e2eHelpers
+
+
+
 

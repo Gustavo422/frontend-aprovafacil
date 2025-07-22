@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
-  CardTitle,
+  Cardtitulo,
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -25,13 +25,13 @@ export interface SimuladoQuestion {
   id: string;
   simulado_id: string;
   question_number: number;
-  question_text: string;
-  alternatives: Record<string, string>; // { "A": "texto", "B": "texto", etc }
-  correct_answer: string;
-  explanation?: string;
-  discipline?: string;
-  topic?: string;
-  difficulty?: string;
+  enunciado: string;
+  alternativas: Record<string, string>; // { "A": "texto", "B": "texto", etc }
+  resposta_correta: string;
+  explicacao?: string;
+  disciplina?: string;
+  tema?: string;
+  dificuldade?: string;
   concurso_id?: string;
 }
 
@@ -43,11 +43,11 @@ export interface Question {
     id: string;
     text: string;
   }[];
-  correctAnswer?: string;
-  explanation?: string;
-  discipline?: string;
-  topic?: string;
-  difficulty?: string;
+  respostaCorreta?: string;
+  explicacao?: string;
+  disciplina?: string;
+  tema?: string;
+  dificuldade?: string;
 }
 
 interface QuestionPlayerProps {
@@ -60,23 +60,174 @@ interface QuestionPlayerProps {
 }
 
 // Função para converter questões do novo esquema para o formato do componente
-function convertSimuladoQuestions(questions: SimuladoQuestion[]): Question[] {
-  return questions.map(q => ({
-    id: q.question_number,
-    text: q.question_text,
-    options: Object.entries(q.alternatives).map(([key, value]) => ({
-      id: key,
-      text: value,
-    })),
-    correctAnswer: q.correct_answer,
-    explanation: q.explanation,
-    discipline: q.discipline,
-    topic: q.topic,
-    difficulty: q.difficulty,
-  }));
-}
+// Memoized to prevent unnecessary conversions
+const useNormalizedQuestions = (questions: Question[] | SimuladoQuestion[]): Question[] => {
+  return useMemo(() => {
+    if (Array.isArray(questions) && questions.length > 0 && 'alternativas' in questions[0]) {
+      return (questions as SimuladoQuestion[]).map(q => ({
+        id: q.question_number,
+        text: q.enunciado,
+        options: Object.entries(q.alternativas).map(([key, value]) => ({
+          id: key,
+          text: value,
+        })),
+        respostaCorreta: q.resposta_correta,
+        explicacao: q.explicacao,
+        disciplina: q.disciplina,
+        tema: q.tema,
+        dificuldade: q.dificuldade,
+      }));
+    }
+    return questions as Question[];
+  }, [questions]);
+};
 
-export function QuestionPlayer({
+// Memoized format time function
+const formatTime = (seconds: number) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
+
+// Memoized question option component
+const QuestionOption = memo(({ 
+  option, 
+  isSelected, 
+  isCorrect, 
+  isWrong, 
+  onSelect, 
+  showCorrectAnswers 
+}: { 
+  option: { id: string; text: string }; 
+  isSelected: boolean; 
+  isCorrect: boolean; 
+  isWrong: boolean; 
+  onSelect: (id: string) => void; 
+  showCorrectAnswers: boolean;
+}) => {
+  return (
+    <div
+      className={`flex items-start space-x-3 rounded-lg border p-4 hover:bg-muted transition-colors cursor-pointer ${
+        isCorrect
+          ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
+          : isWrong
+            ? 'border-red-500 bg-red-50 dark:bg-red-950/20'
+            : isSelected
+              ? 'border-primary bg-primary/5'
+              : 'border-border'
+      }`}
+      onClick={() => onSelect(option.id)}
+    >
+      <RadioGroupItem
+        value={option.id}
+        id={`option-${option.id}`}
+        className="mt-0.5"
+      />
+      <div className="flex-1 min-w-0">
+        <label
+          htmlFor={`option-${option.id}`}
+          className="text-sm md:text-base font-medium leading-relaxed cursor-pointer block"
+        >
+          {option.text}
+        </label>
+        {showCorrectAnswers && (
+          <div className="flex items-center gap-2 mt-2">
+            {isCorrect && (
+              <div className="flex items-center gap-1 text-green-600">
+                <CheckCircle className="h-4 w-4" />
+                <span className="text-xs font-medium">
+                  Resposta correta
+                </span>
+              </div>
+            )}
+            {isWrong && (
+              <div className="flex items-center gap-1 text-red-600">
+                <XCircle className="h-4 w-4" />
+                <span className="text-xs font-medium">
+                  Resposta incorreta
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+});
+QuestionOption.displayName = 'QuestionOption';
+
+// Memoized question navigation button
+const NavigationButton = memo(({ 
+  index, 
+  currentQuestion, 
+  hasAnswer, 
+  onClick 
+}: { 
+  index: number; 
+  currentQuestion: number; 
+  hasAnswer: boolean; 
+  onClick: () => void;
+}) => {
+  return (
+    <Button
+      variant={
+        currentQuestion === index
+          ? 'default'
+          : hasAnswer
+            ? 'outline'
+            : 'ghost'
+      }
+      className={`h-8 w-8 sm:h-10 sm:w-10 text-xs sm:text-sm ${
+        hasAnswer ? 'border-primary' : ''
+      }`}
+      onClick={onClick}
+    >
+      {index + 1}
+    </Button>
+  );
+});
+NavigationButton.displayName = 'NavigationButton';
+
+// Memoized question header component
+const QuestionHeader = memo(({ 
+  question, 
+  currentNumber 
+}: { 
+  question: Question; 
+  currentNumber: number;
+}) => {
+  return (
+    <CardHeader className="pb-4">
+      <Cardtitulo className="flex items-start gap-3 text-base md:text-lg">
+        <span className="mt-0.5 flex h-6 w-6 md:h-8 md:w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-medium flex-shrink-0">
+          {currentNumber}
+        </span>
+        <span className="leading-relaxed">{question.text}</span>
+      </Cardtitulo>
+      {question.disciplina && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span className="font-medium">Disciplina:</span>
+          <span>{question.disciplina}</span>
+          {question.tema && (
+            <>
+              <span>•</span>
+              <span>{question.tema}</span>
+            </>
+          )}
+          {question.dificuldade && (
+            <>
+              <span>•</span>
+              <span className="capitalize">{question.dificuldade}</span>
+            </>
+          )}
+        </div>
+      )}
+    </CardHeader>
+  );
+});
+QuestionHeader.displayName = 'QuestionHeader';
+
+export const QuestionPlayer = memo(function QuestionPlayer({
   questions,
   title,
   description,
@@ -84,13 +235,8 @@ export function QuestionPlayer({
   onComplete,
   showCorrectAnswers = false,
 }: QuestionPlayerProps) {
-  // Converter questões se necessário
-  const normalizedQuestions =
-    Array.isArray(questions) &&
-    questions.length > 0 &&
-    'alternatives' in questions[0]
-      ? convertSimuladoQuestions(questions as SimuladoQuestion[])
-      : (questions as Question[]);
+  // Use memoized normalized questions
+  const normalizedQuestions = useNormalizedQuestions(questions);
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -98,13 +244,7 @@ export function QuestionPlayer({
   const [isFinished, setIsFinished] = useState(false);
   const [startTime] = useState(Date.now());
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  // Finalizar quiz
+  // Finalizar quiz - memoized to prevent recreation on each render
   const finishQuiz = useCallback(() => {
     setIsFinished(true);
     const timeSpent = Math.floor((Date.now() - startTime) / 1000 / 60); // em minutos
@@ -130,30 +270,44 @@ export function QuestionPlayer({
     return () => clearInterval(timer);
   }, [timeLimit, isFinished, finishQuiz]);
 
-  // Navegar para a próxima questão
-  const nextQuestion = () => {
+  // Navegar para a próxima questão - memoized
+  const nextQuestion = useCallback(() => {
     if (currentQuestion < normalizedQuestions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
+      setCurrentQuestion(prev => prev + 1);
     }
-  };
+  }, [currentQuestion, normalizedQuestions.length]);
 
-  // Navegar para a questão anterior
-  const prevQuestion = () => {
+  // Navegar para a questão anterior - memoized
+  const prevQuestion = useCallback(() => {
     if (currentQuestion > 0) {
-      setCurrentQuestion(currentQuestion - 1);
+      setCurrentQuestion(prev => prev - 1);
     }
-  };
+  }, [currentQuestion]);
 
-  // Salvar resposta
-  const saveAnswer = (value: string) => {
-    setAnswers({ ...answers, [currentQuestion]: value });
-  };
+  // Salvar resposta - memoized
+  const saveAnswer = useCallback((value: string) => {
+    setAnswers(prev => ({ ...prev, [currentQuestion]: value }));
+  }, [currentQuestion]);
 
-  // Calcular progresso
-  const progress = ((currentQuestion + 1) / normalizedQuestions.length) * 100;
+  // Calcular progresso - memoized
+  const progress = useMemo(() => {
+    return ((currentQuestion + 1) / normalizedQuestions.length) * 100;
+  }, [currentQuestion, normalizedQuestions.length]);
 
-  // Questão atual
-  const question = normalizedQuestions[currentQuestion];
+  // Questão atual - memoized
+  const question = useMemo(() => {
+    return normalizedQuestions[currentQuestion];
+  }, [normalizedQuestions, currentQuestion]);
+
+  // Memoized navigation button click handler
+  const handleNavigationClick = useCallback((index: number) => {
+    setCurrentQuestion(index);
+  }, []);
+
+  // Memoized formatted time
+  const formattedTimeLeft = useMemo(() => {
+    return formatTime(timeLeft);
+  }, [timeLeft]);
 
   return (
     <div className="flex flex-col gap-4 max-w-4xl mx-auto">
@@ -167,7 +321,7 @@ export function QuestionPlayer({
             <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded-lg">
               <Clock className="h-4 w-4 md:h-5 md:w-5" />
               <span className="font-medium text-sm md:text-base">
-                {formatTime(timeLeft)}
+                {formattedTimeLeft}
               </span>
             </div>
           )}
@@ -200,32 +354,7 @@ export function QuestionPlayer({
 
       {/* Question Card */}
       <Card className="w-full">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-start gap-3 text-base md:text-lg">
-            <span className="mt-0.5 flex h-6 w-6 md:h-8 md:w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-medium flex-shrink-0">
-              {currentQuestion + 1}
-            </span>
-            <span className="leading-relaxed">{question.text}</span>
-          </CardTitle>
-          {question.discipline && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="font-medium">Disciplina:</span>
-              <span>{question.discipline}</span>
-              {question.topic && (
-                <>
-                  <span>•</span>
-                  <span>{question.topic}</span>
-                </>
-              )}
-              {question.difficulty && (
-                <>
-                  <span>•</span>
-                  <span className="capitalize">{question.difficulty}</span>
-                </>
-              )}
-            </div>
-          )}
-        </CardHeader>
+        <QuestionHeader question={question} currentNumber={currentQuestion + 1} />
         <CardContent className="pb-4">
           <RadioGroup
             value={answers[currentQuestion] || ''}
@@ -235,72 +364,34 @@ export function QuestionPlayer({
             {question.options.map(option => {
               const isSelected = answers[currentQuestion] === option.id;
               const isCorrect =
-                showCorrectAnswers && question.correctAnswer === option.id;
+                showCorrectAnswers && question.respostaCorreta === option.id;
               const isWrong =
                 showCorrectAnswers &&
                 isSelected &&
-                answers[currentQuestion] !== question.correctAnswer;
+                answers[currentQuestion] !== question.respostaCorreta;
 
               return (
-                <div
+                <QuestionOption
                   key={option.id}
-                  className={`flex items-start space-x-3 rounded-lg border p-4 hover:bg-muted transition-colors cursor-pointer ${
-                    isCorrect
-                      ? 'border-green-500 bg-green-50 dark:bg-green-950/20'
-                      : isWrong
-                        ? 'border-red-500 bg-red-50 dark:bg-red-950/20'
-                        : isSelected
-                          ? 'border-primary bg-primary/5'
-                          : 'border-border'
-                  }`}
-                  onClick={() => saveAnswer(option.id)}
-                >
-                  <RadioGroupItem
-                    value={option.id}
-                    id={`option-${option.id}`}
-                    className="mt-0.5"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <label
-                      htmlFor={`option-${option.id}`}
-                      className="text-sm md:text-base font-medium leading-relaxed cursor-pointer block"
-                    >
-                      {option.text}
-                    </label>
-                    {showCorrectAnswers && (
-                      <div className="flex items-center gap-2 mt-2">
-                        {isCorrect && (
-                          <div className="flex items-center gap-1 text-green-600">
-                            <CheckCircle className="h-4 w-4" />
-                            <span className="text-xs font-medium">
-                              Resposta correta
-                            </span>
-                          </div>
-                        )}
-                        {isWrong && (
-                          <div className="flex items-center gap-1 text-red-600">
-                            <XCircle className="h-4 w-4" />
-                            <span className="text-xs font-medium">
-                              Resposta incorreta
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
+                  option={option}
+                  isSelected={isSelected}
+                  isCorrect={isCorrect}
+                  isWrong={isWrong}
+                  onSelect={saveAnswer}
+                  showCorrectAnswers={showCorrectAnswers}
+                />
               );
             })}
           </RadioGroup>
 
           {/* Explicação da questão */}
-          {showCorrectAnswers && question.explanation && (
+          {showCorrectAnswers && question.explicacao && (
             <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
               <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
                 Explicação:
               </h4>
               <p className="text-sm text-blue-800 dark:text-blue-200">
-                {question.explanation}
+                {question.explicacao}
               </p>
             </div>
           )}
@@ -334,25 +425,16 @@ export function QuestionPlayer({
         <h3 className="text-sm font-medium">Navegação Rápida</h3>
         <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
           {normalizedQuestions.map((_, index) => (
-            <Button
+            <NavigationButton
               key={index}
-              variant={
-                currentQuestion === index
-                  ? 'default'
-                  : answers[index]
-                    ? 'outline'
-                    : 'ghost'
-              }
-              className={`h-8 w-8 sm:h-10 sm:w-10 text-xs sm:text-sm ${
-                answers[index] ? 'border-primary' : ''
-              }`}
-              onClick={() => setCurrentQuestion(index)}
-            >
-              {index + 1}
-            </Button>
+              index={index}
+              currentQuestion={currentQuestion}
+              hasAnswer={!!answers[index]}
+              onClick={() => handleNavigationClick(index)}
+            />
           ))}
         </div>
       </div>
     </div>
   );
-}
+});

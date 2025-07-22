@@ -1,7 +1,7 @@
 {
   "app": {
-    "name": "AprovaFacil",
-    "description": "Public exam preparation platform",
+    "nome": "AprovaFacil",
+    "descricao": "Public exam preparation platform",
     "loading": "Loading...",
     "error": {
       "generic": "An error occurred. Please try again later.",
@@ -52,8 +52,8 @@
   },
   "auth": {
     "login": {
-      "title": "Welcome Back",
-      "subtitle": "Enter your credentials to access your account",
+      "titulo": "Welcome Back",
+      "subtitulo": "Enter your credentials to access your account",
       "email": "Email Address",
       "password": "Password",
       "rememberMe": "Remember me",
@@ -61,9 +61,9 @@
       "signUp": "Sign up"
     },
     "register": {
-      "title": "Create an Account",
-      "subtitle": "Enter your details to create an account",
-      "name": "Full Name",
+      "titulo": "Create an Account",
+      "subtitulo": "Enter your details to create an account",
+      "nome": "Full nome",
       "email": "Email Address",
       "password": "Password",
       "confirmPassword": "Confirm Password",
@@ -71,15 +71,15 @@
       "signIn": "Sign in"
     },
     "forgotPassword": {
-      "title": "Forgot Password",
-      "subtitle": "Enter your email to receive a password reset link",
+      "titulo": "Forgot Password",
+      "subtitulo": "Enter your email to receive a password reset link",
       "email": "Email Address",
       "sendResetLink": "Send Reset Link",
       "backToLogin": "Back to login"
     },
     "resetPassword": {
-      "title": "Reset Password",
-      "subtitle": "Enter your new password",
+      "titulo": "Reset Password",
+      "subtitulo": "Enter your new password",
       "newPassword": "New Password",
       "confirmPassword": "Confirm New Password",
       "resetPassword": "Reset Password"

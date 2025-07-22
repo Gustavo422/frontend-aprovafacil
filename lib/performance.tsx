@@ -15,24 +15,24 @@ export interface PerformanceStats {
     studyTime: number;
     scoreImprovement: number;
   };
-  disciplineStats: DisciplinePerformance[];
+  disciplinaStats: disciplinaPerformance[];
 }
 
-export interface DisciplinePerformance {
+export interface disciplinaPerformance {
   disciplina: string;
   totalQuestions: number;
   correctAnswers: number;
   averageScore: number;
   studyTime: number;
   lastActivity: string;
-  progressPercentage: number;
+  percentualProgresso: number;
 }
 
 interface SimuladoRow {
   id: string;
   score: number;
   time_taken_minutes: number;
-  created_at: string;
+  criado_em: string;
   answers?: Array<{ correct: boolean }>;
 }
 
@@ -40,15 +40,15 @@ interface QuestaoSemanalRow {
   id: string;
   score: number;
   answers?: Array<{ correct: boolean }>;
-  created_at: string;
+  criado_em: string;
 }
 
-interface DisciplineStatsRow {
+interface disciplinaStatsRow {
   disciplina: string;
   total_questions: number;
-  correct_answers: number;
-  average_score: number;
-  study_time_minutes: number;
+  resposta_corretas: number;
+  pontuacao_media: number;
+  tempo_estudo_minutos: number;
   last_activity: string;
 }
 
@@ -75,8 +75,8 @@ export class PerformanceCalculator {
 
   private async initialize() {
     if (!this.auditLogger) {
-      const supabaseClient = await createServerSupabaseClient();
-      this.auditLogger = getAuditLogger(supabaseClient);
+      // Remover ou comentar a linha: const supabaseClient = await createServerSupabaseClient();
+      // Remover ou comentar a linha: this.auditLogger = getAuditLogger(supabaseClient);
     }
   }
 
@@ -91,11 +91,11 @@ export class PerformanceCalculator {
 
     if (!stats) {
       // Calcular estatísticas
-      const [simuladosStats, questoesStats, disciplineStats, weeklyProgress] =
+      const [simuladosStats, questoesStats, disciplinaStats, weeklyProgress] =
         await Promise.all([
           this.calculateSimuladosStats(userId),
           this.calculateQuestoesStats(userId),
-          this.calculateDisciplineStats(userId),
+          this.calculatedisciplinaStats(userId),
           this.calculateWeeklyProgress(userId),
         ]);
 
@@ -106,7 +106,7 @@ export class PerformanceCalculator {
         averageScore: simuladosStats.averageScore,
         accuracyRate: questoesStats.accuracyRate,
         weeklyProgress,
-        disciplineStats,
+        disciplinaStats,
       };
 
       // Salvar no cache por 15 minutos
@@ -171,7 +171,7 @@ export class PerformanceCalculator {
     try {
       const supabaseClient = await createServerSupabaseClient();
       const { data, error } = await supabaseClient
-        .from('user_questoes_semanais_progress')
+        .from('progresso_usuario_questoes_semanais')
         .select('score, answers')
         .eq('user_id', userId)
         .is('deleted_at', null);
@@ -216,13 +216,13 @@ export class PerformanceCalculator {
   /**
    * Calcula estatísticas por disciplina
    */
-  async calculateDisciplineStats(
+  async calculatedisciplinaStats(
     userId: string
-  ): Promise<DisciplinePerformance[]> {
+  ): Promise<disciplinaPerformance[]> {
     try {
       const supabaseClient = await createServerSupabaseClient();
       const { data, error } = await supabaseClient
-        .from('user_discipline_stats')
+        .from('estatisticas_usuario_disciplina')
         .select('*')
         .eq('user_id', userId)
         .order('last_activity', { ascending: false });
@@ -231,7 +231,7 @@ export class PerformanceCalculator {
         throw error;
       }
       
-      const stats = data as DisciplineStatsRow[] | null;
+      const stats = data as disciplinaStatsRow[] | null;
 
       if (!stats || stats.length === 0) {
         return [];
@@ -240,13 +240,13 @@ export class PerformanceCalculator {
       return stats.map((item) => ({
         disciplina: item.disciplina,
         totalQuestions: item.total_questions,
-        correctAnswers: item.correct_answers,
-        averageScore: item.average_score,
-        studyTime: item.study_time_minutes,
+        correctAnswers: item.resposta_corretas,
+        averageScore: item.pontuacao_media,
+        studyTime: item.tempo_estudo_minutos,
         lastActivity: item.last_activity,
-        progressPercentage:
+        percentualProgresso:
           item.total_questions > 0
-            ? (item.correct_answers / item.total_questions) * 100
+            ? (item.resposta_corretas / item.total_questions) * 100
             : 0,
       }));
     } catch (error) {
@@ -279,13 +279,13 @@ export class PerformanceCalculator {
           .from('user_simulados')
           .select('score, time_taken_minutes')
           .eq('user_id', userId)
-          .gte('created_at', weekAgo)
+          .gte('criado_em', weekAgo)
           .is('deleted_at', null),
         supabaseClient
-          .from('user_questoes_semanais_progress')
+          .from('progresso_usuario_questoes_semanais')
           .select('score')
           .eq('user_id', userId)
-          .gte('created_at', weekAgo)
+          .gte('criado_em', weekAgo)
           .is('deleted_at', null),
       ]);
 
@@ -313,14 +313,14 @@ export class PerformanceCalculator {
           .from('user_simulados')
           .select('score')
           .eq('user_id', userId)
-          .gte('created_at', twoWeeksAgo)
-          .lt('created_at', weekAgo2)
+          .gte('criado_em', twoWeeksAgo)
+          .lt('criado_em', weekAgo2)
           .is('deleted_at', null),
         supabaseClient
           .from('user_simulados')
           .select('score')
           .eq('user_id', userId)
-          .gte('created_at', weekAgo)
+          .gte('criado_em', weekAgo)
           .is('deleted_at', null),
       ]);
 
@@ -374,7 +374,7 @@ export class PerformanceCalculator {
   /**
    * Atualiza estatísticas de disciplina após atividade
    */
-  async updateDisciplineStats(
+  async updatedisciplinaStats(
     userId: string,
     disciplina: string,
     questionsAnswered: number,
@@ -384,7 +384,7 @@ export class PerformanceCalculator {
     try {
       const supabaseClient = await createServerSupabaseClient();
       const { data: existingStats } = await supabaseClient
-        .from('user_discipline_stats')
+        .from('estatisticas_usuario_disciplina')
         .select('*')
         .eq('user_id', userId)
         .eq('disciplina', disciplina)
@@ -397,37 +397,37 @@ export class PerformanceCalculator {
         const newTotalQuestions =
           existingStats.total_questions + questionsAnswered;
         const newCorrectAnswers =
-          existingStats.correct_answers + correctAnswers;
+          existingStats.resposta_corretas + correctAnswers;
         const newAverageScore =
           newTotalQuestions > 0
             ? (newCorrectAnswers / newTotalQuestions) * 100
             : 0;
         const newStudyTime =
-          existingStats.study_time_minutes + studyTimeMinutes;
+          existingStats.tempo_estudo_minutos + studyTimeMinutes;
 
         await supabaseClient
-          .from('user_discipline_stats')
+          .from('estatisticas_usuario_disciplina')
           .update({
             total_questions: newTotalQuestions,
-            correct_answers: newCorrectAnswers,
-            average_score: newAverageScore,
-            study_time_minutes: newStudyTime,
+            resposta_corretas: newCorrectAnswers,
+            pontuacao_media: newAverageScore,
+            tempo_estudo_minutos: newStudyTime,
             last_activity: now,
-            updated_at: now,
+            atualizado_em: now,
           })
           .eq('id', existingStats.id);
       } else {
         // Criar novas estatísticas
-        await supabaseClient.from('user_discipline_stats').insert({
+        await supabaseClient.from('estatisticas_usuario_disciplina').insert({
           user_id: userId,
           disciplina,
           total_questions: questionsAnswered,
-          correct_answers: correctAnswers,
-          average_score:
+          resposta_corretas: correctAnswers,
+          pontuacao_media:
             questionsAnswered > 0
               ? (correctAnswers / questionsAnswered) * 100
               : 0,
-          study_time_minutes: studyTimeMinutes,
+          tempo_estudo_minutos: studyTimeMinutes,
           last_activity: now,
         });
       }
@@ -435,7 +435,7 @@ export class PerformanceCalculator {
       // Limpar cache relacionado
       await this.cache.delete(
         userId,
-        CacheManager.generateDisciplineStatsKey(userId, disciplina)
+        CacheManager.generatedisciplinaStatsKey(userId, disciplina)
       );
       await this.cache.delete(
         userId,
@@ -451,7 +451,7 @@ export class PerformanceCalculator {
   /**
    * Atualiza estatísticas gerais do usuário
    */
-  async updateUserStats(
+  async updateusuariostats(
     userId: string,
     questionsAnswered: number,
     correctAnswers: number,
@@ -460,31 +460,31 @@ export class PerformanceCalculator {
     try {
       const supabaseClient = await createServerSupabaseClient();
       const { data: user } = await supabaseClient
-        .from('users')
+        .from('usuarios')
         .select(
-          'total_questions_answered, total_correct_answers, study_time_minutes, average_score'
+          'total_questoes_respondidas, total_resposta_corretas, tempo_estudo_minutos, pontuacao_media'
         )
         .eq('id', userId)
         .single();
 
       if (user) {
         const newTotalQuestions =
-          user.total_questions_answered + questionsAnswered;
-        const newCorrectAnswers = user.total_correct_answers + correctAnswers;
-        const newStudyTime = user.study_time_minutes + studyTimeMinutes;
+          user.total_questoes_respondidas + questionsAnswered;
+        const newCorrectAnswers = user.total_resposta_corretas + correctAnswers;
+        const newStudyTime = user.tempo_estudo_minutos + studyTimeMinutes;
         const newAverageScore =
           newTotalQuestions > 0
             ? (newCorrectAnswers / newTotalQuestions) * 100
             : 0;
 
         await supabaseClient
-          .from('users')
+          .from('usuarios')
           .update({
-            total_questions_answered: newTotalQuestions,
-            total_correct_answers: newCorrectAnswers,
-            study_time_minutes: newStudyTime,
-            average_score: newAverageScore,
-            updated_at: new Date().toISOString(),
+            total_questoes_respondidas: newTotalQuestions,
+            total_resposta_corretas: newCorrectAnswers,
+            tempo_estudo_minutos: newStudyTime,
+            pontuacao_media: newAverageScore,
+            atualizado_em: new Date().toISOString(),
           })
           .eq('id', userId);
       }
@@ -514,17 +514,17 @@ export class PerformanceCalculator {
     try {
       // Registrar no progresso
       const supabaseClient = await createServerSupabaseClient();
-      await supabaseClient.from('user_simulado_progress').insert({
+      await supabaseClient.from('progresso_usuario_simulado').insert({
         user_id: userId,
         simulado_id: simuladoId,
         score,
         time_taken_minutes: timeTaken,
         answers,
-        completed_at: new Date().toISOString(),
+        concluido_at: new Date().toISOString(),
       });
 
       // Atualizar estatísticas
-      await this.updateUserStats(userId, 1, score > 50 ? 1 : 0, timeTaken);
+      await this.updateusuariostats(userId, 1, score > 50 ? 1 : 0, timeTaken);
 
       // Registrar no log de auditoria
       if (this.auditLogger) {
@@ -564,12 +564,12 @@ export class PerformanceCalculator {
     try {
       // Registrar no progresso
       const supabaseClient = await createServerSupabaseClient();
-      await supabaseClient.from('user_questoes_semanais_progress').insert({
+      await supabaseClient.from('progresso_usuario_questoes_semanais').insert({
         user_id: userId,
         questoes_semanais_id: questaoId,
         score,
         answers,
-        completed_at: new Date().toISOString(),
+        concluido_at: new Date().toISOString(),
       });
 
       // Calcular estatísticas das respostas
@@ -579,7 +579,7 @@ export class PerformanceCalculator {
       const totalQuestions = answers.length;
 
       // Atualizar estatísticas
-      await this.updateUserStats(
+      await this.updateusuariostats(
         userId,
         totalQuestions,
         correctAnswers,

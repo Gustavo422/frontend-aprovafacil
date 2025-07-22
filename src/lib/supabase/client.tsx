@@ -1,56 +1,44 @@
-import { createClient } from '@supabase/supabase-js'
-import type { Database } from '@/types/supabase.types'
+'use client';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+import type { Database } from '@/types/supabase.types';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { getEnv } from './env-utils';
 
-if (!supabaseUrl) {
-  throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_URL')
-}
+// Get environment variables
+const { supabaseUrl, supabaseAnonKey } = getEnv();
 
-if (!supabaseAnonKey) {
-  throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_ANON_KEY')
-}
-
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  },
-  realtime: {
-    params: {
-      eventsPerSecond: 10
-    }
-  }
-})
+// Crie o client tipado do Supabase
+export const supabase: SupabaseClient<Database> = createClient<Database>(
+  supabaseUrl,
+  supabaseAnonKey
+);
 
 // Helper functions for common operations
 export const getCurrentUser = async () => {
-  const { data: { user }, error } = await supabase.auth.getUser()
-  if (error) throw error
-  return user
-}
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error) throw error;
+  return user;
+};
 
 export const getCurrentSession = async () => {
-  const { data: { session }, error } = await supabase.auth.getSession()
-  if (error) throw error
-  return session
-}
+  const { data: { session }, error } = await supabase.auth.getSession();
+  if (error) throw error;
+  return session;
+};
 
 export const signOut = async () => {
-  const { error } = await supabase.auth.signOut()
-  if (error) throw error
-}
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
+};
 
 export const signInWithEmail = async (email: string, password: string) => {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password
-  })
-  if (error) throw error
-  return data
-}
+  });
+  if (error) throw error;
+  return data;
+};
 
 export const signUpWithEmail = async (email: string, password: string, metadata?: Record<string, unknown>) => {
   const { data, error } = await supabase.auth.signUp({
@@ -59,29 +47,29 @@ export const signUpWithEmail = async (email: string, password: string, metadata?
     options: {
       data: metadata
     }
-  })
-  if (error) throw error
-  return data
-}
+  });
+  if (error) throw error;
+  return data;
+};
 
 export const resetPassword = async (email: string) => {
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/auth/reset-password`
-  })
-  if (error) throw error
-}
+    redirectTo: '/auth/reset-password'
+  });
+  if (error) throw error;
+};
 
 export const updatePassword = async (password: string) => {
-  const { error } = await supabase.auth.updateUser({ password })
-  if (error) throw error
-}
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) throw error;
+};
 
 export const updateProfile = async (updates: { nome?: string; avatar_url?: string }) => {
   const { error } = await supabase.auth.updateUser({
     data: updates
-  })
-  if (error) throw error
-}
+  });
+  if (error) throw error;
+};
 
 // Storage helpers
 export const uploadFile = async (bucket: string, path: string, file: File) => {
@@ -90,24 +78,24 @@ export const uploadFile = async (bucket: string, path: string, file: File) => {
     .upload(path, file, {
       cacheControl: '3600',
       upsert: false
-    })
-  if (error) throw error
-  return data
-}
+    });
+  if (error) throw error;
+  return data;
+};
 
 export const getPublicUrl = (bucket: string, path: string) => {
   const { data } = supabase.storage
     .from(bucket)
-    .getPublicUrl(path)
-  return data.publicUrl
-}
+    .getPublicUrl(path);
+  return data.publicUrl;
+};
 
 export const deleteFile = async (bucket: string, path: string) => {
   const { error } = await supabase.storage
     .from(bucket)
-    .remove([path])
-  if (error) throw error
-}
+    .remove([path]);
+  if (error) throw error;
+};
 
 // Real-time subscriptions
 export const subscribeToTable = <T extends keyof Database['public']['Tables']>(
@@ -116,7 +104,7 @@ export const subscribeToTable = <T extends keyof Database['public']['Tables']>(
   filter?: string
 ) => {
   const channel = supabase
-    .channel(`public:${table}`)
+    .channel(`public:${String(table)}`)
     .on(
       'postgres_changes',
       {
@@ -127,12 +115,18 @@ export const subscribeToTable = <T extends keyof Database['public']['Tables']>(
       },
       callback
     )
-    .subscribe()
+    .subscribe();
 
   return () => {
-    supabase.removeChannel(channel)
+    channel.unsubscribe();
+  };
+};
+
+export default supabase;
+
+declare global {
+  interface Window {
+    NEXT_PUBLIC_SUPABASE_URL?: string;
+    NEXT_PUBLIC_SUPABASE_ANON_KEY?: string;
   }
 }
-
-export default supabase
-

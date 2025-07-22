@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@/lib/supabase';
 
 // ========================================
 // ROTAS QUE NÃO PRECISAM DE CONCURSO SELECIONADO
@@ -48,75 +47,71 @@ export async function verificarConcursoSelecionado(
   }
   
   try {
-    // Verificar se o usuário está autenticado
-    const supabase = await createRouteHandlerClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
+    // NOVO: Buscar token JWT do backend salvo em cookie
+    const token = request.cookies.get('auth_token')?.value;
+    if (!token) {
       // Usuário não autenticado, redirecionar para login
-      console.log('Usuário não autenticado, redirecionando para login');
       return NextResponse.redirect(new URL('/login', request.url));
     }
-    
-    // Verificar se o usuário tem concurso selecionado
-    const { data: preference, error: preferenceError } = await supabase
-      .from('user_concurso_preferences')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('is_active', true)
-      .single();
-    
-    if (preferenceError || !preference) {
-      // Usuário não tem concurso selecionado, redirecionar para seleção
-      console.log('Usuário não tem concurso selecionado, redirecionando para seleção');
+    // Usar o token JWT do backend para autenticação nas requisições
+    const authHeader = { 'Authorization': `Bearer ${token}` };
+
+    // Verificar se o usuário tem concurso selecionado via API
+    const preferenceResponse = await fetch(`${request.nextUrl.origin}/api/user/concurso-preference`, {
+      headers: authHeader
+    });
+    if (!preferenceResponse.ok) {
       return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
     }
-    
-    // Verificar se o concurso ainda existe e está ativo
-    const { data: concurso, error: concursoError } = await supabase
-      .from('concursos')
-      .select('*')
-      .eq('id', preference.concurso_id)
-      .eq('is_active', true)
-      .single();
-    
-    if (concursoError || !concurso) {
-      // Concurso não existe ou não está ativo, limpar preferência e redirecionar
-      await supabase
-        .from('user_concurso_preferences')
-        .update({ is_active: false })
-        .eq('id', preference.id);
-      
-      console.log('Concurso não existe ou não está ativo, redirecionando para seleção');
+    const preference = await preferenceResponse.json();
+    if (!preference || !preference.ativo) {
       return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
     }
-    
-    // Verificar se a categoria do concurso ainda existe e está ativa
-    const { data: categoria, error: categoriaError } = await supabase
-      .from('concurso_categorias')
-      .select('*')
-      .eq('id', concurso.categoria_id)
-      .eq('is_active', true)
-      .single();
-    
-    if (categoriaError || !categoria) {
-      // Categoria não existe ou não está ativa, limpar preferência e redirecionar
-      await supabase
-        .from('user_concurso_preferences')
-        .update({ is_active: false })
-        .eq('id', preference.id);
-      
-      console.log('Categoria não existe ou não está ativa, redirecionando para seleção');
+    // Verificar se o concurso ainda existe e está ativo via API
+    const concursoResponse = await fetch(`${request.nextUrl.origin}/api/concursos/${preference.concurso_id}`, {
+      headers: authHeader
+    });
+    if (!concursoResponse.ok) {
+      await fetch(`${request.nextUrl.origin}/api/user/concurso-preference`, {
+        method: 'PUT',
+        headers: { ...authHeader, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ativo: false })
+      });
       return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
     }
-    
+    const concurso = await concursoResponse.json();
+    if (!concurso || !concurso.ativo) {
+      await fetch(`${request.nextUrl.origin}/api/user/concurso-preference`, {
+        method: 'PUT',
+        headers: { ...authHeader, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ativo: false })
+      });
+      return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
+    }
+    // Verificar se a categoria do concurso ainda existe e está ativa via API
+    const categoriaResponse = await fetch(`${request.nextUrl.origin}/api/concurso-categorias/${concurso.categoria_id}`, {
+      headers: authHeader
+    });
+    if (!categoriaResponse.ok) {
+      await fetch(`${request.nextUrl.origin}/api/user/concurso-preference`, {
+        method: 'PUT',
+        headers: { ...authHeader, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ativo: false })
+      });
+      return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
+    }
+    const categoria = await categoriaResponse.json();
+    if (!categoria || !categoria.ativo) {
+      await fetch(`${request.nextUrl.origin}/api/user/concurso-preference`, {
+        method: 'PUT',
+        headers: { ...authHeader, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ativo: false })
+      });
+      return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
+    }
     // Tudo OK, permitir acesso
     return null;
-    
   } catch (error) {
-    console.error('Erro no middleware de concurso:', error);
-    
-    // Em caso de erro, redirecionar para seleção de concurso
     return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
   }
 }
@@ -180,3 +175,6 @@ export const config = {
     '/((?!_next/static|_next/image|favicon.ico|public).*)',
   ],
 }; 
+
+
+

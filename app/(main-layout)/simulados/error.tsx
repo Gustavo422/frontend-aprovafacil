@@ -3,9 +3,9 @@
 import {
   Card,
   CardContent,
-  CardDescription,
+  Carddescricao,
   CardHeader,
-  CardTitle,
+  Cardtitulo,
 } from '@/components/ui/card';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -31,10 +31,10 @@ export default function SimuladosError({
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
             <AlertTriangle className="h-6 w-6 text-red-600" />
           </div>
-          <CardTitle className="text-lg md:text-xl">Erro ao Carregar</CardTitle>
-          <CardDescription className="text-sm">
+          <Cardtitulo className="text-lg md:text-xl">Erro ao Carregar</Cardtitulo>
+          <Carddescricao className="text-sm">
             Não foi possível carregar os simulados. Tente novamente.
-          </CardDescription>
+          </Carddescricao>
         </CardHeader>
         <CardContent className="text-center space-y-4">
           <p className="text-xs md:text-sm text-muted-foreground">

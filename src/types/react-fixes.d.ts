@@ -54,8 +54,8 @@ declare module 'input-otp' {
     onComplete?: (...args: unknown[]) => void;
     pushPasswordManagerStrategy?: 'none' | 'auto' | 'manual';
     pasteTransformer?: (pasted: string) => string;
-    containerClassName?: string;
-    className?: string;
+    containerClassnome?: string;
+    classnome?: string;
   }
   
   export const OTPInput: React.ForwardRefExoticComponent<OTPInputProps & React.RefAttributes<HTMLInputElement>>;
@@ -90,3 +90,6 @@ declare module 'sonner' {
   export const Toaster: React.ForwardRefExoticComponent<ToasterProps & React.RefAttributes<HTMLElement>>;
   export const toast: Record<string, unknown>;
 } 
+
+
+

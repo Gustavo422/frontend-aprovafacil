@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, Carddescricao, CardHeader, Cardtitulo } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, Alertdescricao } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ExportJsonButton } from '@/components/ui/export-json-button';
 import { 
@@ -24,10 +24,10 @@ interface SchemaValidationResult {
   errors: string[];
   warnings: string[];
   tables: {
-    [tableName: string]: {
+    [tablenome: string]: {
       exists: boolean;
       columns: {
-        [columnName: string]: {
+        [columnnome: string]: {
           exists: boolean;
           type: string;
           nullable: boolean;
@@ -67,20 +67,20 @@ export default function ValidateSchemaPage() {
       if (data.validation.isValid) {
         toast({
           title: 'Schema válido',
-          description: 'O schema do banco está consistente com o código.',
+          descricao: 'O schema do banco está consistente com o código.',
         });
       } else {
         toast({
           variant: 'destructive',
           title: 'Schema inválido',
-          description: `${data.validation.errors.length} erros encontrados no schema.`,
+          descricao: `${data.validation.errors.length} erros encontrados no schema.`,
         });
       }
     } catch {
       toast({
         variant: 'destructive',
         title: 'Erro na validação',
-        description: 'Não foi possível validar o schema do banco.',
+        descricao: 'Não foi possível validar o schema do banco.',
       });
     } finally {
       setIsLoading(false);
@@ -134,7 +134,7 @@ export default function ValidateSchemaPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Status Geral</CardTitle>
+                <Cardtitulo className="text-sm font-medium">Status Geral</Cardtitulo>
                 {schemaValidation.isValid ? (
                   <CheckCircle className="h-4 w-4 text-green-600" />
                 ) : (
@@ -150,7 +150,7 @@ export default function ValidateSchemaPage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Tabelas</CardTitle>
+                <Cardtitulo className="text-sm font-medium">Tabelas</Cardtitulo>
                 <Database className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -165,7 +165,7 @@ export default function ValidateSchemaPage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Colunas</CardTitle>
+                <Cardtitulo className="text-sm font-medium">Colunas</Cardtitulo>
                 <FileText className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -180,7 +180,7 @@ export default function ValidateSchemaPage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Problemas</CardTitle>
+                <Cardtitulo className="text-sm font-medium">Problemas</Cardtitulo>
                 <AlertTriangle className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -206,7 +206,7 @@ export default function ValidateSchemaPage() {
               {schemaValidation.errors.length > 0 && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
+                  <Alertdescricao>
                     <div className="space-y-2">
                       <p className="font-semibold">Erros Críticos ({schemaValidation.errors.length}):</p>
                       <ul className="list-disc list-inside space-y-1">
@@ -215,7 +215,7 @@ export default function ValidateSchemaPage() {
                         ))}
                       </ul>
                     </div>
-                  </AlertDescription>
+                  </Alertdescricao>
                 </Alert>
               )}
 
@@ -223,7 +223,7 @@ export default function ValidateSchemaPage() {
               {schemaValidation.warnings.length > 0 && (
                 <Alert>
                   <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>
+                  <Alertdescricao>
                     <div className="space-y-2">
                       <p className="font-semibold">Avisos ({schemaValidation.warnings.length}):</p>
                       <ul className="list-disc list-inside space-y-1">
@@ -237,17 +237,17 @@ export default function ValidateSchemaPage() {
                         )}
                       </ul>
                     </div>
-                  </AlertDescription>
+                  </Alertdescricao>
                 </Alert>
               )}
 
               {/* Resumo de Problemas */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Resumo de Problemas</CardTitle>
-                  <CardDescription>
+                  <Cardtitulo>Resumo de Problemas</Cardtitulo>
+                  <Carddescricao>
                     Detalhes dos problemas encontrados na validação
-                  </CardDescription>
+                  </Carddescricao>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -309,10 +309,10 @@ export default function ValidateSchemaPage() {
             <TabsContent value="details" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Detalhes da Validação</CardTitle>
-                  <CardDescription>
+                  <Cardtitulo>Detalhes da Validação</Cardtitulo>
+                  <Carddescricao>
                     Informações técnicas sobre a validação realizada
-                  </CardDescription>
+                  </Carddescricao>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -367,31 +367,31 @@ export default function ValidateSchemaPage() {
             <TabsContent value="tables" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Detalhes das Tabelas</CardTitle>
-                  <CardDescription>
+                  <Cardtitulo>Detalhes das Tabelas</Cardtitulo>
+                  <Carddescricao>
                     Status detalhado de cada tabela e suas colunas
-                  </CardDescription>
+                  </Carddescricao>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {Object.entries(schemaValidation.tables).map(([tableName, table]) => (
-                      <div key={tableName} className="border rounded-lg p-4">
+                    {Object.entries(schemaValidation.tables).map(([tablenome, table]) => (
+                      <div key={tablenome} className="border rounded-lg p-4">
                         <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold">{tableName}</h4>
+                          <h4 className="font-semibold">{tablenome}</h4>
                           <Badge variant={table.exists ? 'default' : 'destructive'}>
                             {table.exists ? 'Existe' : 'Faltando'}
                           </Badge>
                         </div>
                         {table.exists && (
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-                            {Object.entries(table.columns).map(([columnName, column]) => (
+                            {Object.entries(table.columns).map(([columnnome, column]) => (
                               <div 
-                                key={columnName} 
+                                key={columnnome} 
                                 className={`p-2 rounded border ${
                                   column.exists ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
                                 }`}
                               >
-                                <div className="font-medium">{columnName}</div>
+                                <div className="font-medium">{columnnome}</div>
                                 <div className="text-xs text-muted-foreground">
                                   {column.type} {column.nullable ? '(NULL)' : '(NOT NULL)'}
                                 </div>
@@ -411,7 +411,7 @@ export default function ValidateSchemaPage() {
           <div className="flex justify-end pt-4 border-t">
             <ExportJsonButton
               data={getSchemaData()}
-              filename="schema-validation-report"
+              filenome="schema-validation-report"
               variant="default"
               className="bg-blue-600 hover:bg-blue-700"
             />
@@ -430,3 +430,6 @@ export default function ValidateSchemaPage() {
     </div>
   );
 } 
+
+
+

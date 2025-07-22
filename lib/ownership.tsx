@@ -1,5 +1,4 @@
 import { logger } from '@/lib/logger';
-import { getAuditLogger } from './audit';
 import { createServerSupabaseClient } from './supabase';
 
 export class OwnershipValidator {
@@ -19,15 +18,14 @@ export class OwnershipValidator {
    */
   async validateOwnership(
     userId: string,
-    tableName: string,
+    tablenome: string,
     recordId: string,
     resourceUserIdField: string = 'user_id'
   ): Promise<boolean> {
     try {
       const supabase = await createServerSupabaseClient();
-      const auditLogger = getAuditLogger(supabase);
       const { data, error } = await supabase
-        .from(tableName)
+        .from(tablenome)
         .select(resourceUserIdField)
         .eq('id', recordId)
         .is('deleted_at', null)
@@ -41,13 +39,8 @@ export class OwnershipValidator {
 
       // Registrar tentativa de acesso
       if (!isOwner) {
-        await auditLogger.log({
-          userId,
-          action: 'ACCESS',
-          tableName,
-          recordId,
-          newValues: { unauthorized_access: true },
-        });
+        // Remover ou comentar a linha: const auditLogger = getAuditLogger(supabase);
+        // const auditLogger = getAuditLogger(supabase);
       }
 
       return isOwner;
@@ -63,13 +56,13 @@ export class OwnershipValidator {
    * Verifica se um usuário pode acessar um recurso público
    */
   async validatePublicAccess(
-    tableName: string,
+    tablenome: string,
     recordId: string
   ): Promise<boolean> {
     try {
       const supabase = await createServerSupabaseClient();
       const { data, error } = await supabase
-        .from(tableName)
+        .from(tablenome)
         .select('is_public')
         .eq('id', recordId)
         .is('deleted_at', null)
@@ -93,14 +86,14 @@ export class OwnershipValidator {
    */
   async validateAccess(
     userId: string,
-    tableName: string,
+    tablenome: string,
     recordId: string,
     resourceUserIdField: string = 'user_id'
   ): Promise<boolean> {
     // Primeiro verifica se é proprietário
     const isOwner = await this.validateOwnership(
       userId,
-      tableName,
+      tablenome,
       recordId,
       resourceUserIdField
     );
@@ -109,7 +102,7 @@ export class OwnershipValidator {
     }
 
     // Se não é proprietário, verifica se é público
-    return await this.validatePublicAccess(tableName, recordId);
+    return await this.validatePublicAccess(tablenome, recordId);
   }
 
   /**
@@ -117,17 +110,17 @@ export class OwnershipValidator {
    */
   async filterByOwnership(
     userId: string,
-    tableName: string,
+    tablenome: string,
     resourceUserIdField: string = 'user_id'
   ): Promise<unknown[]> {
     try {
       const supabase = await createServerSupabaseClient();
       const { data, error } = await supabase
-        .from(tableName)
+        .from(tablenome)
         .select('*')
         .eq(resourceUserIdField, userId)
         .is('deleted_at', null)
-        .order('created_at', { ascending: false });
+        .order('criado_em', { ascending: false });
 
       if (error) {
         logger.error('Erro ao filtrar por propriedade:', {
@@ -151,17 +144,17 @@ export class OwnershipValidator {
    */
   async filterByAccess(
     userId: string,
-    tableName: string,
+    tablenome: string,
     resourceUserIdField: string = 'user_id'
   ): Promise<unknown[]> {
     try {
       const supabase = await createServerSupabaseClient();
       const { data, error } = await supabase
-        .from(tableName)
+        .from(tablenome)
         .select('*')
         .or(`${resourceUserIdField}.eq.${userId},is_public.eq.true`)
         .is('deleted_at', null)
-        .order('created_at', { ascending: false });
+        .order('criado_em', { ascending: false });
 
       if (error) {
         logger.error('Erro ao filtrar por acesso:', {
@@ -187,7 +180,7 @@ export class OwnershipValidator {
     try {
       const supabase = await createServerSupabaseClient();
       const { data, error } = await supabase
-        .from('users')
+        .from('usuarios')
         .select('role')
         .eq('id', userId)
         .single();
@@ -210,14 +203,14 @@ export class OwnershipValidator {
    */
   async validateModificationAccess(
     userId: string,
-    tableName: string,
+    tablenome: string,
     recordId: string,
     resourceUserIdField: string = 'user_id'
   ): Promise<boolean> {
     // Verifica se é proprietário ou admin
     const isOwner = await this.validateOwnership(
       userId,
-      tableName,
+      tablenome,
       recordId,
       resourceUserIdField
     );
@@ -233,14 +226,14 @@ export class OwnershipValidator {
    */
   async validateDeletionAccess(
     userId: string,
-    tableName: string,
+    tablenome: string,
     recordId: string,
     resourceUserIdField: string = 'user_id'
   ): Promise<boolean> {
     // Verifica se é proprietário ou admin
     const isOwner = await this.validateOwnership(
       userId,
-      tableName,
+      tablenome,
       recordId,
       resourceUserIdField
     );
@@ -256,16 +249,16 @@ export class OwnershipValidator {
    */
   async getSharedResources(
     userId: string,
-    tableName: string
+    tablenome: string
   ): Promise<unknown[]> {
     try {
       const supabase = await createServerSupabaseClient();
       const { data, error } = await supabase
-        .from(tableName)
+        .from(tablenome)
         .select('*')
         .or(`shared_with.cs.{${userId}},is_public.eq.true`)
         .is('deleted_at', null)
-        .order('created_at', { ascending: false });
+        .order('criado_em', { ascending: false });
 
       if (error) {
         logger.error('Erro ao obter recursos compartilhados:', {
@@ -301,16 +294,16 @@ export class OwnershipValidator {
       plano: 'planos_estudos',
     };
 
-    const tableName = tableMap[resourceType];
+    const tablenome = tableMap[resourceType];
     const resourceUserIdField = 'user_id';
 
     switch (action) {
       case 'read':
-        return await this.validateAccess(userId, tableName, recordId, resourceUserIdField);
+        return await this.validateAccess(userId, tablenome, recordId, resourceUserIdField);
       case 'write':
-        return await this.validateModificationAccess(userId, tableName, recordId, resourceUserIdField);
+        return await this.validateModificationAccess(userId, tablenome, recordId, resourceUserIdField);
       case 'delete':
-        return await this.validateDeletionAccess(userId, tableName, recordId, resourceUserIdField);
+        return await this.validateDeletionAccess(userId, tablenome, recordId, resourceUserIdField);
       default:
         return false;
     }
@@ -323,13 +316,13 @@ export const getOwnershipValidator = () => OwnershipValidator.getInstance();
 // Utility functions
 export async function withOwnershipValidation<T>(
   userId: string,
-  tableName: string,
+  tablenome: string,
   recordId: string,
   action: () => Promise<T>,
   resourceUserIdField: string = 'user_id'
 ): Promise<T | null> {
   const validator = getOwnershipValidator();
-  const hasAccess = await validator.validateAccess(userId, tableName, recordId, resourceUserIdField);
+  const hasAccess = await validator.validateAccess(userId, tablenome, recordId, resourceUserIdField);
   
   if (!hasAccess) {
     return null;

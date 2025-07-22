@@ -70,7 +70,7 @@ export class CacheManager {
           cache_key: key,
           cache_data: data,
           expires_at: expiresAt,
-          updated_at: new Date().toISOString(),
+          atualizado_em: new Date().toISOString(),
         });
 
       if (error) {
@@ -173,11 +173,11 @@ export class CacheManager {
   /**
    * Gera chave de cache para estatísticas por disciplina
    */
-  static generateDisciplineStatsKey(
+  static generatedisciplinaStatsKey(
     userId: string,
     disciplina?: string
   ): string {
-    return `discipline_stats_${userId}${disciplina ? `_${disciplina}` : ''}`;
+    return `disciplina_stats_${userId}${disciplina ? `_${disciplina}` : ''}`;
   }
 
   /**
@@ -223,7 +223,7 @@ export const cacheUtils = {
       case 'questoes':
         return await this.fetchQuestoesData(supabase, userId, period);
       case 'disciplinas':
-        return await this.fetchDisciplinasData(supabase, userId, period);
+        return await this.fetchDisciplinasData(supabase, userId); // Removido o argumento period
       default:
         return null;
     }
@@ -235,7 +235,7 @@ export const cacheUtils = {
     period?: string
   ) {
     let query = supabase
-      .from('user_simulado_progress')
+      .from('progresso_usuario_simulado')
       .select(
         `
         *,
@@ -249,12 +249,12 @@ export const cacheUtils = {
       const weekAgo = new Date(
         Date.now() - 7 * 24 * 60 * 60 * 1000
       ).toISOString();
-      query = query.gte('completed_at', weekAgo);
+      query = query.gte('concluido_at', weekAgo);
     } else if (period === 'month') {
       const monthAgo = new Date(
         Date.now() - 30 * 24 * 60 * 60 * 1000
       ).toISOString();
-      query = query.gte('completed_at', monthAgo);
+      query = query.gte('concluido_at', monthAgo);
     }
 
     const { data, error } = await query;
@@ -291,7 +291,7 @@ export const cacheUtils = {
     period?: string
   ) {
     let query = supabase
-      .from('user_questoes_semanais_progress')
+      .from('progresso_usuario_questoes_semanais')
       .select(
         `
         *,
@@ -305,12 +305,12 @@ export const cacheUtils = {
       const weekAgo = new Date(
         Date.now() - 7 * 24 * 60 * 60 * 1000
       ).toISOString();
-      query = query.gte('completed_at', weekAgo);
+      query = query.gte('concluido_at', weekAgo);
     } else if (period === 'month') {
       const monthAgo = new Date(
         Date.now() - 30 * 24 * 60 * 60 * 1000
       ).toISOString();
-      query = query.gte('completed_at', monthAgo);
+      query = query.gte('concluido_at', monthAgo);
     }
 
     const { data, error } = await query;
@@ -339,7 +339,7 @@ export const cacheUtils = {
   async fetchDisciplinasData(
     supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
     userId: string,
-    _period?: string
+    // _period?: string // Removido - não usado
   ) {
     const query = supabase
       .from('user_disciplina_progress')
@@ -364,3 +364,6 @@ export const cacheUtils = {
     return data;
   },
 };
+
+
+

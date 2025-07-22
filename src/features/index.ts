@@ -2,5 +2,5 @@
 export * from './auth';
 export * from './categorias';
 export * from './concursos';
-export * from './apostilas';
+// Remover ou comentar a linha: export * from './apostilas';
 // Adicione outros módulos aqui conforme necessário

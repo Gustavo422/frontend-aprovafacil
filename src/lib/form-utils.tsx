@@ -34,19 +34,19 @@ type UseFormWithZodParams<T extends FieldValues> = {
 // Type for form field props
 export interface FieldPropsOptions<T extends FormValues> {
   form: UseFormReturn<T>;
-  name: Path<T>;
+  nome: Path<T>;
   label?: string;
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
   type?: string;
-  className?: string;
+  classnome?: string;
 }
 
 // Base input props that are common to all form inputs
 type BaseInputProps = {
   id: string;
-  name: string;
+  nome: string;
   type?: string;
   value?: string | number | readonly string[];
   defaultValue?: string | number | readonly string[];
@@ -54,7 +54,7 @@ type BaseInputProps = {
   disabled?: boolean;
   readOnly?: boolean;
   required?: boolean;
-  className?: string;
+  classnome?: string;
   'aria-invalid'?: boolean | 'true' | 'false' | undefined;
   'aria-describedby'?: string;
   min?: string | number;
@@ -69,7 +69,7 @@ type HookFormFieldProps = {
   ref: (instance: HTMLElement | null) => void;
   onChange: (event: React.ChangeEvent<HTMLElement>) => void;
   onBlur: (event: React.FocusEvent<HTMLElement>) => void;
-  name: string;
+  nome: string;
 };
 
 // Custom props for our form fields
@@ -85,7 +85,7 @@ export type FieldProps = BaseInputProps & HookFormFieldProps & CustomFieldProps;
 // Type for error element
 interface ErrorElement {
   id: string;
-  className: string;
+  classnome: string;
   message: string;
 }
 
@@ -263,13 +263,13 @@ export function useFileUpload(
 // Type for field props options
 export interface FieldPropsOptions<T extends FormValues> {
   form: UseFormReturn<T>;
-  name: Path<T>;
+  nome: Path<T>;
   label?: string;
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
   type?: string;
-  className?: string;
+  classnome?: string;
 }
 
 /**
@@ -278,39 +278,39 @@ export interface FieldPropsOptions<T extends FormValues> {
 // Type-safe field props creator
 export function createFieldProps<T extends FormValues>({
   form,
-  name,
+  nome,
   label,
   placeholder,
   required = false,
   disabled = false,
   type = 'text',
-  className = '',
+  classnome = '',
 }: FieldPropsOptions<T>): FieldProps {
-  const fieldName = name.toString();
-  const error = form.formState.errors[name as keyof FieldErrors<T>];
-  const { ref, ...field } = form.register(name);
+  const fieldnome = nome.toString();
+  const error = form.formState.errors[nome as keyof FieldErrors<T>];
+  const { ref, ...field } = form.register(nome);
   
   // Format the label if not provided
-  const formattedLabel = label || fieldName
+  const formattedLabel = label || fieldnome
     .replace(/([A-Z])/g, ' $1')
     .replace(/^./, str => str.toUpperCase())
     .trim();
   
   // Format the placeholder if not provided
   const formattedPlaceholder = placeholder || 
-    `Enter ${fieldName.replace(/([A-Z])/g, ' $1').toLowerCase().trim()}`;
+    `Enter ${fieldnome.replace(/([A-Z])/g, ' $1').toLowerCase().trim()}`;
   
   // Create base field props with proper typing
-  const baseProps: Omit<BaseInputProps & CustomFieldProps, 'name' | 'error' | 'errorElement'> = {
-    id: fieldName,
+  const baseProps: Omit<BaseInputProps & CustomFieldProps, 'nome' | 'error' | 'errorElement'> = {
+    id: fieldnome,
     label: formattedLabel,
     placeholder: formattedPlaceholder,
     disabled,
     required,
     type,
-    className: `form-control ${className}`.trim(),
+    classnome: `form-control ${classnome}`.trim(),
     'aria-invalid': error ? true : undefined,
-    'aria-describedby': error ? `${fieldName}-error` : undefined,
+    'aria-describedby': error ? `${fieldnome}-error` : undefined,
   };
 
   // Create error message if there's an error
@@ -318,8 +318,8 @@ export function createFieldProps<T extends FormValues>({
   
   // Create error element data (without JSX)
   const errorElement: ErrorElement | null = errorMessage ? {
-    id: `${fieldName}-error`,
-    className: 'error-message',
+    id: `${fieldnome}-error`,
+    classnome: 'error-message',
     message: errorMessage
   } : null;
 
@@ -328,7 +328,7 @@ export function createFieldProps<T extends FormValues>({
     ...baseProps,
     ...field,
     ref: ref as (instance: HTMLElement | null) => void,
-    name: fieldName,
+    nome: fieldnome,
     // Ensure required props are included
     onChange: field.onChange || (() => {}),
     onBlur: field.onBlur || (() => {}),

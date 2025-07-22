@@ -5,8 +5,8 @@ import { errorHandler, DatabaseError } from '../error-handler';
 // Tipos básicos para o repositório
 interface BaseEntity {
   id: string;
-  created_at?: string;
-  updated_at?: string;
+  criado_em?: string;
+  atualizado_em?: string;
 }
 
 interface ApiResponse<T = unknown> {
@@ -14,19 +14,16 @@ interface ApiResponse<T = unknown> {
   message?: string;
   error?: string;
 }
-
-
-
 export abstract class BaseRepository<T extends BaseEntity> {
   protected client: SupabaseClient;
-  protected tableName: string;
+  protected tablenome: string;
 
-  constructor(tableName: string) {
+  constructor(tablenome: string) {
     this.client = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
-    this.tableName = tableName;
+    this.tablenome = tablenome;
   }
 
   protected async executeQuery<R>(
@@ -36,7 +33,7 @@ export abstract class BaseRepository<T extends BaseEntity> {
       const { data, error } = await queryFn();
 
       if (error) {
-        logger.error('Database query error', { error, table: this.tableName });
+        logger.error('Database query error', { error, table: this.tablenome });
         throw new DatabaseError('Database operation failed', error);
       }
 
@@ -44,7 +41,7 @@ export abstract class BaseRepository<T extends BaseEntity> {
     } catch (error) {
       const appError = errorHandler.handleError(
         error,
-        `BaseRepository.${this.tableName}`
+        `BaseRepository.${this.tablenome}`
       );
       return { error: appError.message };
     }
@@ -53,7 +50,7 @@ export abstract class BaseRepository<T extends BaseEntity> {
   public async findById(id: string): Promise<ApiResponse<T>> {
     return this.executeQuery(async () => {
       const result = await this.client
-        .from(this.tableName)
+        .from(this.tablenome)
         .select('*')
         .eq('id', id)
         .single();
@@ -66,7 +63,7 @@ export abstract class BaseRepository<T extends BaseEntity> {
     offset?: number
   ): Promise<ApiResponse<T[]>> {
     let query = this.client
-      .from(this.tableName)
+      .from(this.tablenome)
       .select('*', { count: 'exact' });
 
     if (limit) {
@@ -84,11 +81,11 @@ export abstract class BaseRepository<T extends BaseEntity> {
   }
 
   public async create(
-    data: Omit<T, 'id' | 'created_at' | 'updated_at'>
+    data: Omit<T, 'id' | 'criado_em' | 'atualizado_em'>
   ): Promise<ApiResponse<T>> {
     return this.executeQuery(async () => {
       const result = await this.client
-        .from(this.tableName)
+        .from(this.tablenome)
         .insert(data)
         .select()
         .single();
@@ -98,12 +95,12 @@ export abstract class BaseRepository<T extends BaseEntity> {
 
   public async update(
     id: string,
-    data: Partial<Omit<T, 'id' | 'created_at'>>
+    data: Partial<Omit<T, 'id' | 'criado_em'>>
   ): Promise<ApiResponse<T>> {
     return this.executeQuery(async () => {
       const result = await this.client
-        .from(this.tableName)
-        .update({ ...data, updated_at: new Date().toISOString() })
+        .from(this.tablenome)
+        .update({ ...data, atualizado_em: new Date().toISOString() })
         .eq('id', id)
         .select()
         .single();
@@ -114,7 +111,7 @@ export abstract class BaseRepository<T extends BaseEntity> {
   public async delete(id: string): Promise<ApiResponse<boolean>> {
     return this.executeQuery(async () => {
       const { error } = await this.client
-        .from(this.tableName)
+        .from(this.tablenome)
         .delete()
         .eq('id', id);
 
@@ -128,7 +125,7 @@ export abstract class BaseRepository<T extends BaseEntity> {
   ): Promise<ApiResponse<T[]>> {
     return this.executeQuery(async () => {
       const result = await this.client
-        .from(this.tableName)
+        .from(this.tablenome)
         .select('*')
         .eq(field as string, value);
       return result;
@@ -141,7 +138,7 @@ export abstract class BaseRepository<T extends BaseEntity> {
   ): Promise<ApiResponse<T>> {
     return this.executeQuery(async () => {
       const result = await this.client
-        .from(this.tableName)
+        .from(this.tablenome)
         .select('*')
         .eq(field as string, value)
         .single();

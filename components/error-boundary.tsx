@@ -6,9 +6,9 @@ import { logger } from '@/lib/logger';
 import {
   Card,
   CardContent,
-  CardDescription,
+  Carddescricao,
   CardHeader,
-  CardTitle,
+  Cardtitulo,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
@@ -38,8 +38,8 @@ function ErrorFallbackComponent({
   const handleReset = () => {
     resetError();
     toast({
-      title: 'Página recarregada',
-      description: 'A página foi recarregada com sucesso.',
+      titulo: 'Página recarregada',
+      descricao: 'A página foi recarregada com sucesso.',
     });
   };
 
@@ -52,8 +52,8 @@ function ErrorFallbackComponent({
     logger.error('Erro reportado', { errorMessage });
 
     toast({
-      title: 'Erro reportado',
-      description:
+      titulo: 'Erro reportado',
+      descricao:
         'O erro foi registrado para análise. Obrigado pelo feedback!',
     });
   };
@@ -65,11 +65,11 @@ function ErrorFallbackComponent({
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
             <AlertTriangle className="h-8 w-8 text-red-600" />
           </div>
-          <CardTitle className="text-xl">Ops! Algo deu errado</CardTitle>
-          <CardDescription className="text-sm">
+          <Cardtitulo className="text-xl">Ops! Algo deu errado</Cardtitulo>
+          <Carddescricao className="text-sm">
             Ocorreu um erro inesperado. Não se preocupe, nossa equipe foi
             notificada.
-          </CardDescription>
+          </Carddescricao>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="text-center">
@@ -162,3 +162,6 @@ class ErrorBoundary extends React.Component<
 }
 
 export { ErrorBoundary, ErrorFallbackComponent as DefaultErrorFallback };
+
+
+

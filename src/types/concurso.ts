@@ -4,11 +4,11 @@ export interface Concurso {
   id: string;
   nome: string;
   slug: string;
-  descricao?: string;
+  descricao: string | null;
   categoria_id: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
+  ativo: boolean;
+  criado_em: string;
+  atualizado_em: string;
   banca?: string;
   ano?: number;
   edital_url?: string;
@@ -24,29 +24,29 @@ export interface ConcursoCategoria {
   descricao?: string;
   cor_primaria: string;
   cor_secundaria: string;
-  is_active: boolean;
+  ativo: boolean;
   parent_id?: string;
-  created_at: string;
-  updated_at: string;
+  criado_em: string;
+  atualizado_em: string;
 }
 
 export type ConcursoCategoriaSlug = 'policial' | 'militar' | 'civil' | 'outros';
 
 export interface ConcursoComCategoria extends Concurso {
   categoria?: ConcursoCategoria;
-  concurso_categorias?: ConcursoCategoria;
+  // categorias_concursos?: CategoriaConcurso;
 }
 
 export interface ConcursoContextType {
   concurso_id: string;
   categoria_id: string;
-  can_change_until: string;
-  created_at: string;
-  updated_at: string;
+  pode_alterar_ate: string;
+  criado_em: string;
+  atualizado_em: string;
   categoria?: ConcursoCategoria;
   concurso?: Concurso;
   userPreference?: UserConcursoPreference;
-  disciplines?: CategoriaDisciplina[];
+  disciplinas?: CategoriaDisciplina[];
 }
 
 // Alias para compatibilidade
@@ -61,9 +61,9 @@ export interface CategoriaDisciplina {
   nome: string;
   slug: string;
   descricao?: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
+  ativo: boolean;
+  criado_em: string;
+  atualizado_em: string;
 }
 
 export interface CategoriaComDisciplinas extends ConcursoCategoria {
@@ -73,9 +73,9 @@ export interface CategoriaComDisciplinas extends ConcursoCategoria {
 export interface UserConcursoPreference {
   concurso_id: string;
   categoria_id: string;
-  can_change_until: string;
-  created_at: string;
-  updated_at: string;
+  pode_alterar_ate: string;
+  criado_em: string;
+  atualizado_em: string;
 }
 
 export interface UserPreferenceResponse {
@@ -122,6 +122,9 @@ export interface ConcursoProgress {
 
 export interface ConcursoFilters {
   categoria_id?: string;
-  is_active?: boolean;
+  ativo?: boolean;
   search?: string;
 } 
+
+
+

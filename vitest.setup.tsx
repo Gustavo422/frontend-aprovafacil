@@ -15,7 +15,7 @@ afterEach(() => {
 vi.mock('next/router', () => ({
   useRouter: () => ({
     route: '/',
-    pathname: '/',
+    pathnome: '/',
     query: {},
     asPath: '/',
     push: vi.fn(),
@@ -44,7 +44,7 @@ vi.mock('next/navigation', () => ({
     refresh: vi.fn(),
   }),
   useSearchParams: () => new URLSearchParams(),
-  usePathname: () => '/',
+  usePathnome: () => '/',
 }))
 
 // Mock environment variables
@@ -135,4 +135,7 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
   unobserve: vi.fn(),
   disconnect: vi.fn(),
 }))
+
+
+
 

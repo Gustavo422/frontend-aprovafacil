@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, Carddescricao, CardHeader, Cardtitulo } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, Alertdescricao } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ExportJsonButton } from '@/components/ui/export-json-button';
 import { 
@@ -21,7 +21,7 @@ import { useToast } from '@/features/shared/hooks/use-toast';
 
 interface DatabaseUsageReport {
   tables: {
-    [tableName: string]: {
+    [_tablenome: string]: {
       usedInCode: boolean;
       usageLocations: string[];
       operations: string[];
@@ -57,13 +57,13 @@ export default function DatabaseUsagePage() {
       
       toast({
         title: 'Análise concluída',
-        description: 'Relatório de uso do banco gerado com sucesso.',
+        descricao: 'Relatório de uso do banco gerado com sucesso.',
       });
     } catch {
       toast({
         variant: 'destructive',
         title: 'Erro na análise',
-        description: 'Não foi possível analisar o uso do banco.',
+        descricao: 'Não foi possível analisar o uso do banco.',
       });
     } finally {
       setIsLoading(false);
@@ -74,8 +74,8 @@ export default function DatabaseUsagePage() {
     analyzeUsage();
   }, [analyzeUsage]);
 
-  const getRiskBadgeVariant = (riskLevel: string) => {
-    switch (riskLevel) {
+  const getRiskBadgeVariant = (_riskLevel: string) => {
+    switch (_riskLevel) {
       case 'HIGH': return 'destructive';
       case 'MEDIUM': return 'default';
       case 'LOW': return 'secondary';
@@ -83,8 +83,8 @@ export default function DatabaseUsagePage() {
     }
   };
 
-  const getRiskIcon = (riskLevel: string) => {
-    switch (riskLevel) {
+  const getRiskIcon = (_riskLevel: string) => {
+    switch (_riskLevel) {
       case 'HIGH': return <XCircle className="h-4 w-4" />;
       case 'MEDIUM': return <AlertTriangle className="h-4 w-4" />;
       case 'LOW': return <CheckCircle className="h-4 w-4" />;
@@ -135,7 +135,7 @@ export default function DatabaseUsagePage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total de Tabelas</CardTitle>
+                <Cardtitulo className="text-sm font-medium">Total de Tabelas</Cardtitulo>
                 <Database className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -145,7 +145,7 @@ export default function DatabaseUsagePage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Tabelas Usadas</CardTitle>
+                <Cardtitulo className="text-sm font-medium">Tabelas Usadas</Cardtitulo>
                 <CheckCircle className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
@@ -158,7 +158,7 @@ export default function DatabaseUsagePage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Tabelas Não Usadas</CardTitle>
+                <Cardtitulo className="text-sm font-medium">Tabelas Não Usadas</Cardtitulo>
                 <AlertTriangle className="h-4 w-4 text-yellow-600" />
               </CardHeader>
               <CardContent>
@@ -168,7 +168,7 @@ export default function DatabaseUsagePage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Alto Risco</CardTitle>
+                <Cardtitulo className="text-sm font-medium">Alto Risco</Cardtitulo>
                 <XCircle className="h-4 w-4 text-red-600" />
               </CardHeader>
               <CardContent>
@@ -192,7 +192,7 @@ export default function DatabaseUsagePage() {
               {usageReport.summary.recommendations.length > 0 && (
                 <Alert>
                   <Info className="h-4 w-4" />
-                  <AlertDescription>
+                  <Alertdescricao>
                     <div className="space-y-2">
                       <p className="font-semibold">Recomendações Gerais:</p>
                       <ul className="list-disc list-inside space-y-1">
@@ -201,17 +201,17 @@ export default function DatabaseUsagePage() {
                         ))}
                       </ul>
                     </div>
-                  </AlertDescription>
+                  </Alertdescricao>
                 </Alert>
               )}
 
               {/* Estatísticas de Uso */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Estatísticas de Uso</CardTitle>
-                  <CardDescription>
+                  <Cardtitulo>Estatísticas de Uso</Cardtitulo>
+                  <Carddescricao>
                     Resumo do uso das tabelas no sistema
-                  </CardDescription>
+                  </Carddescricao>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -249,7 +249,7 @@ export default function DatabaseUsagePage() {
                       <h4 className="font-semibold mb-2">Níveis de Risco</h4>
                       <div className="space-y-2">
                         {Object.entries(
-                          Object.entries(usageReport.tables).reduce((acc, [_tableName, table]) => {
+                          Object.entries(usageReport.tables).reduce((acc, [, table]) => {
                             acc[table.riskLevel] = (acc[table.riskLevel] || 0) + 1;
                             return acc;
                           }, {} as Record<string, number>)
@@ -272,17 +272,17 @@ export default function DatabaseUsagePage() {
             <TabsContent value="tables" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Análise Detalhada por Tabela</CardTitle>
-                  <CardDescription>
+                  <Cardtitulo>Análise Detalhada por Tabela</Cardtitulo>
+                  <Carddescricao>
                     Uso, localização e recomendações para cada tabela
-                  </CardDescription>
+                  </Carddescricao>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {Object.entries(usageReport.tables).map(([tableName, table]) => (
-                      <div key={tableName} className="border rounded-lg p-4">
+                    {Object.entries(usageReport.tables).map(([tablenome, table]) => (
+                      <div key={tablenome} className="border rounded-lg p-4">
                         <div className="flex items-center justify-between mb-3">
-                          <h4 className="font-semibold">{tableName}</h4>
+                          <h4 className="font-semibold">{tablenome}</h4>
                           <div className="flex gap-2">
                             <Badge variant={table.usedInCode ? 'default' : 'secondary'}>
                               {table.usedInCode ? 'Usado' : 'Não usado'}
@@ -344,17 +344,17 @@ export default function DatabaseUsagePage() {
             <TabsContent value="recommendations" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Recomendações de Otimização</CardTitle>
-                  <CardDescription>
+                  <Cardtitulo>Recomendações de Otimização</Cardtitulo>
+                  <Carddescricao>
                     Sugestões para melhorar o uso e performance do banco de dados
-                  </CardDescription>
+                  </Carddescricao>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Tabelas não utilizadas */}
                   {usageReport.summary.unusedTables > 0 && (
                     <Alert>
                       <AlertTriangle className="h-4 w-4" />
-                      <AlertDescription>
+                      <Alertdescricao>
                         <div className="space-y-2">
                           <p className="font-semibold">Tabelas Não Utilizadas ({usageReport.summary.unusedTables})</p>
                           <p className="text-sm">
@@ -362,12 +362,12 @@ export default function DatabaseUsagePage() {
                           </p>
                           <div className="text-xs text-muted-foreground">
                             Tabelas: {Object.entries(usageReport.tables)
-                              .filter(([_, table]) => !table.usedInCode)
-                              .map(([tableName, _]) => tableName)
+                              .filter(([, table]) => !table.usedInCode)
+                              .map(([tablenome]) => tablenome)
                               .join(', ')}
                           </div>
                         </div>
-                      </AlertDescription>
+                      </Alertdescricao>
                     </Alert>
                   )}
 
@@ -375,14 +375,14 @@ export default function DatabaseUsagePage() {
                   {usageReport.summary.highRiskOperations > 0 && (
                     <Alert variant="destructive">
                       <XCircle className="h-4 w-4" />
-                      <AlertDescription>
+                      <Alertdescricao>
                         <div className="space-y-2">
                           <p className="font-semibold">Operações de Alto Risco ({usageReport.summary.highRiskOperations})</p>
                           <p className="text-sm">
                             Revise operações que podem causar problemas de performance ou integridade de dados.
                           </p>
                         </div>
-                      </AlertDescription>
+                      </Alertdescricao>
                     </Alert>
                   )}
 
@@ -406,7 +406,7 @@ export default function DatabaseUsagePage() {
           <div className="flex justify-end pt-4 border-t">
             <ExportJsonButton
               data={getUsageData()}
-              filename="database-usage-report"
+              filenome="database-usage-report"
               variant="default"
               className="bg-green-600 hover:bg-green-700"
             />
@@ -425,3 +425,6 @@ export default function DatabaseUsagePage() {
     </div>
   );
 } 
+
+
+

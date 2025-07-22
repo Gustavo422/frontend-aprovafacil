@@ -1,13 +1,5 @@
 'use client';
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -24,10 +16,10 @@ interface Simulado {
   questions_count: number;
   time_minutes: number;
   difficulty: string;
-  created_at: string;
+  criado_em: string;
   concurso_id: string | null;
   is_public: boolean;
-  updated_at: string;
+  atualizado_em: string;
   deleted_at: string | null;
   created_by: string | null;
   concursos?: {
@@ -151,12 +143,12 @@ export default function ResultadoPage({ params }: { params: { id: string } }) {
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{simulado.title}</CardTitle>
-          <CardDescription>{simulado.description}</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div className="flex flex-col space-y-1.5 p-6">
+          <h2 className="text-2xl font-bold tracking-tight">{simulado.title}</h2>
+          <p className="text-muted-foreground">{simulado.description}</p>
+        </div>
+        <div className="p-6 pt-0">
           <div className="space-y-4">
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
@@ -202,16 +194,16 @@ export default function ResultadoPage({ params }: { params: { id: string } }) {
               </div>
             </div>
           </div>
-        </CardContent>
-        <CardFooter className="flex justify-between">
+        </div>
+        <div className="flex items-center p-6 pt-0 justify-between">
           <Link href="/dashboard/simulados">
             <Button variant="outline">Voltar para Simulados</Button>
           </Link>
           <Link href={`/dashboard/simulados/${id}`}>
             <Button>Refazer Simulado</Button>
           </Link>
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
 
       <h2 className="mt-4 text-xl font-bold tracking-tight">
         Revisão das Questões
@@ -225,25 +217,24 @@ export default function ResultadoPage({ params }: { params: { id: string } }) {
         </TabsList>
         <TabsContent value="todas" className="space-y-4">
           {questoes.map((question, index) => {
-            const _userAnswer = progress.answers[index];
-            const isCorrect = _userAnswer === question.correct_answer;
+            const isCorrect = progress.answers[index] === question.correct_answer;
             
             return (
-            <Card
+            <div
               key={question.id}
-                className={isCorrect ? 'border-green-200' : 'border-red-200'}
+                className={`rounded-lg border bg-card text-card-foreground shadow-sm ${isCorrect ? 'border-green-200' : 'border-red-200'}`}
             >
-              <CardHeader>
-                <CardTitle className="flex items-start gap-2">
+              <div className="flex flex-col space-y-1.5 p-6">
+                <h3 className="flex items-start gap-2">
                     {isCorrect ? (
                     <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
                   ) : (
                     <XCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" />
                   )}
                     <span>{question.question_text}</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+                </h3>
+              </div>
+              <div className="p-6 pt-0">
                 <div className="space-y-2">
                     {Object.entries(question.alternatives).map(([key, text]) => (
                     <div
@@ -251,7 +242,7 @@ export default function ResultadoPage({ params }: { params: { id: string } }) {
                       className={`flex items-start space-x-2 rounded-md border p-3 ${
                           key === question.correct_answer
                           ? 'border-green-500 bg-green-50 dark:bg-green-950'
-                            : key === _userAnswer && key !== question.correct_answer
+                            : key === progress.answers[index] && key !== question.correct_answer
                             ? 'border-red-500 bg-red-50 dark:bg-red-950'
                             : ''
                       }`}
@@ -270,26 +261,25 @@ export default function ResultadoPage({ params }: { params: { id: string } }) {
                   </div>
                     )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
             );
           })}
         </TabsContent>
         <TabsContent value="corretas" className="space-y-4">
           {questoes
             .filter((question, index) => progress.answers[index] === question.correct_answer)
-            .map((question, index) => {
-              const _userAnswer = progress.answers[index];
+            .map((question) => {
               
               return (
-              <Card key={question.id} className="border-green-200">
-                <CardHeader>
-                  <CardTitle className="flex items-start gap-2">
+              <div key={question.id} className="rounded-lg border bg-card text-card-foreground shadow-sm border-green-200">
+                <div className="flex flex-col space-y-1.5 p-6">
+                  <h3 className="flex items-start gap-2">
                     <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
                       <span>{question.question_text}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
+                  </h3>
+                </div>
+                <div className="p-6 pt-0">
                   <div className="space-y-2">
                       {Object.entries(question.alternatives).map(([key, text]) => (
                       <div
@@ -314,8 +304,8 @@ export default function ResultadoPage({ params }: { params: { id: string } }) {
                     </div>
                       )}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
               );
             })}
         </TabsContent>
@@ -323,17 +313,16 @@ export default function ResultadoPage({ params }: { params: { id: string } }) {
           {questoes
             .filter((question, index) => progress.answers[index] !== question.correct_answer)
             .map((question, index) => {
-              const _userAnswer = progress.answers[index];
               
               return (
-              <Card key={question.id} className="border-red-200">
-                <CardHeader>
-                  <CardTitle className="flex items-start gap-2">
+              <div key={question.id} className="rounded-lg border bg-card text-card-foreground shadow-sm border-red-200">
+                <div className="flex flex-col space-y-1.5 p-6">
+                  <h3 className="flex items-start gap-2">
                     <XCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" />
                       <span>{question.question_text}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
+                  </h3>
+                </div>
+                <div className="p-6 pt-0">
                   <div className="space-y-2">
                       {Object.entries(question.alternatives).map(([key, text]) => (
                       <div
@@ -341,7 +330,7 @@ export default function ResultadoPage({ params }: { params: { id: string } }) {
                         className={`flex items-start space-x-2 rounded-md border p-3 ${
                             key === question.correct_answer
                             ? 'border-green-500 bg-green-50 dark:bg-green-950'
-                              : key === _userAnswer
+                              : key === progress.answers[index]
                               ? 'border-red-500 bg-red-50 dark:bg-red-950'
                               : ''
                         }`}
@@ -360,8 +349,8 @@ export default function ResultadoPage({ params }: { params: { id: string } }) {
                     </div>
                       )}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
               );
             })}
         </TabsContent>

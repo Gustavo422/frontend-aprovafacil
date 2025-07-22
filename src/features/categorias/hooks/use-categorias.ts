@@ -1,10 +1,59 @@
 import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { CategoriaRepository } from '@/lib/repositories/categoria-repository';
-import type { Database } from '@/src/types/supabase.types';
 
-type CategoriaRow = Database['public']['Tables']['concurso_categorias']['Row'];
-type CategoriaInsert = Database['public']['Tables']['concurso_categorias']['Insert'];
-type CategoriaUpdate = Database['public']['Tables']['concurso_categorias']['Update'];
+// Definir Disciplina localmente para evitar erro de tipo
+export type Disciplina = {
+  id: string;
+  categoria_id: string;
+  nome: string;
+  peso: number;
+  horas_semanais: number;
+  ordem: number;
+  ativo: boolean;
+  criado_em: string;
+  atualizado_em: string;
+};
+
+// Padronizar o tipo Categoria para garantir compatibilidade de tipos
+export type CategoriaType = {
+  id: string;
+  nome: string;
+  slug: string;
+  descricao?: string | null;
+  cor_primaria?: string;
+  cor_secundaria?: string;
+  ativo: boolean;
+  criado_em: string;
+  atualizado_em: string;
+  disciplinas?: Disciplina[];
+};
+
+// Padronizar o tipo CategoriaRow para uso nos hooks
+export type CategoriaRow = {
+  id: string;
+  nome: string;
+  descricao?: string;
+  slug?: string;
+  cor_primaria?: string;
+  cor_secundaria?: string;
+  ativo: boolean;
+  criado_em: string;
+  atualizado_em: string;
+};
+
+// Função utilitária para normalizar Categoria para CategoriaRow
+const toCategoriaRow = (cat: Record<string, unknown>): CategoriaRow => ({
+  id: String(cat.id ?? ''),
+  nome: String(cat.nome ?? ''),
+  ativo: Boolean(cat.ativo),
+  criado_em: String(cat.criado_em ?? ''),
+  atualizado_em: String(cat.atualizado_em ?? ''),
+  descricao: typeof cat.descricao === 'string' ? cat.descricao : undefined,
+});
+
+// Tipos locais para categorias
+type CategoriaInsert = Omit<CategoriaRow, 'id' | 'criado_em' | 'atualizado_em'>;
+type CategoriaUpdate = Partial<Omit<CategoriaRow, 'id' | 'criado_em'>>;
 
 
 const categoriaRepo = new CategoriaRepository();
@@ -25,6 +74,8 @@ const categoriaKeys = {
   detail: (id: string) => [...categoriaKeys.details(), id] as const,
   bySlug: (slug: string) => [...categoriaKeys.all, 'slug', slug] as const,
   ativas: () => [...categoriaKeys.all, 'ativas'] as const,
+  children: (parentId: string | null) => [...categoriaKeys.all, 'children', parentId] as const,
+  tree: () => [...categoriaKeys.all, 'tree'] as const,
 };
 
 // Hooks para listar categorias
@@ -34,7 +85,10 @@ export const useListarCategorias = (
 ) => {
   return useQuery<CategoriaRow[], Error>({
     queryKey: categoriaKeys.list(filters),
-    queryFn: () => categoriaRepo.buscarComFiltros(filters),
+    queryFn: async () => {
+      const categorias = await categoriaRepo.buscarComFiltros(filters as Record<string, string | boolean>);
+      return Array.isArray(categorias) ? categorias.map(toCategoriaRow) : [];
+    },
     ...options,
   });
 };
@@ -45,7 +99,7 @@ export const useListarCategoriasAtivas = (
 ) => {
   return useQuery<CategoriaRow[], Error>({
     queryKey: categoriaKeys.ativas(),
-    queryFn: () => categoriaRepo.findAtivas(),
+    queryFn: async () => (await categoriaRepo.findAtivas()).map(toCategoriaRow),
     ...options,
   });
 };
@@ -59,7 +113,9 @@ export const useBuscarCategoria = (
     queryKey: categoriaKeys.detail(id),
     queryFn: async () => {
       if (!id) return null;
-      return categoriaRepo.findById(id);
+      const cat = await categoriaRepo.findBySlug(id);
+      if (!cat) return null;
+      return toCategoriaRow(cat);
     },
     enabled: !!id,
     ...options,
@@ -74,8 +130,8 @@ export const useBuscarCategoriaPorSlug = (
   return useQuery<CategoriaRow | null, Error>({
     queryKey: categoriaKeys.bySlug(slug),
     queryFn: async () => {
-      if (!slug) return null;
-      return categoriaRepo.findBySlug(slug);
+      const categoria = await categoriaRepo.findBySlug(slug);
+      return categoria ? toCategoriaRow(categoria) : null;
     },
     enabled: !!slug,
     ...options,
@@ -83,7 +139,7 @@ export const useBuscarCategoriaPorSlug = (
 };
 
 // Tipo para os dados de criação de categoria
-type CriarCategoriaData = Omit<CategoriaInsert, 'id' | 'created_at' | 'updated_at'>;
+type CriarCategoriaData = Omit<CategoriaInsert, 'id' | 'criado_em' | 'atualizado_em'>;
 
 // Hook para criar categoria
 export const useCriarCategoria = () => {
@@ -95,12 +151,15 @@ export const useCriarCategoria = () => {
     CriarCategoriaData,
     { previousCategorias: CategoriaRow[] | undefined }
   >({
-    mutationFn: (data) => categoriaRepo.criarCategoria({
-      ...data,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      is_active: data.is_active ?? true
-    } as CategoriaInsert),
+    mutationFn: async (data) => {
+      const cat = await categoriaRepo.criarCategoria({
+        ...data,
+        criado_em: new Date().toISOString(),
+        atualizado_em: new Date().toISOString(),
+        ativo: data.ativo ?? true
+      } as CategoriaInsert);
+      return toCategoriaRow(cat);
+    },
     // Otimista UI update
     onMutate: async (newCategoria) => {
       // Cancelar queries em andamento
@@ -135,7 +194,7 @@ export const useCriarCategoria = () => {
 };
 
 // Tipo para os dados de atualização de categoria
-type AtualizarCategoriaData = Partial<Omit<CategoriaUpdate, 'id' | 'created_at' | 'updated_at'>>;
+type AtualizarCategoriaData = Partial<Omit<CategoriaUpdate, 'id' | 'criado_em' | 'atualizado_em'>>;
 
 // Hook para atualizar categoria
 export const useAtualizarCategoria = () => {
@@ -147,10 +206,10 @@ export const useAtualizarCategoria = () => {
     { id: string; data: AtualizarCategoriaData },
     { previousCategoria: CategoriaRow | undefined }
   >({
-    mutationFn: ({ id, data }) => categoriaRepo.atualizarCategoria(id, {
-      ...data,
-      // updated_at: new Date().toISOString()
-    }),
+    mutationFn: async ({ id, data }) => {
+      const cat = await categoriaRepo.atualizarCategoria(id, data);
+      return toCategoriaRow(cat);
+    },
     // Otimista UI update
     onMutate: async ({ id, data }) => {
       // Cancelar queries em andamento
@@ -166,7 +225,7 @@ export const useAtualizarCategoria = () => {
         const updatedCategoria = {
           ...previousCategoria,
           ...data,
-          updated_at: new Date().toISOString(),
+          atualizado_em: new Date().toISOString(),
         };
         
         queryClient.setQueryData(categoriaKeys.detail(id), updatedCategoria);
@@ -200,7 +259,10 @@ export const useDesativarCategoria = () => {
     string,
     { previousCategoria: CategoriaRow | undefined }
   >({
-    mutationFn: (id: string) => categoriaRepo.desativarCategoria(id),
+    mutationFn: async (id: string) => {
+      const cat = await categoriaRepo.desativarCategoria(id);
+      return toCategoriaRow(cat);
+    },
     // Otimista UI update
     onMutate: async (id) => {
       // Cancelar queries em andamento
@@ -215,8 +277,8 @@ export const useDesativarCategoria = () => {
       if (previousCategoria) {
         queryClient.setQueryData(categoriaKeys.detail(id), {
           ...previousCategoria,
-          is_active: false,
-          updated_at: new Date().toISOString(),
+          ativo: false,
+          atualizado_em: new Date().toISOString(),
         });
       }
       
@@ -248,7 +310,10 @@ export const useAtivarCategoria = () => {
     string,
     { previousCategoria: CategoriaRow | undefined }
   >({
-    mutationFn: (id: string) => categoriaRepo.ativarCategoria(id),
+    mutationFn: async (id: string) => {
+      const cat = await categoriaRepo.ativarCategoria(id);
+      return toCategoriaRow(cat);
+    },
     // Otimista UI update
     onMutate: async (id) => {
       // Cancelar queries em andamento
@@ -263,8 +328,8 @@ export const useAtivarCategoria = () => {
       if (previousCategoria) {
         queryClient.setQueryData(categoriaKeys.detail(id), {
           ...previousCategoria,
-          is_active: true,
-          updated_at: new Date().toISOString(),
+          ativo: true,
+          atualizado_em: new Date().toISOString(),
         });
       }
       
@@ -314,8 +379,11 @@ export const useListarCategoriasFilhas = (
   options?: Omit<UseQueryOptions<CategoriaRow[], Error>, 'queryKey' | 'queryFn'>
 ) => {
   return useQuery<CategoriaRow[], Error>({
-    queryKey: [...categoriaKeys.detail(parentId || 'root'), 'filhas'],
-    queryFn: () => categoriaRepo.findByParentId(parentId),
+    queryKey: categoriaKeys.children(parentId),
+    queryFn: async () => {
+      const categorias = await categoriaRepo.findByParentId(parentId);
+      return categorias.map(toCategoriaRow);
+    },
     enabled: parentId !== undefined,
     ...options,
   });
@@ -326,8 +394,11 @@ export const useListarArvoreCategorias = (
   options?: Omit<UseQueryOptions<CategoriaRow[], Error>, 'queryKey' | 'queryFn'>
 ) => {
   return useQuery<CategoriaRow[], Error>({
-    queryKey: [...categoriaKeys.all, 'arvore'],
-    queryFn: () => categoriaRepo.findArvoreCategorias(),
+    queryKey: categoriaKeys.tree(),
+    queryFn: async () => {
+      const categorias = await categoriaRepo.findArvoreCategorias();
+      return categorias.map(toCategoriaRow);
+    },
     ...options,
   });
 };

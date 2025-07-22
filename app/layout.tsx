@@ -3,21 +3,28 @@ import { Inter } from 'next/font/google';
 import { Providers } from '@/src/providers';
 import { ErrorBoundaryWrapper } from '@/components/error-boundary-wrapper';
 import { ConcursoProvider } from '@/contexts/ConcursoContext';
-import { AuthProvider } from '@/providers/auth-provider';
+import { AuthProvider } from '@/features/auth/contexts/auth-context';
 import './globals.css';
+import '@/styles/globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'AprovaFacil',
-  description: 'Plataforma de estudos para concursos públicos',
+  titulo: 'AprovaFacil',
+  descricao: 'Plataforma de estudos para concursos públicos',
   generator: 'aprovafacil',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' },
-  ],
 };
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+};
+
+export const themeColor = [
+  { media: '(prefers-color-scheme: light)', color: 'white' },
+  { media: '(prefers-color-scheme: dark)', color: 'black' },
+];
 
 export default function RootLayout({
   children,
@@ -27,6 +34,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
+        {/* Removido script de env-config.js, não é mais necessário */}
         <script
           dangerouslySetInnerHTML={{
             __html: `

@@ -1,10 +1,11 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { memo, useMemo } from 'react';
+import { Card, CardContent, CardHeader, Cardtitulo } from '@/components/ui/card';
 import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 
 interface DashboardChartProps {
-  title: string;
+  titulo: string;
   data: Array<Record<string, unknown>>;
   dataKey: string;
   className?: string;
@@ -14,8 +15,24 @@ interface DashboardChartProps {
   children?: React.ReactNode;
 }
 
-export function DashboardChart({
-  title,
+// Memoized tooltip style to prevent recreation on each render
+const tooltipStyle = {
+  backgroundColor: 'hsl(var(--background))',
+  borderColor: 'hsl(var(--border))',
+  borderRadius: 'var(--radius)',
+  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+};
+
+// Memoized chart margins to prevent recreation on each render
+const chartMargins = {
+  top: 5,
+  right: 10,
+  left: 0,
+  bottom: 5,
+};
+
+export const DashboardChart = memo(function DashboardChart({
+  titulo,
   data,
   dataKey,
   className,
@@ -24,22 +41,21 @@ export function DashboardChart({
   showLegend = false,
   children,
 }: DashboardChartProps) {
+  // Memoize the data to prevent unnecessary re-renders
+  // Only re-create when the data reference changes
+  const memoizedData = useMemo(() => data, [data]);
+  
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <Cardtitulo className="text-sm font-medium">{titulo}</Cardtitulo>
       </CardHeader>
       <CardContent>
         <div style={{ width: '100%', height }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
-              data={data}
-              margin={{
-                top: 5,
-                right: 10,
-                left: 0,
-                bottom: 5,
-              }}
+              data={memoizedData}
+              margin={chartMargins}
             >
               {showGrid && <CartesianGrid strokeDasharray="3 3" />}
               <XAxis 
@@ -54,14 +70,7 @@ export function DashboardChart({
                 axisLine={false}
                 tickFormatter={(value) => `${value}`}
               />
-              <Tooltip 
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--background))',
-                  borderColor: 'hsl(var(--border))',
-                  borderRadius: 'var(--radius)',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-                }}
-              />
+              <Tooltip contentStyle={tooltipStyle} />
               {showLegend && <Legend />}
               {children}
             </LineChart>
@@ -70,4 +79,4 @@ export function DashboardChart({
       </CardContent>
     </Card>
   );
-}
+});

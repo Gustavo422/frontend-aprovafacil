@@ -1,22 +1,22 @@
 'use client';
 
 import * as React from 'react';
-import { OTPInput, OTPInputContext } from 'input-otp';
+import { OTPInput, OTPInputContext, type OTPInputProps } from 'input-otp';
 import { Dot } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
 const InputOTP = React.forwardRef<
   React.ElementRef<typeof OTPInput>,
-  React.ComponentPropsWithoutRef<typeof OTPInput>
->(({ className, containerClassName, ...props }, ref) => (
+  OTPInputProps
+>(({ classnome, containerClassnome, ...props }, ref) => (
   <OTPInput
     ref={ref}
-    containerClassName={cn(
+    containerClassnome={cn(
       'flex items-center gap-2 has-[:disabled]:opacity-50',
-      containerClassName
+      containerClassnome
     )}
-    className={cn('disabled:cursor-not-allowed', className)}
+    classnome={cn('disabled:cursor-not-allowed', classnome)}
     {...props}
   />
 ));
@@ -70,3 +70,6 @@ const InputOTPSeparator = React.forwardRef<
 InputOTPSeparator.displayName = 'InputOTPSeparator';
 
 export { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator };
+
+
+

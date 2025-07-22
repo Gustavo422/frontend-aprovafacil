@@ -15,6 +15,7 @@ const badgeVariants = cva(
         destructive:
           'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80',
         outline: 'text-foreground',
+        warning: 'border-transparent bg-yellow-400 text-yellow-900 hover:bg-yellow-300',
       },
     },
     defaultVariants: {
@@ -34,3 +35,6 @@ function Badge({ className, variant, ...props }: BadgeProps) {
 }
 
 export { Badge, badgeVariants };
+
+
+

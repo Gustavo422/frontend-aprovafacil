@@ -2,10 +2,10 @@ import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstac
 import { UserRepository } from '@/lib/repositories/user-repository';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { mapUserRowToAppUser } from '../types/user.types';
-import type { AppUser, UserStatsUpdate } from '../types/user.types';
+import type { AppUser, usuariostatsUpdate } from '../types/user.types';
 import type { Database } from '@/src/types/supabase.types';
 
-type DBUserRow = Database['public']['Tables']['users']['Row'];
+type DBUserRow = Database['public']['Tables']['usuarios']['Row'];
 
 const userRepo = new UserRepository();
 
@@ -19,7 +19,7 @@ type UserFilters = {
 
 // Chaves de query
 const userKeys = {
-  all: ['users'] as const,
+  all: ['usuarios'] as const,
   lists: () => [...userKeys.all, 'list'] as const,
   list: (filters?: UserFilters) => [...userKeys.lists(), { filters }] as const,
   details: () => [...userKeys.all, 'detail'] as const,
@@ -37,20 +37,26 @@ export const useBuscarUsuario = (
     queryKey: userKeys.detail(id),
     queryFn: async (): Promise<AppUser | null> => {
       if (!id) return null;
-      const user = await userRepo.findById(id);
-      if (!user) return null;
+      // Substituir ou comentar a linha: const user = await userRepo.findById(id);
+      const response = await fetch(`/api/user/profile/${id}`);
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null; // Usuário não encontrado
+        }
+        throw new Error('Erro ao buscar usuário por ID');
+      }
+      const userData = await response.json();
+      if (!userData) return null;
       
       // Garantir que temos um objeto válido antes de mapear
-      const userData = user as unknown as DBUserRow;
-      const mappedUser = mapUserRowToAppUser(userData);
+      const userRow = userData as DBUserRow;
+      const mappedUser = mapUserRowToAppUser(userRow);
       
       // Adicionar campos obrigatórios do SupabaseUser
       if (mappedUser) {
         const supabaseUser: Partial<SupabaseUser> = {
           id: mappedUser.id,
           email: mappedUser.email || '',
-          created_at: mappedUser.created_at,
-          updated_at: mappedUser.updated_at,
           app_metadata: {},
           user_metadata: {},
           aud: 'authenticated',
@@ -88,8 +94,6 @@ export const useBuscarUsuarioPorEmail = (
         const supabaseUser: Partial<SupabaseUser> = {
           id: mappedUser.id,
           email: mappedUser.email || '',
-          created_at: mappedUser.created_at,
-          updated_at: mappedUser.updated_at,
           app_metadata: {},
           user_metadata: {},
           aud: 'authenticated',
@@ -109,19 +113,20 @@ export const useBuscarUsuarioPorEmail = (
 };
 
 // Re-exportar tipos
-export type { UserStatsUpdate, AppUser } from '../types/user.types';
+export type { usuariostatsUpdate, AppUser } from '../types/user.types';
 
 // Hook para atualizar estatísticas do usuário
 export const useAtualizarEstatisticasUsuario = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationKey: ['updateUserStats'],
-    mutationFn: async ({ userId, stats }: { userId: string; stats: UserStatsUpdate }) => {
-      const updatedUser = await userRepo.updateUserStats(userId, {
-        questionsAnswered: stats.total_questions_answered ?? 0,
-        correctAnswers: stats.total_correct_answers ?? 0,
-        studyTimeMinutes: stats.study_time_minutes ?? 0,
+    mutationKey: ['updateusuariostats'],
+    mutationFn: async ({ userId, stats }: { userId: string; stats: usuariostatsUpdate }) => {
+      const updatedUser = await userRepo.updateusuariostats(userId, {
+        total_questoes_respondidas: stats.total_questoes_respondidas ?? 0,
+        total_acertos: stats.total_resposta_corretas ?? 0,
+        tempo_estudo_minutos: stats.tempo_estudo_minutos ?? 0,
+        pontuacao_media: stats.pontuacao_media ?? 0,
       });
       if (!updatedUser) throw new Error('Falha ao atualizar estatísticas do usuário');
       const mappedUser = mapUserRowToAppUser(updatedUser as unknown as DBUserRow);
@@ -141,17 +146,17 @@ export const useAtualizarEstatisticasUsuario = () => {
         const updatedUser: AppUser = {
           ...previousUser,
           // Atualizar campos principais
-          total_questions_answered: stats.total_questions_answered ?? previousUser.total_questions_answered,
-          total_correct_answers: stats.total_correct_answers ?? previousUser.total_correct_answers,
-          study_time_minutes: stats.study_time_minutes ?? previousUser.study_time_minutes,
-          average_score: stats.average_score ?? previousUser.average_score,
-          updated_at: new Date().toISOString(),
+          total_questoes_respondidas: stats.total_questoes_respondidas ?? previousUser.total_questoes_respondidas,
+          total_resposta_corretas: stats.total_resposta_corretas ?? previousUser.total_resposta_corretas,
+          tempo_estudo_minutos: stats.tempo_estudo_minutos ?? previousUser.tempo_estudo_minutos,
+          pontuacao_media: stats.pontuacao_media ?? previousUser.pontuacao_media,
+          atualizado_em: new Date().toISOString(),
           
           // Atualizar campos calculados
-          total_questions: stats.total_questions_answered ?? previousUser.total_questions,
-          total_correct: stats.total_correct_answers ?? previousUser.total_correct,
-          total_time_minutes: stats.study_time_minutes ?? previousUser.total_time_minutes,
-          score: stats.average_score ?? previousUser.score,
+          total_questions: stats.total_questoes_respondidas ?? previousUser.total_questions,
+          total_correct: stats.total_resposta_corretas ?? previousUser.total_correct,
+          total_time_minutes: stats.tempo_estudo_minutos ?? previousUser.total_time_minutes,
+          score: stats.pontuacao_media ?? previousUser.score,
         };
         
         queryClient.setQueryData(userKeys.detail(userId), updatedUser);
@@ -194,8 +199,8 @@ export const useDesativarConta = () => {
           userKeys.detail(userId),
           { 
             ...previousUser, 
-            is_active: false, 
-            updated_at: new Date().toISOString() 
+            ativo: false, 
+            atualizado_em: new Date().toISOString() 
           }
         );
       }
@@ -223,10 +228,16 @@ export const useCurrentUser = (
   return useQuery<AppUser | null, Error>({
     queryKey: userKeys.current,
     queryFn: async () => {
-      const { data: { user } } = await userRepo.client.auth.getUser();
-      if (!user) return null;
-      const userData = await userRepo.findById(user.id);
-      if (!userData) return null;
+      const response = await fetch('/api/user/profile');
+      
+      if (!response.ok) {
+        if (response.status === 401) {
+          return null; // Usuário não autenticado
+        }
+        throw new Error('Erro ao buscar usuário atual');
+      }
+      
+      const userData = await response.json();
       return mapUserRowToAppUser(userData as unknown as DBUserRow);
     },
     ...options,
@@ -241,28 +252,32 @@ export const useListarUsuarios = (
   return useQuery<AppUser[], Error>({
     queryKey: userKeys.list(filters),
     queryFn: async () => {
-      let query = userRepo.client.from('users').select('*');
+      const params = new URLSearchParams();
       
       if (filters.ativo !== undefined) {
-        query = query.eq('is_active', filters.ativo);
+        params.append('ativo', filters.ativo.toString());
       }
       
       if (filters.role) {
-        query = query.eq('role', filters.role);
+        params.append('role', filters.role);
       }
       
       if (filters.search) {
-        query = query.ilike('full_name', `%${filters.search}%`);
+        params.append('search', filters.search);
       }
       
       if (filters.email) {
-        query = query.ilike('email', `%${filters.email}%`);
+        params.append('email', filters.email);
       }
       
-      const { data, error } = await query;
+      const response = await fetch(`/api/user/list?${params}`);
       
-      if (error) throw error;
-      return (data || []).map(user => mapUserRowToAppUser(user as unknown as DBUserRow)!).filter(Boolean) as AppUser[];
+      if (!response.ok) {
+        throw new Error('Erro ao buscar lista de usuários');
+      }
+      
+      const data = await response.json();
+      return (data || []).map((user: unknown) => mapUserRowToAppUser(user as unknown as DBUserRow)!).filter(Boolean) as AppUser[];
     },
     ...options,
   });

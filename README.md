@@ -53,9 +53,9 @@ npm run dev
 O projeto utiliza Supabase como backend. Execute as migrações SQL fornecidas no arquivo `schema_public_and_auth.sql` no seu projeto Supabase.
 
 ### Principais Tabelas:
-- `users` - Usuários do sistema
+- `usuarios` - Usuários do sistema
 - `concursos` - Concursos públicos
-- `concurso_categorias` - Categorias de concursos
+- `categorias_concursos` - Categorias de concursos
 - `apostilas` - Material de estudo
 - `apostila_content` - Conteúdo das apostilas
 - `simulados` - Simulados e provas
@@ -238,4 +238,6 @@ Para suporte, entre em contato através:
 ---
 
 Desenvolvido com ❤️ para facilitar a aprovação em concursos públicos.
+
+
 

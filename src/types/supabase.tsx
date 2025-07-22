@@ -22,3 +22,6 @@ declare global {
 
 // Export database types for use in other files
 export type { Database } from '@/types/supabase.types';
+
+
+

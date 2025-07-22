@@ -21,7 +21,7 @@ interface TestResult {
 export default function MonitorTestesPage() {
   const [testFiles, setTestFiles] = useState<string[]>([]);
   const [selectedFile, setSelectedFile] = useState('');
-  const [testName, setTestName] = useState('');
+  const [testname, setTestname] = useState('');
   const [result, setResult] = useState<TestResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<TestHistory[]>([]);
@@ -59,7 +59,7 @@ export default function MonitorTestesPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${localStorage.getItem('auth_token')}`
         },
-        body: JSON.stringify({ file: selectedFile, testName })
+        body: JSON.stringify({ file: selectedFile, testname })
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.error || 'Erro ao executar teste');
@@ -92,8 +92,8 @@ export default function MonitorTestesPage() {
         <label className="block mb-1">Nome do Teste (opcional):</label>
         <input
           className="border rounded px-2 py-1 w-full"
-          value={testName}
-          onChange={e => setTestName(e.target.value)}
+          value={testname}
+          onChange={e => setTestname(e.target.value)}
           placeholder="Ex: deve retornar sucesso"
         />
       </div>

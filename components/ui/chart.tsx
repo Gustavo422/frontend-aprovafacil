@@ -71,7 +71,7 @@ ChartContainer.displayName = 'Chart';
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
-    ([_, config]) => config.color
+    ([, config]) => config.color
   );
 
   if (!colorConfig.length) {
@@ -116,7 +116,7 @@ const ChartTooltipContent = React.forwardRef<
       labelClassName,
       formatter,
       color,
-      nameKey,
+      nomeKey,
       labelKey,
     },
     ref
@@ -129,7 +129,7 @@ const ChartTooltipContent = React.forwardRef<
       }
 
       const [item] = payload;
-      const key = `${labelKey || item.dataKey || item.name || 'value'}`;
+      const key = `${labelKey || item.dataKey || item.nome || 'value'}`;
       const itemConfig = getPayloadConfigFromPayload(config, key);
       const value =
         !labelKey && typeof label === 'string'
@@ -176,7 +176,7 @@ const ChartTooltipContent = React.forwardRef<
         {!nestLabel ? tooltipLabel : null}
         <div className="grid gap-1.5">
           {payload.map((item: any, index: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
-            const key = `${nameKey || item.name || item.dataKey || 'value'}`;
+            const key = `${nomeKey || item.nome || item.dataKey || 'value'}`;
             const itemConfig = getPayloadConfigFromPayload(config, key);
             let indicatorColor = color || item.color;
             if (item.payload && typeof item.payload === 'object' && 'fill' in item.payload) {
@@ -210,7 +210,7 @@ const ChartTooltipContent = React.forwardRef<
                       {itemConfig?.icon && <itemConfig.icon />}
                       <span className="font-medium tabular-nums">
                         {formatter
-                          ? formatter(item.value ?? 0, item.name ?? '', item, index, payload)
+                          ? formatter(item.value ?? 0, item.nome ?? '', item, index, payload)
                           : String(item.value ?? '')}
                       </span>
                     </div>
@@ -270,3 +270,6 @@ const ChartLegend = React.forwardRef<
 ChartLegend.displayName = 'ChartLegend';
 
 export { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend };
+
+
+

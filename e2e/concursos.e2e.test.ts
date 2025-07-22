@@ -5,7 +5,7 @@ describe('Concursos E2E Tests', () => {
   const testUser = {
     email: 'test@aprovafacil.com',
     password: 'testpassword123',
-    name: 'Test User'
+    nome: 'Test User'
   }
 
   const mockConcursos = [
@@ -15,7 +15,7 @@ describe('Concursos E2E Tests', () => {
       descricao: 'Concurso para diversos cargos municipais',
       ano: 2024,
       banca: 'FCC',
-      is_active: true,
+      ativo: true,
       categoria_id: 'cat-1',
       edital_url: 'https://example.com/edital.pdf',
       data_prova: '2024-12-15',
@@ -28,7 +28,7 @@ describe('Concursos E2E Tests', () => {
       descricao: 'Concurso para cargos estaduais',
       ano: 2024,
       banca: 'CESPE',
-      is_active: true,
+      ativo: true,
       categoria_id: 'cat-2',
       edital_url: 'https://example.com/edital2.pdf',
       data_prova: '2024-11-20',
@@ -44,7 +44,7 @@ describe('Concursos E2E Tests', () => {
       user: {
         id: 'mock-user-id',
         email: testUser.email,
-        user_metadata: { name: testUser.name }
+        user_metadata: { nome: testUser.nome }
       }
     })
 
@@ -55,7 +55,7 @@ describe('Concursos E2E Tests', () => {
     })
 
     // Mock categorias data
-    await e2eHelpers.mockApiResponse(/supabase\.co.*concurso_categorias/, {
+    await e2eHelpers.mockApiResponse(/supabase\.co.*categorias_concursos/, {
       data: [
         { id: 'cat-1', nome: 'Municipal', slug: 'municipal' },
         { id: 'cat-2', nome: 'Estadual', slug: 'estadual' }
@@ -78,8 +78,8 @@ describe('Concursos E2E Tests', () => {
     it('should display concurso information correctly', async () => {
       await e2eHelpers.goto('/dashboard/concursos')
       
-      const concursoName = await e2eHelpers.getText('[data-testid="concurso-name-1"]')
-      expect(concursoName).toContain('Concurso Público Municipal')
+      const concursonome = await e2eHelpers.getText('[data-testid="concurso-nome-1"]')
+      expect(concursonome).toContain('Concurso Público Municipal')
       
       const concursoBanca = await e2eHelpers.getText('[data-testid="concurso-banca-1"]')
       expect(concursoBanca).toContain('FCC')
@@ -150,16 +150,16 @@ describe('Concursos E2E Tests', () => {
       await e2eHelpers.goto('/dashboard/concursos/1')
       
       expect(await e2eHelpers.elementExists('[data-testid="concurso-detail"]')).toBe(true)
-      expect(await e2eHelpers.elementExists('[data-testid="concurso-title"]')).toBe(true)
-      expect(await e2eHelpers.elementExists('[data-testid="concurso-description"]')).toBe(true)
+      expect(await e2eHelpers.elementExists('[data-testid="concurso-titulo"]')).toBe(true)
+      expect(await e2eHelpers.elementExists('[data-testid="concurso-descricao"]')).toBe(true)
       expect(await e2eHelpers.elementExists('[data-testid="concurso-info"]')).toBe(true)
     })
 
     it('should display concurso information correctly', async () => {
       await e2eHelpers.goto('/dashboard/concursos/1')
       
-      const title = await e2eHelpers.getText('[data-testid="concurso-title"]')
-      expect(title).toContain('Concurso Público Municipal')
+      const titulo = await e2eHelpers.getText('[data-testid="concurso-titulo"]')
+      expect(titulo).toContain('Concurso Público Municipal')
       
       const banca = await e2eHelpers.getText('[data-testid="concurso-banca"]')
       expect(banca).toContain('FCC')
@@ -183,8 +183,8 @@ describe('Concursos E2E Tests', () => {
         data: [
           {
             id: 'ap-1',
-            title: 'Apostila de Português',
-            description: 'Material completo',
+            titulo: 'Apostila de Português',
+            descricao: 'Material completo',
             concurso_id: '1'
           }
         ]
@@ -227,13 +227,13 @@ describe('Concursos E2E Tests', () => {
 
     it('should show selected concurso in user preferences', async () => {
       // Mock user preferences
-      await e2eHelpers.mockApiResponse(/supabase\.co.*user_concurso_preferences/, {
+      await e2eHelpers.mockApiResponse(/supabase\.co.*preferencias_usuario_concurso/, {
         data: [
           {
             id: 'pref-1',
             user_id: 'mock-user-id',
             concurso_id: '1',
-            is_active: true
+            ativo: true
           }
         ]
       })
@@ -253,7 +253,7 @@ describe('Concursos E2E Tests', () => {
         descricao: `Descrição ${i + 1}`,
         ano: 2024,
         banca: 'FCC',
-        is_active: true,
+        ativo: true,
         categoria_id: 'cat-1'
       }))
 
@@ -412,4 +412,7 @@ describe('Concursos E2E Tests', () => {
     })
   })
 })
+
+
+
 

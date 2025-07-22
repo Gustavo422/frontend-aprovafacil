@@ -18,7 +18,7 @@ const logger = {
 
 interface ErrorHandlerOptions {
   showToast?: boolean;
-  toastTitle?: string;
+  toasttitulo?: string;
   onError?: (error: Error) => void;
   fallbackMessage?: string;
 }
@@ -32,7 +32,7 @@ interface ErrorHandlerResult<T> {
 }
 
 export function useErrorHandler<T = unknown>(options: ErrorHandlerOptions = {}): ErrorHandlerResult<T> {
-  const { showToast = true, toastTitle, onError, fallbackMessage } = options;
+  const { showToast = true, toasttitulo, onError, fallbackMessage } = options;
   const { toast } = useToast();
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<Error | null>(null);
@@ -53,15 +53,15 @@ export function useErrorHandler<T = unknown>(options: ErrorHandlerOptions = {}):
       logger.error('useErrorHandler', { error: errorObj });
       if (showToast) {
         toast({
-          title: toastTitle || 'Erro',
-          description: fallbackMessage || errorObj.message,
+          titulo: toasttitulo || 'Erro',
+          descricao: fallbackMessage || errorObj.message,
           variant: 'destructive',
         });
       }
       if (onError) onError(errorObj);
       return null;
     }
-  }, [showToast, toast, toastTitle, fallbackMessage, onError]);
+  }, [showToast, toast, toasttitulo, fallbackMessage, onError]);
 
   const reset = useCallback(() => {
     setError(null);
@@ -76,7 +76,7 @@ export function useErrorHandler<T = unknown>(options: ErrorHandlerOptions = {}):
 export function useAuthErrorHandler() {
   return useErrorHandler({
     showToast: true,
-    toastTitle: 'Erro de Autenticação',
+    toasttitulo: 'Erro de Autenticação',
     fallbackMessage:
       'Erro ao autenticar. Verifique suas credenciais e tente novamente.',
   });
@@ -86,7 +86,7 @@ export function useAuthErrorHandler() {
 export function useDataErrorHandler() {
   return useErrorHandler({
     showToast: true,
-    toastTitle: 'Erro de Dados',
+    toasttitulo: 'Erro de Dados',
     fallbackMessage: 'Erro ao carregar dados. Tente novamente.',
   });
 }
@@ -95,8 +95,11 @@ export function useDataErrorHandler() {
 export function useFormErrorHandler() {
   return useErrorHandler({
     showToast: true,
-    toastTitle: 'Erro de Formulário',
+    toasttitulo: 'Erro de Formulário',
     fallbackMessage:
       'Erro ao processar formulário. Verifique os dados e tente novamente.',
   });
 } 
+
+
+

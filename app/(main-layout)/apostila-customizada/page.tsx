@@ -4,9 +4,9 @@ import { logger } from '@/lib/logger';
 import {
   Card,
   CardContent,
-  CardDescription,
+  Carddescricao,
   CardHeader,
-  CardTitle,
+  Cardtitulo,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -17,10 +17,10 @@ import Link from 'next/link';
 
 interface Apostila {
   id: string;
-  title: string;
-  description: string;
+  titulo: string;
+  descricao: string;
   concurso_id: string | null;
-  created_at: string;
+  criado_em: string;
 }
 
 export default function ApostilasPage() {
@@ -35,11 +35,24 @@ export default function ApostilasPage() {
     try {
       const response = await fetch('/api/apostilas');
       const data = await response.json();
-      setApostilas(data.apostilas);
+      
+      if (response.ok && data.apostilas) {
+        setApostilas(data.apostilas);
+      } else {
+        // If API returns error or no data, set empty array
+        setApostilas([]);
+        if (!response.ok) {
+          logger.error('Erro ao buscar apostilas', {
+            status: response.status,
+            data: data
+          });
+        }
+      }
     } catch (error) {
       logger.error('Erro ao buscar apostilas', {
         error: error instanceof Error ? error.message : String(error),
       });
+      setApostilas([]);
     } finally {
       setLoading(false);
     }
@@ -62,14 +75,14 @@ export default function ApostilasPage() {
       </p>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {apostilas.map(apostila => (
+        {apostilas && apostilas.map(apostila => (
           <Card key={apostila.id} className="h-full">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <Cardtitulo className="flex items-center gap-2">
                 <BookOpen className="h-5 w-5" />
-                {apostila.title}
-              </CardTitle>
-              <CardDescription>{apostila.description}</CardDescription>
+                {apostila.titulo}
+              </Cardtitulo>
+              <Carddescricao>{apostila.descricao}</Carddescricao>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -109,11 +122,11 @@ export default function ApostilasPage() {
       {apostilas.length === 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Nenhuma apostila disponível</CardTitle>
-            <CardDescription>
+            <Cardtitulo>Nenhuma apostila disponível</Cardtitulo>
+            <Carddescricao>
               As apostilas serão adicionadas em breve. Fique atento às
               atualizações!
-            </CardDescription>
+            </Carddescricao>
           </CardHeader>
         </Card>
       )}

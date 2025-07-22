@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import { 
   Card, 
   CardContent, 
-  CardDescription, 
+  Carddescricao, 
   CardHeader, 
-  CardTitle 
+  Cardtitulo 
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -65,7 +65,7 @@ export function ConcursoSelector() {
 
   const loadAllConcursos = useCallback(async () => {
     try {
-      const response = await fetch('/api/concursos?is_active=true');
+      const response = await fetch('/api/concursos?ativo=true');
       if (response.ok) {
         const data = await response.json();
         setConcursos(data.concursos || []);
@@ -80,7 +80,7 @@ export function ConcursoSelector() {
   useEffect(() => {
     const loadCategorias = async () => {
       try {
-        const response = await fetch('/api/concurso-categorias?is_active=true');
+        const response = await fetch('/api/concurso-categorias?ativo=true');
         if (response.ok) {
           const data = await response.json();
           setCategorias(data.categorias || []);
@@ -107,13 +107,13 @@ export function ConcursoSelector() {
   const filteredConcursos = concursos.filter(concurso => {
     const matchesSearch = 
       concurso.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (concurso.concurso_categorias?.nome && 
-       concurso.concurso_categorias.nome.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (concurso.categoria?.nome && 
+       concurso.categoria.nome.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (concurso.banca && concurso.banca.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const matchesCategoria = 
       selectedCategoria === 'todos' || 
-      concurso.concurso_categorias?.id === selectedCategoria;
+      concurso.categoria?.id === selectedCategoria;
 
     const matchesBanca = 
       selectedBanca === 'todas' || 
@@ -137,7 +137,7 @@ export function ConcursoSelector() {
       
       toast({
         title: "Concurso selecionado!",
-        description: "Seu painel foi personalizado para o concurso escolhido.",
+        descricao: "Seu painel foi personalizado para o concurso escolhido.",
         duration: 3000,
       });
       
@@ -147,7 +147,7 @@ export function ConcursoSelector() {
       logger.error('Erro ao selecionar concurso:', { error });
       toast({
         title: "Erro",
-        description: error instanceof Error ? error.message : "Não foi possível selecionar o concurso. Tente novamente.",
+        descricao: error instanceof Error ? error.message : "Não foi possível selecionar o concurso. Tente novamente.",
         variant: "destructive",
         duration: 3000,
       });
@@ -192,10 +192,10 @@ export function ConcursoSelector() {
       {/* Filtros */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
+          <Cardtitulo className="flex items-center space-x-2">
             <Search className="h-5 w-5" />
             <span>Filtrar Concursos</span>
-          </CardTitle>
+          </Cardtitulo>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Busca */}
@@ -287,10 +287,10 @@ export function ConcursoSelector() {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="space-y-2">
-                      <CardTitle className="text-lg">{concurso.nome}</CardTitle>
+                      <Cardtitulo className="text-lg">{concurso.nome}</Cardtitulo>
                       <div className="flex flex-wrap gap-2">
                         <Badge variant="secondary">
-                          {concurso.concurso_categorias?.nome || 'Sem categoria'}
+                          {concurso.categoria?.nome || 'Sem categoria'}
                         </Badge>
                         {concurso.banca && (
                           <Badge variant="outline">{concurso.banca}</Badge>
@@ -304,15 +304,15 @@ export function ConcursoSelector() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {concurso.descricao && (
-                    <CardDescription className="text-sm">
+                    <Carddescricao className="text-sm">
                       {concurso.descricao}
-                    </CardDescription>
+                    </Carddescricao>
                   )}
                   
                   <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <div className="flex items-center space-x-1">
                       <Building2 className="h-4 w-4" />
-                      <span>{concurso.concurso_categorias?.nome || 'Sem categoria'}</span>
+                      <span>{concurso.categoria?.nome || 'Sem categoria'}</span>
                     </div>
                     {concurso.data_prova && (
                       <div className="flex items-center space-x-1">
@@ -323,7 +323,7 @@ export function ConcursoSelector() {
                   </div>
 
                   <Button
-                    onClick={() => handleSelectConcurso(concurso.id, concurso.concurso_categorias?.id || '')}
+                    onClick={() => handleSelectConcurso(concurso.id, concurso.categoria?.id || '')}
                     disabled={selecting}
                     className="w-full"
                   >

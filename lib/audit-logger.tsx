@@ -17,20 +17,20 @@ export class AuditLogger {
       const supabase = await createServerSupabaseClient();
       const logEntry = {
         ...entry,
-        created_at: new Date().toISOString()
+        criado_em: new Date().toISOString()
       };
 
       const { error } = await supabase
-        .from('audit_logs')
+        .from('logs_auditoria')
         .insert({
           user_id: entry.userId,
           action: entry.action,
-          table_name: 'auth_events',
+          table_nome: 'auth_events',
           record_id: null,
           new_values: entry.details,
           ip_address: entry.ipAddress,
           user_agent: entry.userAgent,
-          created_at: logEntry.created_at
+          criado_em: logEntry.criado_em
         });
 
       if (error) {
@@ -162,10 +162,10 @@ export class AuditLogger {
     try {
       const supabase = await createServerSupabaseClient();
       const { data, error } = await supabase
-        .from('audit_logs')
+        .from('logs_auditoria')
         .select('*')
         .eq('user_id', userId)
-        .order('created_at', { ascending: false })
+        .order('criado_em', { ascending: false })
         .range(offset, offset + limit - 1);
 
       if (error) {
@@ -185,10 +185,10 @@ export class AuditLogger {
     try {
       const supabase = await createServerSupabaseClient();
       const { data, error } = await supabase
-        .from('audit_logs')
+        .from('logs_auditoria')
         .select('*')
         .in('action', ['LOGIN_FAILED', 'SUSPICIOUS_ACTIVITY', 'ACCOUNT_LOCKED', 'ACCESS_DENIED'])
-        .order('created_at', { ascending: false })
+        .order('criado_em', { ascending: false })
         .limit(limit);
 
       if (error) {
@@ -206,3 +206,6 @@ export class AuditLogger {
 
 // Instância global para uso em toda a aplicação
 export const auditLogger = new AuditLogger(); 
+
+
+

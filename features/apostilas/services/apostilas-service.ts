@@ -6,9 +6,9 @@ export interface Apostila {
   descricao?: string;
   concurso_id: string;
   categoria_id: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
+  ativo: boolean;
+  criado_em: string;
+  atualizado_em: string;
   user_id: string;
 }
 
@@ -17,7 +17,7 @@ export interface ApostilaInsert {
   descricao?: string;
   concurso_id: string;
   categoria_id: string;
-  is_active?: boolean;
+  ativo?: boolean;
   user_id: string;
 }
 
@@ -26,36 +26,36 @@ export interface ApostilaUpdate {
   descricao?: string;
   concurso_id?: string;
   categoria_id?: string;
-  is_active?: boolean;
+  ativo?: boolean;
 }
 
 export interface ApostilaContent {
   id: string;
   apostila_id: string;
   module_number: number;
-  title: string;
+  titulo: string;
   content_json: unknown;
-  created_at: string;
-  updated_at: string;
-  is_active: boolean;
-  order_index: number;
+  criado_em: string;
+  atualizado_em: string;
+  ativo: boolean;
+  ordem: number;
 }
 
 export interface ApostilaContentInsert {
   apostila_id: string;
   module_number: number;
-  title: string;
+  titulo: string;
   content_json: unknown;
-  is_active?: boolean;
-  order_index?: number;
+  ativo?: boolean;
+  ordem?: number;
 }
 
 export interface ApostilaContentUpdate {
   module_number?: number;
-  title?: string;
+  titulo?: string;
   content_json?: unknown;
-  is_active?: boolean;
-  order_index?: number;
+  ativo?: boolean;
+  ordem?: number;
 }
 
 export interface UserApostilaProgress {
@@ -63,18 +63,18 @@ export interface UserApostilaProgress {
   user_id: string;
   apostila_id: string;
   module_id: string;
-  progress_percentage: number;
-  completed_at?: string;
-  created_at: string;
-  updated_at: string;
+  percentual_progresso: number;
+  concluido_at?: string;
+  criado_em: string;
+  atualizado_em: string;
 }
 
 export interface UserApostilaProgressInsert {
   user_id: string;
   apostila_id: string;
   module_id: string;
-  progress_percentage: number;
-  completed_at?: string;
+  percentual_progresso: number;
+  concluido_at?: string;
 }
 
 export interface ApostilaWithContent extends Apostila {
@@ -91,7 +91,7 @@ export class ApostilasService {
   async getAll(filters?: {
     concurso_id?: string;
     categoria_id?: string;
-    is_active?: boolean;
+    ativo?: boolean;
   }): Promise<Apostila[]> {
     let query = this.supabase
       .from('apostilas')
@@ -105,8 +105,8 @@ export class ApostilasService {
       query = query.eq('categoria_id', filters.categoria_id);
     }
 
-    if (filters?.is_active !== undefined) {
-      query = query.eq('is_active', filters.is_active);
+    if (filters?.ativo !== undefined) {
+      query = query.eq('ativo', filters.ativo);
     }
 
     const { data, error } = await query;
@@ -154,7 +154,7 @@ export class ApostilasService {
       .from('apostilas')
       .update({
         ...apostila,
-        updated_at: new Date().toISOString()
+        atualizado_em: new Date().toISOString()
       })
       .eq('id', id)
       .select()
@@ -183,7 +183,7 @@ export class ApostilasService {
       .from('apostilas')
       .select(`
         *,
-        apostila_content(*)
+        conteudo_apostila(*)
       `)
       .eq('id', id)
       .single();
@@ -198,3 +198,6 @@ export class ApostilasService {
     return data;
   }
 } 
+
+
+

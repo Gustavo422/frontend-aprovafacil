@@ -1,17 +1,24 @@
-import { supabase } from '@/lib/supabase';
-import type { Database } from '@/types/supabase.types';
+// Tipos locais para o serviço de apostilas
+type Apostila = {
+  id: string;
+  titulo: string;
+  descricao?: string;
+  concurso_id: string;
+  categoria_id?: string;
+  user_id: string;
+  ativo: boolean;
+  criado_em: string;
+  atualizado_em: string;
+};
 
-type Apostila = Database['public']['Tables']['apostilas']['Row'];
-type ApostilaInsert = Database['public']['Tables']['apostilas']['Insert'];
-type ApostilaUpdate = Database['public']['Tables']['apostilas']['Update'];
+type ApostilaInsert = Omit<Apostila, 'id' | 'criado_em' | 'atualizado_em'>;
+type ApostilaUpdate = Partial<Omit<Apostila, 'id' | 'criado_em' | 'user_id'>>;
 
 /**
  * Serviço para gerenciar apostilas
- * Fornece métodos para operações CRUD em apostilas
+ * Fornece métodos para operações CRUD em apostilas via API
  */
 class ApostilasService {
-  private tableName = 'apostilas';
-
   /**
    * Busca todas as apostilas ativas com paginação
    */
@@ -25,38 +32,23 @@ class ApostilasService {
     }
   ): Promise<{ data: Apostila[]; count: number }> {
     try {
-      let query = supabase
-        .from(this.tableName)
-        .select('*', { count: 'exact' })
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
+      const params = new URLSearchParams({
+        page: page.toString(),
+        pageSize: pageSize.toString(),
+        ...(filters?.concursoId && { concursoId: filters.concursoId }),
+        ...(filters?.categoriaId && { categoriaId: filters.categoriaId }),
+        ...(filters?.searchTerm && { searchTerm: filters.searchTerm }),
+      });
 
-      // Aplicar filtros
-      if (filters) {
-        if (filters.concursoId) {
-          query = query.eq('concurso_id', filters.concursoId);
-        }
-        if (filters.categoriaId) {
-          query = query.eq('categoria_id', filters.categoriaId);
-        }
-        if (filters.searchTerm) {
-          query = query.ilike('titulo', `%${filters.searchTerm}%`);
-        }
-      }
-
-      const { data, count, error } = await query.range(
-        (page - 1) * pageSize,
-        page * pageSize - 1
-      );
-
-      if (error) throw error;
-
+      const res = await fetch(`/api/apostilas?${params}`);
+      if (!res.ok) throw new Error('Erro ao buscar apostilas');
+      
+      const data = await res.json();
       return {
-        data: data || [],
-        count: count || 0,
+        data: data.data || [],
+        count: data.count || 0,
       };
     } catch (error) {
-
       throw new Error(
         error instanceof Error ? error.message : 'Erro ao buscar apostilas'
       );
@@ -68,20 +60,13 @@ class ApostilasService {
    */
   async findById(id: string): Promise<Apostila | null> {
     try {
-      const { data, error } = await supabase
-        .from(this.tableName)
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) {
-        if (error.code === 'PGRST116') return null; // Not found
-        throw error;
+      const res = await fetch(`/api/apostilas/${id}`);
+      if (!res.ok) {
+        if (res.status === 404) return null;
+        throw new Error('Erro ao buscar apostila');
       }
-
-      return data;
+      return await res.json();
     } catch (error) {
-
       throw new Error(
         error instanceof Error ? error.message : 'Erro ao buscar apostila'
       );
@@ -91,24 +76,20 @@ class ApostilasService {
   /**
    * Cria uma nova apostila
    */
-  async create(apostila: Omit<ApostilaInsert, 'id' | 'created_at' | 'updated_at' | 'user_id'>, userId: string): Promise<Apostila> {
+  async create(apostila: Omit<ApostilaInsert, 'id' | 'criado_em' | 'atualizado_em' | 'user_id'>, userId: string): Promise<Apostila> {
     try {
-      const { data, error } = await supabase
-        .from(this.tableName)
-        .insert({
+      const res = await fetch('/api/apostilas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           ...apostila,
           user_id: userId,
-          is_active: true,
-        })
-        .select()
-        .single();
+        }),
+      });
 
-      if (error) throw error;
-      if (!data) throw new Error('Falha ao criar apostila');
-
-      return data;
+      if (!res.ok) throw new Error('Erro ao criar apostila');
+      return await res.json();
     } catch (error) {
-
       throw new Error(
         error instanceof Error ? error.message : 'Erro ao criar apostila'
       );
@@ -120,25 +101,18 @@ class ApostilasService {
    */
   async update(
     id: string,
-    updates: Partial<Omit<ApostilaUpdate, 'id' | 'created_at' | 'user_id'>>
+    updates: Partial<Omit<ApostilaUpdate, 'id' | 'criado_em' | 'user_id'>>
   ): Promise<Apostila> {
     try {
-      const { data, error } = await supabase
-        .from(this.tableName)
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', id)
-        .select()
-        .single();
+      const res = await fetch(`/api/apostilas/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
 
-      if (error) throw error;
-      if (!data) throw new Error('Apostila não encontrada');
-
-      return data;
+      if (!res.ok) throw new Error('Erro ao atualizar apostila');
+      return await res.json();
     } catch (error) {
-
       throw new Error(
         error instanceof Error ? error.message : 'Erro ao atualizar apostila'
       );
@@ -150,17 +124,12 @@ class ApostilasService {
    */
   async remove(id: string): Promise<void> {
     try {
-      const { error } = await supabase
-        .from(this.tableName)
-        .update({ 
-          is_active: false,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', id);
+      const res = await fetch(`/api/apostilas/${id}`, {
+        method: 'DELETE',
+      });
 
-      if (error) throw error;
+      if (!res.ok) throw new Error('Erro ao remover apostila');
     } catch (error) {
-
       throw new Error(
         error instanceof Error ? error.message : 'Erro ao remover apostila'
       );
@@ -172,17 +141,12 @@ class ApostilasService {
    */
   async findRecent(limit: number = 5): Promise<Apostila[]> {
     try {
-      const { data, error } = await supabase
-        .from(this.tableName)
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
-        .limit(limit);
-
-      if (error) throw error;
-      return data || [];
+      const res = await fetch(`/api/apostilas?limit=${limit}&recent=true`);
+      if (!res.ok) throw new Error('Erro ao buscar apostilas recentes');
+      
+      const data = await res.json();
+      return data.data || [];
     } catch (error) {
-
       throw new Error(
         error instanceof Error ? error.message : 'Erro ao buscar apostilas recentes'
       );
@@ -194,17 +158,12 @@ class ApostilasService {
    */
   async findByConcurso(concursoId: string): Promise<Apostila[]> {
     try {
-      const { data, error } = await supabase
-        .from(this.tableName)
-        .select('*')
-        .eq('concurso_id', concursoId)
-        .eq('is_active', true)
-        .order('titulo');
-
-      if (error) throw error;
-      return data || [];
+      const res = await fetch(`/api/apostilas?concursoId=${encodeURIComponent(concursoId)}`);
+      if (!res.ok) throw new Error('Erro ao buscar apostilas por concurso');
+      
+      const data = await res.json();
+      return data.data || [];
     } catch (error) {
-
       throw new Error(
         error instanceof Error ? error.message : 'Erro ao buscar apostilas por concurso'
       );
@@ -216,17 +175,12 @@ class ApostilasService {
    */
   async findByCategoria(categoriaId: string): Promise<Apostila[]> {
     try {
-      const { data, error } = await supabase
-        .from(this.tableName)
-        .select('*')
-        .eq('categoria_id', categoriaId)
-        .eq('is_active', true)
-        .order('titulo');
-
-      if (error) throw error;
-      return data || [];
+      const res = await fetch(`/api/apostilas?categoriaId=${encodeURIComponent(categoriaId)}`);
+      if (!res.ok) throw new Error('Erro ao buscar apostilas por categoria');
+      
+      const data = await res.json();
+      return data.data || [];
     } catch (error) {
-
       throw new Error(
         error instanceof Error ? error.message : 'Erro ao buscar apostilas por categoria'
       );
@@ -238,17 +192,12 @@ class ApostilasService {
    */
   async findByUser(userId: string): Promise<Apostila[]> {
     try {
-      const { data, error } = await supabase
-        .from(this.tableName)
-        .select('*')
-        .eq('user_id', userId)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data || [];
+      const res = await fetch(`/api/apostilas?userId=${encodeURIComponent(userId)}`);
+      if (!res.ok) throw new Error('Erro ao buscar apostilas do usuário');
+      
+      const data = await res.json();
+      return data.data || [];
     } catch (error) {
-
       throw new Error(
         error instanceof Error ? error.message : 'Erro ao buscar apostilas do usuário'
       );
@@ -257,3 +206,6 @@ class ApostilasService {
 }
 
 export const apostilasService = new ApostilasService();
+
+
+

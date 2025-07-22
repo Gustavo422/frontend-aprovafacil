@@ -10,7 +10,7 @@ import type { Session, User } from '@supabase/gotrue-js';
 // ============================================================================
 interface ErrorHandlerOptions {
   showToast?: boolean;
-  toastTitle?: string;
+  toasttitulo?: string;
   onError?: (error: Error) => void;
   fallbackMessage?: string;
 }
@@ -47,8 +47,8 @@ interface CacheOptions {
 
 type ToasterToast = ToastProps & {
   id: string;
-  title?: React.ReactNode;
-  description?: React.ReactNode;
+  titulo?: React.ReactNode;
+  descricao?: React.ReactNode;
   action?: ToastActionElement;
 };
 
@@ -182,7 +182,7 @@ export function useErrorHandler<T,>(options: ErrorHandlerOptions = {}): ErrorHan
   
   const {
     showToast = true,
-    toastTitle = 'Erro',
+    toasttitulo = 'Erro',
     onError,
     fallbackMessage = 'Ocorreu um erro inesperado.',
   } = options;
@@ -201,8 +201,8 @@ export function useErrorHandler<T,>(options: ErrorHandlerOptions = {}): ErrorHan
         onError?.(caughtError);
         if (showToast) {
           toast({
-            title: toastTitle,
-            description: caughtError.message,
+            titulo: toasttitulo,
+            descricao: caughtError.message,
             variant: 'destructive',
           });
         }
@@ -211,7 +211,7 @@ export function useErrorHandler<T,>(options: ErrorHandlerOptions = {}): ErrorHan
         setIsLoading(false);
       }
     },
-    [showToast, toastTitle, fallbackMessage, onError]
+    [showToast, toasttitulo, fallbackMessage, onError]
   );
 
   const reset = useCallback(() => {
@@ -348,3 +348,6 @@ export { toast as sharedToast };
 // For now, removing the explicit re-export as it might be causing issues if the
 // import itself is problematic.
 // export type { Session, User };
+
+
+

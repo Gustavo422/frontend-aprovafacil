@@ -6,10 +6,10 @@ import { ConcursoComCategoria, ConcursoCategoria } from '@/types/concurso';
 import {
   Card,
   CardContent,
-  CardDescription,
+  Carddescricao,
   CardFooter,
   CardHeader,
-  CardTitle,
+  Cardtitulo,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,22 +26,22 @@ import Link from 'next/link';
 
 interface Simulado {
   id: string;
-  title: string;
-  description: string | null;
+  titulo: string;
+  descricao: string | null;
   questions_count: number;
   time_minutes: number;
-  difficulty: string;
-  created_at: string;
+  dificuldade: string;
+  criado_em: string;
   concurso_id: string | null;
   is_public: boolean;
-  updated_at: string;
+  atualizado_em: string;
   deleted_at: string | null;
   created_by: string | null;
   concursos?: ConcursoComCategoria;
 }
 
-const getDifficultyColor = (difficulty: string) => {
-  switch (difficulty) {
+const getdificuldadeColor = (dificuldade: string) => {
+  switch (dificuldade) {
     case 'Fácil':
       return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
     case 'Médio':
@@ -91,13 +91,13 @@ export default function SimuladosPage() {
 
   const filteredSimulados = simulados.filter(simulado => {
     const matchesSearch =
-      simulado.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (simulado.description &&
-        simulado.description.toLowerCase().includes(searchTerm.toLowerCase()));
+      simulado.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (simulado.descricao &&
+        simulado.descricao.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const matchesCategory =
       selectedCategory === 'todos' ||
-      (simulado.concursos?.concurso_categorias?.slug === selectedCategory);
+      (simulado.concursos?.categoria?.slug === selectedCategory);
 
     return matchesSearch && matchesCategory;
   });
@@ -173,9 +173,9 @@ export default function SimuladosPage() {
                 <div className="flex items-start justify-between">
                   <FileText className="h-8 w-8 text-primary flex-shrink-0" />
                   <div className="flex flex-col gap-1 items-end">
-                    {simulado.concursos?.concurso_categorias && (
+                    {simulado.concursos?.categoria && (
                       <Badge variant="secondary" className="text-xs">
-                        {simulado.concursos.concurso_categorias.nome}
+                        {simulado.concursos.categoria.nome}
                       </Badge>
                     )}
                     {simulado.concursos?.ano && (
@@ -185,12 +185,12 @@ export default function SimuladosPage() {
                     )}
                   </div>
                 </div>
-                <CardTitle className="text-lg leading-tight">
-                  {simulado.title}
-                </CardTitle>
-                <CardDescription className="line-clamp-2">
-                  {simulado.description || 'Simulado para prática de questões.'}
-                </CardDescription>
+                <Cardtitulo className="text-lg leading-tight">
+                  {simulado.titulo}
+                </Cardtitulo>
+                <Carddescricao className="line-clamp-2">
+                  {simulado.descricao || 'Simulado para prática de questões.'}
+                </Carddescricao>
                 {simulado.concursos && (
                   <div className="text-xs text-muted-foreground">
                     Concurso: {simulado.concursos.nome}
@@ -216,8 +216,8 @@ export default function SimuladosPage() {
                   <span className="text-sm text-muted-foreground">
                     Dificuldade:
                   </span>
-                  <Badge className={getDifficultyColor(simulado.difficulty)}>
-                    {simulado.difficulty}
+                  <Badge className={getdificuldadeColor(simulado.dificuldade)}>
+                    {simulado.dificuldade}
                   </Badge>
                 </div>
               </CardContent>

@@ -26,3 +26,6 @@ export function generateUuid(): string {
 export function filterAndMap<T, U>(arr: T[], filterFn: (item: T) => boolean, mapFn: (item: T) => U): U[] {
   return R.pipe(R.filter(filterFn), R.map(mapFn))(arr);
 } 
+
+
+

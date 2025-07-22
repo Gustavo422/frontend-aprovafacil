@@ -4,7 +4,7 @@ import { ExportJsonButton } from '@/components/ui/export-json-button'; // Used i
 
 interface ExportDashboardButtonProps {
   data: Record<string, unknown> | Array<Record<string, unknown>>;
-  filename: string;
+  filenome: string;
   disabled?: boolean;
   variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
   size?: 'default' | 'sm' | 'lg' | 'icon';
@@ -14,7 +14,7 @@ interface ExportDashboardButtonProps {
 
 export function ExportDashboardButton({
   data,
-  filename,
+  filenome,
   disabled = false,
   variant = 'outline',
   size = 'default',
@@ -24,7 +24,7 @@ export function ExportDashboardButton({
     <div className="flex items-center gap-2">
       <ExportJsonButton
         data={data}
-        filename={filename}
+        filenome={filenome}
         disabled={disabled}
         variant={variant}
         size={size}

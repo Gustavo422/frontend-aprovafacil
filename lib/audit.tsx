@@ -1,7 +1,6 @@
-import { SupabaseClient } from '@supabase/supabase-js';
 import { headers } from 'next/headers';
 import { logger } from '@/lib/logger';
-import { Database, Json } from './database.types';
+import { Json } from './database.types';
 
 export type AuditAction =
   | 'CREATE'
@@ -19,7 +18,7 @@ export type AuditAction =
 export interface AuditLogData {
   userId?: string | null;
   action: AuditAction;
-  tableName: string;
+  tablenome: string;
   recordId?: string | null;
   oldValues?: Json | null;
   newValues?: Json | null;
@@ -27,10 +26,26 @@ export interface AuditLogData {
 }
 
 export class AuditLogger {
-  private supabase: SupabaseClient<Database>;
+  private baseUrl: string;
 
-  constructor(supabaseClient: SupabaseClient<Database>) {
-    this.supabase = supabaseClient;
+  constructor(baseUrl: string = '/api') {
+    this.baseUrl = baseUrl;
+  }
+
+  private async makeRequest<T>(endpoint: string, options?: RequestInit): Promise<T> {
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers,
+      },
+      ...options,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return response.json();
   }
 
   async log(data: AuditLogData): Promise<void> {
@@ -41,24 +56,20 @@ export class AuditLogger {
       const realIp = headersList.get('x-real-ip') || null;
       const ipAddress = forwardedFor || realIp || null;
 
-      const { error } = await this.supabase.from('audit_logs').insert({
-        user_id: data.userId,
-        action: data.action,
-        table_name: data.tableName,
-        record_id: data.recordId,
-        old_values: data.oldValues,
-        new_values: data.newValues,
-        ip_address: ipAddress,
-        user_agent: userAgent,
-        created_at: new Date().toISOString(),
+      await this.makeRequest('/audit/logs', {
+        method: 'POST',
+        body: JSON.stringify({
+          user_id: data.userId,
+          action: data.action,
+          table_nome: data.tablenome,
+          record_id: data.recordId,
+          old_values: data.oldValues,
+          new_values: data.newValues,
+          ip_address: ipAddress,
+          user_agent: userAgent,
+          criado_em: new Date().toISOString(),
+        }),
       });
-
-      if (error) {
-        logger.error('Erro ao registrar log de auditoria:', {
-          error: error.message,
-          details: error,
-        });
-      }
     } catch (error) {
       logger.error('Erro ao registrar log de auditoria:', {
         error: error instanceof Error ? error.message : String(error),
@@ -70,7 +81,7 @@ export class AuditLogger {
     await this.log({
       userId,
       action: 'LOGIN',
-      tableName: 'users',
+      tablenome: 'usuarios',
       recordId: userId,
       newValues: { login_at: new Date().toISOString() },
     });
@@ -80,21 +91,21 @@ export class AuditLogger {
     await this.log({
       userId,
       action: 'LOGOUT',
-      tableName: 'users',
+      tablenome: 'usuarios',
       recordId: userId,
     });
   }
 
   async logCreate(
     userId: string,
-    tableName: string,
+    tablenome: string,
     recordId: string,
     newValues: Record<string, unknown>
   ): Promise<void> {
     await this.log({
       userId,
       action: 'CREATE',
-      tableName,
+      tablenome,
       recordId,
       newValues: newValues as Json,
     });
@@ -102,7 +113,7 @@ export class AuditLogger {
 
   async logUpdate(
     userId: string,
-    tableName: string,
+    tablenome: string,
     recordId: string,
     oldValues: Record<string, unknown> | null,
     newValues: Record<string, unknown>
@@ -110,7 +121,7 @@ export class AuditLogger {
     await this.log({
       userId,
       action: 'UPDATE',
-      tableName,
+      tablenome,
       recordId,
       oldValues: oldValues as Json,
       newValues: newValues as Json,
@@ -119,14 +130,14 @@ export class AuditLogger {
 
   async logDelete(
     userId: string,
-    tableName: string,
+    tablenome: string,
     recordId: string,
     oldValues: Record<string, unknown> | null
   ): Promise<void> {
     await this.log({
       userId,
       action: 'DELETE',
-      tableName,
+      tablenome,
       recordId,
       oldValues: oldValues as Json,
     });
@@ -134,13 +145,13 @@ export class AuditLogger {
 
   async logAccess(
     userId: string,
-    tableName: string,
+    tablenome: string,
     recordId: string
   ): Promise<void> {
     await this.log({
       userId,
       action: 'ACCESS',
-      tableName,
+      tablenome,
       recordId,
     });
   }
@@ -154,12 +165,12 @@ export class AuditLogger {
     await this.log({
       userId,
       action: 'COMPLETE_SIMULADO',
-      tableName: 'user_simulado_progress',
+      tablenome: 'progresso_usuario_simulado',
       recordId: simuladoId,
       newValues: {
         score,
         time_taken_minutes: timeTaken,
-        completed_at: new Date().toISOString(),
+        concluido_at: new Date().toISOString(),
       },
     });
   }
@@ -172,18 +183,18 @@ export class AuditLogger {
     await this.log({
       userId,
       action: 'COMPLETE_QUESTAO',
-      tableName: 'user_questoes_semanais_progress',
+      tablenome: 'progresso_usuario_questoes_semanais',
       recordId: questaoId,
       newValues: {
         score,
-        completed_at: new Date().toISOString(),
+        concluido_at: new Date().toISOString(),
       },
     });
   }
 
   async logProgressUpdate(
     userId: string,
-    tableName: string,
+    tablenome: string,
     recordId: string,
     oldProgress: Record<string, unknown> | null,
     newProgress: Record<string, unknown>
@@ -191,7 +202,7 @@ export class AuditLogger {
     await this.log({
       userId,
       action: 'UPDATE_PROGRESS',
-      tableName,
+      tablenome,
       recordId,
       oldValues: oldProgress as Json,
       newValues: newProgress as Json,
@@ -199,61 +210,59 @@ export class AuditLogger {
   }
 
   async getUserLogs(userId: string, limit: number = 50): Promise<AuditLogData[]> {
-    const { data, error } = await this.supabase
-      .from('audit_logs')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(limit);
+    try {
+      const params = new URLSearchParams({
+        user_id: userId,
+        limit: limit.toString(),
+      });
 
-    if (error) {
-      logger.error('Erro ao buscar logs do usuário:', { error: error.message, details: error });
+      return await this.makeRequest<AuditLogData[]>(`/audit/logs?${params}`);
+    } catch (error) {
+      logger.error('Erro ao buscar logs do usuário:', { 
+        error: error instanceof Error ? error.message : String(error) 
+      });
       return [];
     }
-
-    return data || [];
   }
 
-  async getResourceLogs(tableName: string, recordId: string, limit: number = 50): Promise<AuditLogData[]> {
-    const { data, error } = await this.supabase
-      .from('audit_logs')
-      .select('*')
-      .eq('table_name', tableName)
-      .eq('record_id', recordId)
-      .order('created_at', { ascending: false })
-      .limit(limit);
+  async getResourceLogs(tablenome: string, recordId: string, limit: number = 50): Promise<AuditLogData[]> {
+    try {
+      const params = new URLSearchParams({
+        table_nome: tablenome,
+        record_id: recordId,
+        limit: limit.toString(),
+      });
 
-    if (error) {
-      logger.error('Erro ao buscar logs do recurso:', { error: error.message, details: error });
+      return await this.makeRequest<AuditLogData[]>(`/audit/logs?${params}`);
+    } catch (error) {
+      logger.error('Erro ao buscar logs do recurso:', { 
+        error: error instanceof Error ? error.message : String(error) 
+      });
       return [];
     }
-
-    return data || [];
   }
 
   async getLogsByPeriod(startDate: string, endDate: string, userId?: string): Promise<AuditLogData[]> {
-    let query = this.supabase
-      .from('audit_logs')
-      .select('*')
-      .gte('created_at', startDate)
-      .lte('created_at', endDate)
-      .order('created_at', { ascending: false });
+    try {
+      const params = new URLSearchParams({
+        start_date: startDate,
+        end_date: endDate,
+        ...(userId && { user_id: userId }),
+      });
 
-    if (userId) {
-      query = query.eq('user_id', userId);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      logger.error('Erro ao buscar logs por período:', { error: error.message, details: error });
+      return await this.makeRequest<AuditLogData[]>(`/audit/logs?${params}`);
+    } catch (error) {
+      logger.error('Erro ao buscar logs por período:', { 
+        error: error instanceof Error ? error.message : String(error) 
+      });
       return [];
     }
-
-    return data || [];
   }
 }
 
-export const getAuditLogger = (supabaseClient: SupabaseClient<Database>) => {
-  return new AuditLogger(supabaseClient);
+export const getAuditLogger = (baseUrl?: string) => {
+  return new AuditLogger(baseUrl);
 };
+
+
+

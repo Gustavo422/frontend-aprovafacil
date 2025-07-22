@@ -9,3 +9,6 @@ export * from './hooks/use-categorias';
 
 // Exporta as constantes (se houver)
 // export * from './constants';
+
+
+

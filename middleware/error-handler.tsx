@@ -18,15 +18,6 @@ export function withApiErrorHandler<T extends unknown[]>(
     try {
       return await handler(request, ...args);
     } catch (error: unknown) {
-      // Type guard para verificar se error tem propriedades necessárias
-      const _errorMessage = error && typeof error === 'object' && 'message' in error 
-        ? (error as { message?: string }).message 
-        : undefined;
-      
-      const _errorStatus = error && typeof error === 'object' && 'status' in error 
-        ? (error as { status?: number }).status 
-        : undefined;
-      
       // Log do erro
       logError(error, {
         url: request.url,
@@ -224,3 +215,6 @@ export function composeMiddleware<T extends unknown[]>(
 //     withInputValidation
 //   ]
 // )
+
+
+

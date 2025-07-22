@@ -228,12 +228,12 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
         const context: ConcursoContextType = {
           concurso_id: userPref?.concurso_id || concursoData.data?.id || '',
           categoria_id: userPref?.categoria_id || categoriaData.data?.id || '',
-          can_change_until: userPref?.can_change_until || '',
-          created_at: userPref?.created_at || '',
-          updated_at: userPref?.updated_at || '',
+          pode_alterar_ate: userPref?.pode_alterar_ate || '',
+          criado_em: userPref?.criado_em || '',
+          atualizado_em: userPref?.atualizado_em || '',
           categoria: categoriaData.data,
           concurso: concursoData.data,
-          disciplines: disciplinasData.data,
+          disciplinas: disciplinasData.data,
           userPreference: userPref
         };
         
@@ -332,7 +332,7 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
       const params = new URLSearchParams({
         categoria_id: state.context.categoria?.id || '',
         concurso_id: state.context.concurso?.id || '',
-        ...(filters && Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== undefined)))
+        ...(filters && Object.fromEntries(Object.entries(filters).filter(([, v]) => v !== undefined)))
       });
       
       const response = await fetch(`/api/conteudo/filtrado?${params}`);
@@ -384,11 +384,11 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
   const hasSelectedConcurso = !!state.context?.concurso;
   
   const canChangeConcurso = state.context?.userPreference 
-    ? checkCanChangeConcurso(state.context.userPreference.can_change_until)
+    ? checkCanChangeConcurso(state.context.userPreference.pode_alterar_ate)
     : true;
   
   const daysUntilChange = state.context?.userPreference 
-    ? calculateDaysUntilChange(state.context.userPreference.can_change_until)
+    ? calculateDaysUntilChange(state.context.userPreference.pode_alterar_ate)
     : 0;
   
   const categoriaSlug = state.context?.categoria?.slug as ConcursoCategoriaSlug | null;
@@ -524,3 +524,6 @@ export function useConcursoActions() {
     clearContext
   };
 } 
+
+
+

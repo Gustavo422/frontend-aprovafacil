@@ -1,6 +1,3 @@
-// Exporta os hooks de apostilas
-export * from './hooks/use-apostilas';
-
 // Exporta os tipos (se houver)
 // export * from './types';
 
@@ -9,3 +6,6 @@ export * from './hooks/use-apostilas';
 
 // Exporta as constantes (se houver)
 // export * from './constants';
+
+
+

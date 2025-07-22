@@ -2,6 +2,8 @@
 
 // Configuração simplificada para resolver problemas de build
 const nextConfig = {
+  // Configuração de variáveis de ambiente
+ 
   // Configuração experimental
   experimental: {
     // Turbopack configurado corretamente
@@ -21,6 +23,8 @@ const nextConfig = {
   // Configuração do ESLint
   eslint: {
     ignoreDuringBuilds: true, // Temporariamente ignorar erros de ESLint
+    dirs: ['app', 'components', 'hooks', 'lib', 'utils', 'src', 'pages'], // Adicionado para escanear diretórios específicos
+    ignorePatterns: ['**/src/types/supabase.types.ts'],
   },
   
   // Ativar Strict Mode do React
@@ -39,3 +43,5 @@ const nextConfig = {
 };
 
 export default nextConfig;
+
+

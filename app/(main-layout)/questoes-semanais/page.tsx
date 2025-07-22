@@ -4,10 +4,10 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   Card,
   CardContent,
-  CardDescription,
+  Carddescricao,
   CardFooter,
   CardHeader,
-  CardTitle,
+  Cardtitulo,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { QuestionPlayer } from '@/components/question-player';
@@ -18,39 +18,38 @@ import { logger } from '@/lib/logger';
 
 interface QuestaoSemanal {
   id: string;
-  title: string;
-  description: string;
+  titulo: string;
+  descricao: string;
   week_number: number;
   year: number;
   concurso_id?: string;
-  created_at: string;
+  criado_em: string;
 }
 
 interface Questao {
   id: string;
-  question_text: string;
-  alternatives: Record<string, string>;
-  correct_answer: string;
-  explanation?: string;
-  discipline?: string;
-  topic?: string;
+  enunciado: string;
+  alternativas: Record<string, string>;
+  resposta_correta: string;
+  explicacao?: string;
+  disciplina?: string;
+  tema?: string;
 }
 
 interface HistoricoQuestao {
   id: string;
-  title: string;
-  description: string;
+  titulo: string;
+  descricao: string;
   week_number: number;
   year: number;
   score: number;
   total_questions: number;
-  completed_at: string;
+  concluido_at: string;
 }
 
 export default function QuestoesSemanaisPage() {
-  const [_activeTab, setActiveTab] = useState('atual');
   const [isStarted, setIsStarted] = useState(false);
-  const [isCompleted, setIsCompleted] = useState(false);
+  const [isconcluido, setIsconcluido] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [questaoSemanal, setQuestaoSemanal] = useState<QuestaoSemanal | null>(null);
@@ -111,9 +110,7 @@ export default function QuestoesSemanaisPage() {
     if (!questaoSemanal) return;
 
     // Calcular pontuação
-    const score = questoes.filter(
-      (q, index) => answers[index] === q.correct_answer
-    ).length;
+    const score = questoes.filter((q, _index) => answers[_index] === q.resposta_correta).length;
 
     setResults({
       answers,
@@ -121,12 +118,12 @@ export default function QuestoesSemanaisPage() {
       timeSpent,
     });
 
-    setIsCompleted(true);
+    setIsconcluido(true);
   }, [questaoSemanal, questoes]);
 
   const handleRetry = useCallback(() => {
     setIsStarted(false);
-    setIsCompleted(false);
+    setIsconcluido(false);
     setResults(null);
   }, []);
 
@@ -169,7 +166,6 @@ export default function QuestoesSemanaisPage() {
       <Tabs
         defaultValue="atual"
         className="w-full"
-        onValueChange={setActiveTab}
       >
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="atual">Semana Atual</TabsTrigger>
@@ -180,10 +176,10 @@ export default function QuestoesSemanaisPage() {
           {!questaoSemanal ? (
             <Card>
               <CardHeader>
-                <CardTitle>Nenhuma questão semanal disponível</CardTitle>
-                <CardDescription>
+                <Cardtitulo>Nenhuma questão semanal disponível</Cardtitulo>
+                <Carddescricao>
                   Não há questões semanais disponíveis no momento.
-                </CardDescription>
+                </Carddescricao>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
@@ -194,10 +190,10 @@ export default function QuestoesSemanaisPage() {
           ) : !isStarted ? (
             <Card>
               <CardHeader>
-                <CardTitle>{questaoSemanal.title}</CardTitle>
-                <CardDescription>
-                  {questaoSemanal.description}
-                </CardDescription>
+                <Cardtitulo>{questaoSemanal.titulo}</Cardtitulo>
+                <Carddescricao>
+                  {questaoSemanal.descricao}
+                </Carddescricao>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -229,15 +225,15 @@ export default function QuestoesSemanaisPage() {
                 </Button>
               </CardFooter>
             </Card>
-          ) : isCompleted ? (
+          ) : isconcluido ? (
             <Card>
               <CardHeader>
-                <CardTitle>
-                  Resultado - {questaoSemanal.title}
-                </CardTitle>
-                <CardDescription>
-                  {questaoSemanal.description}
-                </CardDescription>
+                <Cardtitulo>
+                  Resultado - {questaoSemanal.titulo}
+                </Cardtitulo>
+                <Carddescricao>
+                  {questaoSemanal.descricao}
+                </Carddescricao>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -293,15 +289,15 @@ export default function QuestoesSemanaisPage() {
             </Card>
           ) : (
             <QuestionPlayer
-              title={questaoSemanal.title}
-              questions={questoes.map((q, _index) => ({
+              title={questaoSemanal.titulo}
+              questions={questoes.map((q) => ({
                 id: q.id,
-                text: q.question_text,
-                options: Object.entries(q.alternatives).map(([key, value]) => ({
+                text: q.enunciado,
+                options: Object.entries(q.alternativas).map(([key, value]) => ({
                   id: key,
                   text: value,
                 })),
-                correctAnswer: q.correct_answer,
+                respostaCorreta: q.resposta_correta,
               }))}
               onComplete={handleComplete}
             />
@@ -312,10 +308,10 @@ export default function QuestoesSemanaisPage() {
           {historico.length === 0 ? (
             <Card>
               <CardHeader>
-                <CardTitle>Nenhum histórico disponível</CardTitle>
-                <CardDescription>
+                <Cardtitulo>Nenhum histórico disponível</Cardtitulo>
+                <Carddescricao>
                   Complete algumas questões semanais para ver seu histórico.
-                </CardDescription>
+                </Carddescricao>
               </CardHeader>
             </Card>
           ) : (
@@ -323,8 +319,8 @@ export default function QuestoesSemanaisPage() {
               {historico.map(item => (
                 <Card key={item.id}>
                   <CardHeader>
-                    <CardTitle>{item.title}</CardTitle>
-                    <CardDescription>{item.description}</CardDescription>
+                    <Cardtitulo>{item.titulo}</Cardtitulo>
+                    <Carddescricao>{item.descricao}</Carddescricao>
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center justify-between">
@@ -344,7 +340,7 @@ export default function QuestoesSemanaisPage() {
                         </div>
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {formatDate(item.completed_at)}
+                        {formatDate(item.concluido_at)}
                       </div>
                     </div>
                   </CardContent>

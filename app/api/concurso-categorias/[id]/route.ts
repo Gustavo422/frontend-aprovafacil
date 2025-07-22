@@ -24,35 +24,25 @@ export async function GET(
 
     const { id } = params;
 
-    // Buscar categoria
-    const { data: categoria, error } = await supabase
-      .from('concurso_categorias')
-      .select('*')
-      .eq('id', id)
-      .eq('is_active', true)
-      .single();
+    // Repassar a requisição para o backend
+    const response = await fetch(`${process.env.BACKEND_API_URL}/api/concurso-categorias/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+      },
+    });
 
-    if (error) {
-      if (error.code === 'PGRST116') {
-        return NextResponse.json(
-          { error: 'Categoria não encontrada' },
-          { status: 404 }
-        );
-      }
-      
-      logger.error('Erro ao buscar categoria:', {
-        error: error.message,
-        categoriaId: id,
-        userId: user.id,
-      });
+    if (!response.ok) {
+      const errorData = await response.json();
       return NextResponse.json(
-        { error: 'Erro ao buscar categoria' },
-        { status: 500 }
+        { error: errorData.error || 'Erro ao buscar categoria' },
+        { status: response.status }
       );
     }
 
+    const data = await response.json();
+
     return NextResponse.json({
-      data: categoria,
+      data: data.data,
     });
   } catch (error) {
     logger.error('Erro interno:', {

@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 
-interface ActionOptions<TInput, TOutput> {
+interface ActionOptions<TOutput> {
   onSuccess?: (data: TOutput) => void;
   onError?: (error: string) => void;
   onComplete?: () => void;
@@ -17,7 +17,7 @@ const useSafeAction = <TInput, TOutput>(
     data?: TOutput;
     fieldErrors?: Record<string, string[]>;
   }>,
-  options?: ActionOptions<TInput, TOutput>
+  options?: ActionOptions<TOutput>
 ) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -75,3 +75,6 @@ const useSafeAction = <TInput, TOutput>(
 export default useSafeAction;
 // Fixed type definitions
 // Added proper error handling typing
+
+
+

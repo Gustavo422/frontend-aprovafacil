@@ -38,14 +38,14 @@ export default async function globalSetup(config: FullConfig) {
     console.log('🔧 Setting up test environment...')
     
     // You can add any global setup here, such as:
-    // - Creating test users
+    // - Creating test usuarios
     // - Setting up test database
     // - Configuring mock services
     
     // Example: Create a test user session
     await setupTestUser(page, baseURL)
     
-    console.log('✅ Global setup completed successfully!')
+    console.log('✅ Global setup concluido successfully!')
     
   } catch (error: unknown) {
     console.error('❌ Global setup failed:', error)
@@ -62,9 +62,9 @@ async function setupTestUser(page: Page, baseURL: string) {
     await page.goto(baseURL)
     
     // Check if we need to setup authentication
-    // This is where you might create test users or setup auth state
+    // This is where you might create test usuarios or setup auth state
     
-    console.log('👤 Test user setup completed')
+    console.log('👤 Test user setup concluido')
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     console.warn('⚠️ Test user setup failed (this might be expected):', errorMessage)

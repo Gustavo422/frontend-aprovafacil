@@ -1,103 +1,77 @@
-import { BaseRepository } from './base-repository';
-import type { Database } from '@/src/types/supabase.types';
+// Tipos locais para o repositório de apostilas
+export type ApostilaTable = {
+  Row: {
+    id: string;
+    titulo: string;
+    descricao?: string;
+    concurso_id: string;
+    created_at: string;
+    updated_at: string;
+  };
+  Update: Partial<ApostilaTable['Row']>;
+};
 
-type ApostilaRow = Database['public']['Tables']['apostilas']['Row'];
-type ApostilaContentRow = Database['public']['Tables']['apostila_content']['Row'];
-type UserApostilaProgressRow = Database['public']['Tables']['user_apostila_progress']['Row'];
-type UserApostilaProgressUpdate = Database['public']['Tables']['user_apostila_progress']['Update'];
+export type ConteudoApostila = {
+  id: string;
+  apostila_id: string;
+  numero_modulo: number;
+  titulo: string;
+  conteudo_json: Record<string, unknown>;
+  criado_em: string;
+};
 
-export class ApostilaRepository extends BaseRepository<'apostilas'> {
-  constructor() {
-    super('apostilas');
-  }
+export type ProgressoApostila = {
+  id: string;
+  usuario_id: string;
+  conteudo_apostila_id: string;
+  concluido: boolean;
+  percentual_progresso: number;
+  atualizado_em: string;
+};
+
+export class ApostilaRepository {
+  constructor() {}
 
   // Busca apostilas por concurso
-  async findByConcurso(concursoId: string): Promise<ApostilaRow[]> {
-    const { data, error } = await this.client
-      .from('apostilas')
-      .select('*')
-      .eq('concurso_id', concursoId)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data;
+  async findByConcurso(concursoId: string): Promise<ApostilaTable['Row'][]> {
+    const res = await fetch(`/api/apostilas?concursoId=${encodeURIComponent(concursoId)}`);
+    if (!res.ok) throw new Error('Erro ao buscar apostilas por concurso');
+    return await res.json();
   }
 
   // Busca apostilas por categoria
-  async findByCategoria(categoriaId: string): Promise<ApostilaRow[]> {
-    const { data, error } = await this.client
-      .from('apostilas')
-      .select('*')
-      .eq('categoria_id', categoriaId)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data;
+  async findByCategoria(categoriaId: string): Promise<ApostilaTable['Row'][]> {
+    const res = await fetch(`/api/apostilas?categoriaId=${encodeURIComponent(categoriaId)}`);
+    if (!res.ok) throw new Error('Erro ao buscar apostilas por categoria');
+    return await res.json();
   }
 
   // Busca o conteúdo de uma apostila
-  async findConteudo(apostilaId: string): Promise<ApostilaContentRow[]> {
-    const { data, error } = await this.client
-      .from('apostila_content')
-      .select('*')
-      .eq('apostila_id', apostilaId)
-      .order('module_number', { ascending: true });
-
-    if (error) throw error;
-    return data || [];
+  async findConteudo(apostilaId: string): Promise<ConteudoApostila[]> {
+    const res = await fetch(`/api/apostilas/${apostilaId}/modulos`);
+    if (!res.ok) throw new Error('Erro ao buscar conteúdo da apostila');
+    return await res.json();
   }
 
   // Atualiza o progresso do usuário em uma apostila
   async atualizarProgresso(
     userId: string,
     apostilaContentId: string,
-    progresso: { completed: boolean; progressPercentage: number }
-  ): Promise<UserApostilaProgressRow> {
-    if (!userId || !apostilaContentId) {
-      throw new Error('userId e apostilaContentId são obrigatórios');
-    }
-    const updateData: UserApostilaProgressUpdate = {
-      user_id: userId,
-      apostila_content_id: apostilaContentId,
-      completed: progresso.completed,
-      progress_percentage: progresso.progressPercentage,
-      updated_at: new Date().toISOString(),
-    };
-
-    const { data, error } = await this.client
-      .from('user_apostila_progress')
-      .upsert(updateData as Required<UserApostilaProgressUpdate>, { onConflict: 'user_id,apostila_content_id' })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+    progresso: { concluido: boolean; percentualProgresso: number }
+  ): Promise<ProgressoApostila> {
+    const res = await fetch(`/api/apostilas/${apostilaContentId}/progress`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, ...progresso }),
+    });
+    if (!res.ok) throw new Error('Erro ao atualizar progresso da apostila');
+    return await res.json();
   }
 
   // Busca o progresso do usuário em uma apostila
-  async buscarProgresso(
-    userId: string, 
-    apostilaContentId: string
-  ): Promise<{ completed: boolean; progress_percentage: number }> {
-    const { data, error } = await this.client
-      .from('user_apostila_progress')
-      .select('completed, progress_percentage')
-      .eq('user_id', userId)
-      .eq('apostila_content_id', apostilaContentId)
-      .single();
-
-    if (error) {
-      if (error.code === 'PGRST116') {
-        // Nenhum progresso encontrado, retorna um progresso vazio
-        return { completed: false, progress_percentage: 0 };
-      }
-      throw error;
-    }
-
-    // Garante que os tipos estejam corretos
-    return {
-      completed: Boolean(data?.completed),
-      progress_percentage: Number(data?.progress_percentage) || 0,
-    };
+  async buscarProgresso(userId: string, apostilaContentId: string): Promise<ProgressoApostila> {
+    const res = await fetch(`/api/apostilas/${apostilaContentId}/progress?userId=${encodeURIComponent(userId)}`);
+    if (!res.ok) throw new Error('Erro ao buscar progresso da apostila');
+    return await res.json();
   }
 }

@@ -1,7 +1,7 @@
 {
   "app": {
-    "name": "Aplicativo de Estudos para Concursos",
-    "description": "Plataforma de preparação para concursos públicos",
+    "nome": "Aplicativo de Estudos para Concursos",
+    "descricao": "Plataforma de preparação para concursos públicos",
     "loading": "Carregando...",
     "error": {
       "generic": "Ocorreu um erro. Por favor, tente novamente mais tarde.",
@@ -52,8 +52,8 @@
   },
   "auth": {
     "login": {
-      "title": "Bem-vindo de volta",
-      "subtitle": "Insira suas credenciais para acessar sua conta",
+      "titulo": "Bem-vindo de volta",
+      "subtitulo": "Insira suas credenciais para acessar sua conta",
       "email": "E-mail",
       "password": "Senha",
       "rememberMe": "Lembrar de mim",
@@ -61,9 +61,9 @@
       "signUp": "Cadastre-se"
     },
     "register": {
-      "title": "Criar uma Conta",
-      "subtitle": "Preencha seus dados para criar uma conta",
-      "name": "Nome Completo",
+      "titulo": "Criar uma Conta",
+      "subtitulo": "Preencha seus dados para criar uma conta",
+      "nome": "Nome Completo",
       "email": "E-mail",
       "password": "Senha",
       "confirmPassword": "Confirme a Senha",
@@ -71,15 +71,15 @@
       "signIn": "Entrar"
     },
     "forgotPassword": {
-      "title": "Esqueceu a Senha",
-      "subtitle": "Informe seu e-mail para receber um link de redefinição",
+      "titulo": "Esqueceu a Senha",
+      "subtitulo": "Informe seu e-mail para receber um link de redefinição",
       "email": "E-mail",
       "sendResetLink": "Enviar Link de Redefinição",
       "backToLogin": "Voltar para o login"
     },
     "resetPassword": {
-      "title": "Redefinir Senha",
-      "subtitle": "Informe sua nova senha",
+      "titulo": "Redefinir Senha",
+      "subtitulo": "Informe sua nova senha",
       "newPassword": "Nova Senha",
       "confirmPassword": "Confirme a Nova Senha",
       "resetPassword": "Redefinir Senha"

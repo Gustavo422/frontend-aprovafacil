@@ -33,71 +33,29 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Status inválido' }, { status: 400 });
     }
 
-    // Buscar o progresso atual
-    const { data: progressAtual, error: buscaError } = await supabase
-      .from('user_flashcard_progress')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('flashcard_id', flashcard_id)
-      .maybeSingle();
-
-    if (buscaError) {
-      logger.error('Erro ao buscar progresso atual:', {
-        error: buscaError instanceof Error ? buscaError.message : String(buscaError),
-      });
-      return NextResponse.json(
-        { error: 'Erro ao buscar progresso atual' },
-        { status: 500 }
-      );
-    }
-
-    // Calcular a próxima revisão baseada no status
-    let proximaRevisao = next_review;
-    if (!proximaRevisao) {
-      const agora = new Date();
-      let diasParaRevisao = 1;
-
-      switch (status) {
-        case 'aprendendo':
-          diasParaRevisao = 1;
-          break;
-        case 'revisando':
-          diasParaRevisao = 3;
-          break;
-        case 'dominado':
-          diasParaRevisao = 7;
-          break;
-        default:
-          diasParaRevisao = 1;
-      }
-
-      proximaRevisao = new Date(
-        agora.getTime() + diasParaRevisao * 24 * 60 * 60 * 1000
-      ).toISOString();
-    }
-
-    // Atualizar o progresso
-    const { data, error } = await supabase
-      .from('user_flashcard_progress')
-      .upsert({
-        user_id: user.id,
+    // Repassar a requisição para o backend
+    const response = await fetch(`${process.env.BACKEND_API_URL}/api/flashcards/progress`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+      },
+      body: JSON.stringify({
         flashcard_id,
         status,
-        next_review: proximaRevisao,
-        review_count: progressAtual ? progressAtual.review_count + 1 : 1,
-        updated_at: new Date().toISOString(),
-      })
-      .select();
+        next_review,
+      }),
+    });
 
-    if (error) {
-      logger.error('Erro ao atualizar progresso:', {
-        error: error instanceof Error ? error.message : String(error),
-      });
+    if (!response.ok) {
+      const errorData = await response.json();
       return NextResponse.json(
-        { error: 'Erro ao atualizar progresso' },
-        { status: 500 }
+        { error: errorData.error || 'Erro ao atualizar progresso' },
+        { status: response.status }
       );
     }
+
+    const data = await response.json();
 
     return NextResponse.json({
       message: 'Progresso atualizado com sucesso',
@@ -114,10 +72,10 @@ export async function PUT(request: Request) {
   }
 }
 
-export async function GET(_request: Request) {
-  const { searchParams } = new URL(_request.url);
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
   const status = searchParams.get('status');
-  const limit = Number.parseInt(searchParams.get('limit') || '10');
+  const limit = searchParams.get('limit') || '10';
 
   const supabase = await createRouteHandlerClient();
 
@@ -131,51 +89,31 @@ export async function GET(_request: Request) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    // Construir a query base
-    let query = supabase
-      .from('user_flashcard_progress')
-      .select(
-        `
-        *,
-        flashcards (
-          id,
-          front,
-          back,
-          disciplina,
-          tema,
-          subtema
-        )
-      `
-      )
-      .eq('user_id', user.id);
+    // Construir parâmetros da query
+    const params = new URLSearchParams({
+      limit,
+      ...(status && { status }),
+    });
 
-    // Aplicar filtros se fornecidos
-    if (status) {
-      query = query.eq('status', status);
-    }
+    // Repassar a requisição para o backend
+    const response = await fetch(`${process.env.BACKEND_API_URL}/api/flashcards/progress?${params}`, {
+      headers: {
+        'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+      },
+    });
 
-    // Filtrar por flashcards que precisam de revisão
-    const agora = new Date().toISOString();
-    query = query.lte('next_review', agora);
-
-    // Limitar resultados
-    query = query.limit(limit);
-
-    // Executar a query
-    const { data: progress, error } = await query;
-
-    if (error) {
-      logger.error('Erro ao buscar progresso:', {
-        error: error instanceof Error ? error.message : String(error),
-      });
+    if (!response.ok) {
+      const errorData = await response.json();
       return NextResponse.json(
-        { error: 'Erro ao buscar progresso' },
-        { status: 500 }
+        { error: errorData.error || 'Erro ao buscar progresso' },
+        { status: response.status }
       );
     }
 
+    const data = await response.json();
+
     return NextResponse.json({
-      progress,
+      progress: data.progress,
     });
   } catch (error) {
     logger.error('Erro ao processar requisição:', {

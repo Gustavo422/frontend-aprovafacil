@@ -13,42 +13,42 @@ import Link from 'next/link';
 // Add underscore prefix for intentional unused var
 const _sidebarNavItems = [
   {
-    title: 'Guru Da Aprovação',
+    titulo: 'Guru Da Aprovação',
     href: '/guru-da-aprovacao',
     icon: 'Compass',
   },
   {
-    title: 'Simulados',
+    titulo: 'Simulados',
     href: '/simulados',
     icon: 'FileCheck',
   },
   {
-    title: 'Questões Semanais',
+    titulo: 'Questões Semanais',
     href: '/questoes-semanais',
     icon: 'RotateCcwSquare',
   },
   {
-    title: 'Plano de Estudos',
+    titulo: 'Plano de Estudos',
     href: '/plano-estudos',
     icon: 'Bot',
   },
   {
-    title: 'Mapa de Matérias',
+    titulo: 'Mapa de Matérias',
     href: '/mapa-materias',
     icon: 'Map',
   },
   {
-    title: 'Cartões de Memorização',
+    titulo: 'Cartões de Memorização',
     href: '/cartoes-memorizacao',
     icon: 'Layers',
   },
   {
-    title: 'Apostila Customizada',
+    titulo: 'Apostila Customizada',
     href: '/apostila-customizada',
     icon: 'BookMarked',
   },
   {
-    title: 'Cronograma',
+    titulo: 'Cronograma',
     href: '/cronograma',
     icon: 'CalendarCheck',
   },

@@ -10,3 +10,6 @@ export { useIsMobile } from './hooks/use-mobile';
 
 // Components
 // (Adicionar aqui quando houver componentes compartilhados) 
+
+
+

@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
-  CardDescription,
+  Carddescricao,
   CardFooter,
   CardHeader,
-  CardTitle,
+  Cardtitulo,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -30,7 +30,7 @@ interface FlashcardFromDB {
   tema?: string;
   subtema?: string;
   concurso_id?: string;
-  created_at: string;
+  criado_em: string;
 }
 
 interface FlashcardData {
@@ -297,8 +297,8 @@ export default function FlashcardsPage() {
               {weakPoints.map((pontoFraco, index) => (
                 <Card key={index}>
                   <CardHeader>
-                    <CardTitle>{pontoFraco.disciplina}</CardTitle>
-                    <CardDescription>{pontoFraco.tema}</CardDescription>
+                    <Cardtitulo>{pontoFraco.disciplina}</Cardtitulo>
+                    <Carddescricao>{pontoFraco.tema}</Carddescricao>
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm">

@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, Carddescricao, CardHeader, Cardtitulo } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, Alertdescricao } from '@/components/ui/alert';
 import { ExportJsonButton } from '@/components/ui/export-json-button';
 import { 
   Trash2, 
@@ -22,7 +22,7 @@ import { useToast } from '@/features/shared/hooks/use-toast';
 interface CacheStats {
   performanceCache: number;
   configCache: number;
-  disciplineStats: number;
+  disciplinaStats: number;
 }
 
 interface ClearCacheResult {
@@ -31,7 +31,7 @@ interface ClearCacheResult {
   details: {
     performanceCache: boolean;
     configCache: boolean;
-    disciplineStats: boolean;
+    disciplinaStats: boolean;
   };
 }
 
@@ -57,7 +57,7 @@ export default function ClearCachePage() {
       toast({
         variant: 'destructive',
         title: 'Erro ao carregar estatísticas',
-        description: 'Não foi possível carregar as estatísticas do cache.',
+        descricao: 'Não foi possível carregar as estatísticas do cache.',
       });
     } finally {
       setIsLoadingStats(false);
@@ -83,13 +83,13 @@ export default function ClearCachePage() {
       
       toast({
         title: 'Cache limpo com sucesso',
-        description: 'Todos os caches foram limpos com sucesso.',
+        descricao: 'Todos os caches foram limpos com sucesso.',
       });
     } catch {
       toast({
         variant: 'destructive',
         title: 'Erro ao limpar cache',
-        description: 'Não foi possível limpar o cache do sistema.',
+        descricao: 'Não foi possível limpar o cache do sistema.',
       });
     } finally {
       setIsClearing(false);
@@ -102,7 +102,7 @@ export default function ClearCachePage() {
 
   const getTotalCacheItems = () => {
     if (!cacheStats) return 0;
-    return cacheStats.performanceCache + cacheStats.configCache + cacheStats.disciplineStats;
+    return cacheStats.performanceCache + cacheStats.configCache + cacheStats.disciplinaStats;
   };
 
   const getCacheData = () => {
@@ -159,7 +159,7 @@ export default function ClearCachePage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Itens</CardTitle>
+            <Cardtitulo className="text-sm font-medium">Total de Itens</Cardtitulo>
             <Database className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -172,7 +172,7 @@ export default function ClearCachePage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cache de Performance</CardTitle>
+            <Cardtitulo className="text-sm font-medium">Cache de Performance</Cardtitulo>
             <BarChart3 className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
@@ -185,7 +185,7 @@ export default function ClearCachePage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cache de Configuração</CardTitle>
+            <Cardtitulo className="text-sm font-medium">Cache de Configuração</Cardtitulo>
             <Settings className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
@@ -198,11 +198,11 @@ export default function ClearCachePage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Estatísticas de Disciplina</CardTitle>
+            <Cardtitulo className="text-sm font-medium">Estatísticas de Disciplina</Cardtitulo>
             <BarChart3 className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{cacheStats?.disciplineStats || 0}</div>
+            <div className="text-2xl font-bold">{cacheStats?.disciplinaStats || 0}</div>
             <p className="text-xs text-muted-foreground">
               Dados por disciplina
             </p>
@@ -214,7 +214,7 @@ export default function ClearCachePage() {
       {clearResult && (
         <Alert>
           <CheckCircle className="h-4 w-4" />
-          <AlertDescription>
+          <Alertdescricao>
             <div className="space-y-2">
               <p className="font-semibold">Última limpeza realizada com sucesso!</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
@@ -229,26 +229,26 @@ export default function ClearCachePage() {
                   </Badge>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant={clearResult.details.disciplineStats ? 'default' : 'destructive'}>
-                    {clearResult.details.disciplineStats ? '✅' : '❌'} Disciplinas
+                  <Badge variant={clearResult.details.disciplinaStats ? 'default' : 'destructive'}>
+                    {clearResult.details.disciplinaStats ? '✅' : '❌'} Disciplinas
                   </Badge>
                 </div>
               </div>
             </div>
-          </AlertDescription>
+          </Alertdescricao>
         </Alert>
       )}
 
       {/* Informações sobre Cache */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <Cardtitulo className="flex items-center gap-2">
             <Info className="h-5 w-5" />
             Sobre o Cache do Sistema
-          </CardTitle>
-          <CardDescription>
+          </Cardtitulo>
+          <Carddescricao>
             Entenda como funciona o sistema de cache e quando limpá-lo
-          </CardDescription>
+          </Carddescricao>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -275,10 +275,10 @@ export default function ClearCachePage() {
           
           <Alert>
             <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>
+            <Alertdescricao>
               <strong>Atenção:</strong> A limpeza do cache pode afetar temporariamente a performance 
               do sistema até que os dados sejam recalculados. Execute apenas quando necessário.
-            </AlertDescription>
+            </Alertdescricao>
           </Alert>
         </CardContent>
       </Card>
@@ -287,7 +287,7 @@ export default function ClearCachePage() {
       <div className="flex justify-end pt-4 border-t">
         <ExportJsonButton
           data={getCacheData()}
-          filename="cache-management-report"
+          filenome="cache-management-report"
           variant="default"
           className="bg-red-600 hover:bg-red-700"
         />

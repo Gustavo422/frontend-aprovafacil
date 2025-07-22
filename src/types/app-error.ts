@@ -3,3 +3,6 @@ export interface AppError {
   message: string;
   details?: Record<string, unknown>;
 } 
+
+
+

@@ -3,7 +3,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, Cardtitulo, Carddescricao } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { logger } from '@/lib/logger';
@@ -24,13 +24,12 @@ import {
   Calendar,
   BarChart3,
   Brain,
-  Users,
-  Zap
+  Users
 } from 'lucide-react';
 
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import Link from 'next/link';
+
 
 // Recharts
 import { 
@@ -62,10 +61,10 @@ interface PerformanceStats {
     studyTime: number;
     scoreImprovement: number;
   };
-  disciplineStats: Array<{
+  disciplinaStats: Array<{
     disciplina: string;
     total_questions: number;
-    correct_answers: number;
+    resposta_corretas: number;
     accuracy_rate: number;
     trend: 'up' | 'down' | 'stable';
     color: string;
@@ -85,7 +84,7 @@ interface PerformanceStats {
   };
   competitiveRanking: {
     position: number;
-    totalUsers: number;
+    totalusuarios: number;
     percentile: number;
   };
 }
@@ -93,8 +92,8 @@ interface PerformanceStats {
 interface RecentActivity {
   id: string;
   type: 'simulado' | 'questao' | 'flashcard';
-  title: string;
-  description: string;
+  titulo: string;
+  descricao: string;
   time: string;
   created_at: string;
   score?: number;
@@ -118,7 +117,7 @@ export default function DashboardPage() {
       studyTime: 0,
       scoreImprovement: 0,
     },
-    disciplineStats: [],
+    disciplinaStats: [],
     performanceHistory: [],
     goalProgress: {
       targetScore: 70,
@@ -129,7 +128,7 @@ export default function DashboardPage() {
     },
     competitiveRanking: {
       position: 0,
-      totalUsers: 0,
+      totalusuarios: 0,
       percentile: 0,
     },
   });
@@ -221,7 +220,7 @@ export default function DashboardPage() {
       } else {
         return formatDate(activityDate);
       }
-    } catch (error) {
+    } catch {
       // Fallback para caso a data seja inválida
       return 'Data não disponível';
     }
@@ -271,10 +270,10 @@ export default function DashboardPage() {
       {/* Grid de Estatísticas */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatusCard
-          title="Simulados Realizados"
+          titulo="Simulados Realizados"
           value={performanceStats.totalSimulados}
           icon={<FileText className="h-4 w-4 text-muted-foreground" />}
-          description={`${performanceStats.weeklyProgress.simulados} esta semana`}
+          descricao={`${performanceStats.weeklyProgress.simulados} esta semana`}
           trend={{
             value: performanceStats.weeklyProgress.simulados > 0 ? `+${performanceStats.weeklyProgress.simulados}` : '0',
             type: performanceStats.weeklyProgress.simulados > 0 ? 'up' : 'neutral'
@@ -282,10 +281,10 @@ export default function DashboardPage() {
         />
         
         <StatusCard
-          title="Questões Respondidas"
+          titulo="Questões Respondidas"
           value={performanceStats.totalQuestoes}
           icon={<ListChecks className="h-4 w-4 text-muted-foreground" />}
-          description={`${performanceStats.weeklyProgress.questoes} esta semana`}
+          descricao={`${performanceStats.weeklyProgress.questoes} esta semana`}
           trend={{
             value: performanceStats.weeklyProgress.questoes > 0 ? `+${performanceStats.weeklyProgress.questoes}` : '0',
             type: performanceStats.weeklyProgress.questoes > 0 ? 'up' : 'neutral'
@@ -293,10 +292,10 @@ export default function DashboardPage() {
         />
         
         <StatusCard
-          title="Tempo de Estudo"
+          titulo="Tempo de Estudo"
           value={formatStudyTime(performanceStats.totalStudyTime)}
           icon={<Clock className="h-4 w-4 text-muted-foreground" />}
-          description={`${formatStudyTime(performanceStats.weeklyProgress.studyTime)} esta semana`}
+          descricao={`${formatStudyTime(performanceStats.weeklyProgress.studyTime)} esta semana`}
           trend={{
             value: performanceStats.weeklyProgress.studyTime > 0 ? `+${performanceStats.weeklyProgress.studyTime}%` : '0%',
             type: performanceStats.weeklyProgress.studyTime > 0 ? 'up' : 'neutral'
@@ -304,16 +303,16 @@ export default function DashboardPage() {
         />
         
         <StatusCard
-          title="Probabilidade de Aprovação"
+          titulo="Probabilidade de Aprovação"
           value={`${Math.round(performanceStats.approvalProbability)}%`}
           icon={<Award className="h-4 w-4 text-muted-foreground" />}
-          description={
+          descricao={
             approvalStatus.text === 'Excelente' ? 'Excelente' :
             approvalStatus.text === 'Bom' ? 'Bom' :
             approvalStatus.text === 'Médio' ? 'Médio' :
             'Precisa Melhorar'
           }
-          className={cn(
+          classnome={cn(
             'border-2',
             approvalStatus.text === 'Excelente' ? 'border-green-500/20' :
             approvalStatus.text === 'Bom' ? 'border-blue-500/20' :
@@ -328,7 +327,7 @@ export default function DashboardPage() {
         {/* Gráfico de Desempenho */}
         <Card className="col-span-4">
           <CardHeader>
-            <CardTitle>Evolução do Desempenho</CardTitle>
+            <Cardtitulo>Evolução do Desempenho</Cardtitulo>
           </CardHeader>
           <CardContent className="pl-2">
             <div className="h-[300px]">
@@ -381,7 +380,7 @@ export default function DashboardPage() {
         {/* Atividades Recentes */}
         <Card className="col-span-3">
           <CardHeader>
-            <CardTitle>Atividades Recentes</CardTitle>
+            <Cardtitulo>Atividades Recentes</Cardtitulo>
           </CardHeader>
           <CardContent>
             <RecentActivity 
@@ -389,8 +388,8 @@ export default function DashboardPage() {
                 id: act.id,
                 type: act.type === 'simulado' ? 'success' : 
                       act.type === 'questao' ? 'info' : 'warning',
-                title: act.title,
-                description: act.description,
+                titulo: act.titulo,
+                descricao: act.descricao,
                 timestamp: new Date(act.created_at)
               }))} 
             />
@@ -406,9 +405,9 @@ export default function DashboardPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card className="card-hover border-l-4 border-l-blue-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <Cardtitulo className="text-sm font-medium">
               Simulados Realizados
-            </CardTitle>
+            </Cardtitulo>
             <div className="flex items-center gap-2">
               <FileText className="h-4 w-4 text-blue-500" />
               {performanceStats.weeklyProgress.simulados > 0 && (
@@ -425,7 +424,7 @@ export default function DashboardPage() {
             </p>
             <div className="mt-2">
               <div className="flex items-center gap-1 text-xs">
-                <Zap className="h-3 w-3 text-yellow-500" />
+                <Brain className="h-3 w-3 text-purple-400" />
                 <span>Sequência: {performanceStats.studyStreak} dias</span>
               </div>
             </div>
@@ -434,9 +433,9 @@ export default function DashboardPage() {
 
         <Card className="card-hover border-l-4 border-l-green-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <Cardtitulo className="text-sm font-medium">
               Taxa de Acerto
-            </CardTitle>
+            </Cardtitulo>
             <div className="flex items-center gap-2">
               <Target className="h-4 w-4 text-green-500" />
               {performanceStats.weeklyProgress.scoreImprovement > 0 ? (
@@ -464,9 +463,9 @@ export default function DashboardPage() {
 
         <Card className="card-hover border-l-4 border-l-purple-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <Cardtitulo className="text-sm font-medium">
               Tempo de Estudo
-            </CardTitle>
+            </Cardtitulo>
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-purple-500" />
               <Brain className="h-3 w-3 text-purple-400" />
@@ -487,9 +486,9 @@ export default function DashboardPage() {
 
         <Card className="card-hover border-l-4 border-l-orange-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <Cardtitulo className="text-sm font-medium">
               Ranking
-            </CardTitle>
+            </Cardtitulo>
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-orange-500" />
               <BarChart3 className="h-3 w-3 text-orange-400" />
@@ -503,7 +502,7 @@ export default function DashboardPage() {
               Top {Math.round(performanceStats.competitiveRanking.percentile)}% dos usuários
             </p>
             <div className="mt-2 text-xs text-muted-foreground">
-              de {performanceStats.competitiveRanking.totalUsers} usuários
+              de {performanceStats.competitiveRanking.totalusuarios} usuários
             </div>
           </CardContent>
         </Card>
@@ -514,10 +513,10 @@ export default function DashboardPage() {
         {/* Gráfico de Desempenho */}
         <Card className="lg:col-span-4">
           <CardHeader>
-            <CardTitle>Evolução do Desempenho</CardTitle>
-            <CardDescription>
+            <Cardtitulo>Evolução do Desempenho</Cardtitulo>
+            <Carddescricao>
               Acompanhe sua evolução ao longo do tempo
-            </CardDescription>
+            </Carddescricao>
           </CardHeader>
           <CardContent>
             {performanceStats.performanceHistory.length > 0 ? (
@@ -558,15 +557,15 @@ export default function DashboardPage() {
         {/* Desempenho por Disciplina */}
         <Card className="lg:col-span-3">
           <CardHeader>
-            <CardTitle>Desempenho por Disciplina</CardTitle>
-            <CardDescription>
+            <Cardtitulo>Desempenho por Disciplina</Cardtitulo>
+            <Carddescricao>
               Identifique seus pontos fortes e fracos
-            </CardDescription>
+            </Carddescricao>
           </CardHeader>
           <CardContent className="space-y-4">
-            {performanceStats.disciplineStats.length > 0 ? (
+            {performanceStats.disciplinaStats.length > 0 ? (
               <div className="space-y-4">
-                {performanceStats.disciplineStats.map((stat, index) => (
+                {performanceStats.disciplinaStats.map((stat, index) => (
                   <div key={index} className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -586,7 +585,7 @@ export default function DashboardPage() {
                       } as React.CSSProperties}
                     />
                     <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>{stat.correct_answers} acertos</span>
+                      <span>{stat.resposta_corretas} acertos</span>
                       <span>{stat.total_questions} questões</span>
                     </div>
                   </div>
@@ -610,10 +609,10 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Visão Geral do Desempenho</CardTitle>
-              <CardDescription>
+              <Cardtitulo>Visão Geral do Desempenho</Cardtitulo>
+              <Carddescricao>
                 Acompanhe seu progresso e desempenho nos simulados
-              </CardDescription>
+              </Carddescricao>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -649,10 +648,10 @@ export default function DashboardPage() {
         {/* Atividade Recente */}
         <Card>
           <CardHeader>
-            <CardTitle>Atividades Recentes</CardTitle>
-            <CardDescription>
+            <Cardtitulo>Atividades Recentes</Cardtitulo>
+            <Carddescricao>
               Suas últimas atividades na plataforma
-            </CardDescription>
+            </Carddescricao>
           </CardHeader>
           <CardContent className="space-y-4">
             {recentActivities.length > 0 ? (
@@ -664,8 +663,8 @@ export default function DashboardPage() {
                     {activity.type === 'flashcard' && <BookOpen className="h-4 w-4 text-purple-500" />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">{activity.title}</p>
-                    <p className="text-sm text-muted-foreground">{activity.description}</p>
+                    <p className="text-sm font-medium">{activity.titulo}</p>
+                    <p className="text-sm text-muted-foreground">{activity.descricao}</p>
                     <div className="flex items-center gap-2 mt-1">
                       <p className="text-xs text-muted-foreground">{formatRelativeTime(activity.created_at)}</p>
                       {activity.score && (

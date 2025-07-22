@@ -28,7 +28,7 @@ const CardHeader = React.forwardRef<
 ));
 CardHeader.displayName = 'CardHeader';
 
-const CardTitle = React.forwardRef<
+const Cardtitulo = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
@@ -41,9 +41,9 @@ const CardTitle = React.forwardRef<
     {...props}
   />
 ));
-CardTitle.displayName = 'CardTitle';
+Cardtitulo.displayName = 'Cardtitulo';
 
-const CardDescription = React.forwardRef<
+const Carddescricao = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
@@ -53,7 +53,7 @@ const CardDescription = React.forwardRef<
     {...props}
   />
 ));
-CardDescription.displayName = 'CardDescription';
+Carddescricao.displayName = 'Carddescricao';
 
 const CardContent = React.forwardRef<
   HTMLDivElement,
@@ -79,7 +79,10 @@ export {
   Card,
   CardHeader,
   CardFooter,
-  CardTitle,
-  CardDescription,
+  Cardtitulo,
+  Carddescricao,
   CardContent,
 };
+
+
+

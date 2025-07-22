@@ -1,35 +1,29 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"],
-  "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint", "react", "react-hooks"],
-  "rules": {
-    "@typescript-eslint/no-unused-vars": [
-      "error",
-      {
-        "argsIgnorePattern": "^_",
-        "varsIgnorePattern": "^_"
+  "extends": [
+    "next/core-web-vitals",
+    "next/typescript"
+  ],
+  "overrides": [
+    {
+      "files": ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}", "**/*.e2e.test.{ts,tsx}"],
+      "plugins": ["vitest"],
+      "rules": {
+        "vitest/expect-expect": "error",
+        "vitest/no-disabled-tests": "warn",
+        "vitest/no-focused-tests": "error",
+        "vitest/no-identical-title": "error",
+        "vitest/valid-expect": "error",
+        "vitest/prefer-to-be": "warn",
+        "vitest/prefer-to-have-length": "warn",
+        "vitest/no-conditional-tests": "error",
+        "vitest/no-conditional-expect": "error",
+        "vitest/no-done-callback": "warn",
+        "vitest/no-standalone-expect": "error"
+      },
+      "env": {
+        "jest": true,
+        "node": true
       }
-    ],
-    "@typescript-eslint/no-explicit-any": "error",
-    "@typescript-eslint/no-unsafe-declaration-merging": "error",
-    "@typescript-eslint/no-var-requires": "error",
-    "no-console": "warn",
-    "prefer-const": "error",
-    "no-var": "error",
-    "no-unused-vars": "off",
-    "react/react-in-jsx-scope": "off",
-    "react/prop-types": "off",
-    "react-hooks/exhaustive-deps": "warn",
-    "react/no-unescaped-entities": "error"
-  },
-  "settings": {
-    "react": {
-      "version": "detect"
     }
-  },
-  "env": {
-    "browser": true,
-    "es2021": true,
-    "node": true
-  }
+  ]
 }

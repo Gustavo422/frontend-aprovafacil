@@ -87,7 +87,7 @@ export function useAuthRetry() {
     return { 
       error: { 
         message: 'Maximum retry attempts reached',
-        name: 'MaxRetryError'
+        name: 'MaxRetryError',
       } as SupabaseError 
     };
   };

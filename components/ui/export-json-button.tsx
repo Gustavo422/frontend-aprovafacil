@@ -7,7 +7,7 @@ import { logger } from '@/lib/logger';
 
 interface ExportJsonButtonProps {
   data: Record<string, unknown> | Array<Record<string, unknown>>;
-  filename: string;
+  filenome: string;
   disabled?: boolean;
   variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
   size?: 'default' | 'sm' | 'lg' | 'icon';
@@ -16,7 +16,7 @@ interface ExportJsonButtonProps {
 
 export function ExportJsonButton({
   data,
-  filename,
+  filenome,
   disabled = false,
   variant = 'outline',
   size = 'default',
@@ -30,7 +30,7 @@ export function ExportJsonButton({
       const exportData = {
         exportInfo: {
           timestamp: new Date().toISOString(),
-          filename: filename,
+          filenome: filenome,
           version: '1.0',
           source: 'Concentrify Admin System'
         },
@@ -46,7 +46,7 @@ export function ExportJsonButton({
       
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${filename}_${new Date().toISOString().split('T')[0]}.json`;
+      link.download = `${filenome}_${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -55,8 +55,8 @@ export function ExportJsonButton({
       URL.revokeObjectURL(url);
 
       toast({
-        title: 'Exportação realizada',
-        description: `Arquivo ${filename} exportado com sucesso!`,
+        titulo: 'Exportação realizada',
+        descricao: `Arquivo ${filenome} exportado com sucesso!`,
       });
     } catch (error) {
       logger.error('Erro ao exportar JSON:', { 
@@ -64,8 +64,8 @@ export function ExportJsonButton({
       });
       toast({
         variant: 'destructive',
-        title: 'Erro na exportação',
-        description: 'Não foi possível exportar os dados como JSON.',
+        titulo: 'Erro na exportação',
+        descricao: 'Não foi possível exportar os dados como JSON.',
       });
     }
   };
@@ -84,3 +84,6 @@ export function ExportJsonButton({
     </Button>
   );
 } 
+
+
+

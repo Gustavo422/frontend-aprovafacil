@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "types": ["cypress"],
+    "baseUrl": "../../",
+    "noEmit": true
+  },
+  "include": [
+    "support/commands.d.ts",
+    "e2e/**/*.ts",
+    "e2e/**/*.tsx",
+    "support/**/*.ts"
+  ]
+} 

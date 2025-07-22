@@ -14,6 +14,8 @@ import {
   ConteudoFilters,
   UserPreferenceResponse
 } from '@/src/types/concurso';
+import { handleApiResponse, isAuthError, isServerError } from '@/utils/api-error-handler';
+import { showErrorToast, showErrorToastFromStatus, showNetworkErrorToast } from '@/utils/error-toast';
 
 // ========================================
 // TIPOS DO CONTEXTO
@@ -181,24 +183,70 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       const response = await fetch('/api/user/concurso-preference');
-      if (!response.ok) {
+      
+      const result = await handleApiResponse<UserPreferenceResponse>(response);
+      
+      if (!result.success) {
+        // Tratamento específico para diferentes tipos de erro
         if (response.status === 404) {
+          // Usuário não tem preferência definida - comportamento normal
           dispatch({ type: 'CLEAR_CONTEXT' });
           return;
         }
-        throw new Error('Erro ao carregar preferência do usuário');
+        
+        if (isAuthError(response.status)) {
+          // Usuário não autenticado - comportamento normal
+          dispatch({ type: 'CLEAR_CONTEXT' });
+          return;
+        }
+        
+        if (isServerError(response.status)) {
+          // Erro de servidor - mostrar mensagem específica
+          console.error('Erro de servidor ao carregar preferências:', response.status);
+          
+          // Armazenar o código de status junto com a mensagem de erro para melhor tratamento na UI
+          const errorMessage = result.error || 'Erro ao carregar preferências. Tente novamente mais tarde.';
+          dispatch({ 
+            type: 'SET_ERROR', 
+            payload: `[SERVER_ERROR:${response.status}] ${errorMessage}` 
+          });
+          
+          // Mostrar toast de erro de servidor (não relacionado a credenciais)
+          showErrorToastFromStatus(response.status, 'Erro ao carregar preferências de concurso. Tente novamente mais tarde.');
+        } else {
+          // Outros erros
+          console.error('Erro ao carregar preferências:', response.status);
+          
+          // Armazenar o código de status junto com a mensagem de erro
+          const errorMessage = result.error || 'Erro ao carregar preferências. Tente novamente.';
+          dispatch({ 
+            type: 'SET_ERROR', 
+            payload: `[ERROR:${response.status}] ${errorMessage}` 
+          });
+          
+          // Mostrar toast de erro genérico
+          showErrorToastFromStatus(response.status, result.error);
+        }
+        
+        dispatch({ type: 'CLEAR_CONTEXT' });
+        return;
       }
-      const data: UserPreferenceResponse = await response.json();
-      if (data.data) {
-        dispatch({ type: 'SET_CONTEXT', payload: data.data });
+      
+      if (result.data?.data) {
+        dispatch({ type: 'SET_CONTEXT', payload: result.data.data });
       } else {
         dispatch({ type: 'CLEAR_CONTEXT' });
       }
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error('Error loading user preference:', error.message);
-      }
+      // Para erros de rede ou outros, mostrar mensagem apropriada
+      console.error('Erro ao carregar preferências:', error);
+      dispatch({ type: 'SET_ERROR', payload: 'Erro de conexão. Verifique sua internet e tente novamente.' });
       dispatch({ type: 'CLEAR_CONTEXT' });
+      
+      // Mostrar toast de erro de rede
+      showNetworkErrorToast();
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
 
@@ -248,11 +296,19 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
       
       // Verificar se pode trocar de concurso
       const preferenceResponse = await fetch('/api/user/concurso-preference');
-      if (preferenceResponse.ok) {
-        const preferenceData: UserPreferenceResponse = await preferenceResponse.json();
-        if (preferenceData.data && preferenceData.canChange === false) {
-          throw new Error(`Você só pode trocar de concurso em ${preferenceData.daysUntilChange} dias`);
+      const preferenceResult = await handleApiResponse<UserPreferenceResponse>(preferenceResponse);
+      
+      if (preferenceResult.success) {
+        if (preferenceResult.data?.data && preferenceResult.data.canChange === false) {
+          const errorMessage = `Você só pode trocar de concurso em ${preferenceResult.data.daysUntilChange} dias`;
+          showErrorToast('Troca de concurso não permitida', errorMessage);
+          throw new Error(errorMessage);
         }
+      } else if (isServerError(preferenceResult.status)) {
+        // Se for erro de servidor, mostrar mensagem específica
+        const errorMessage = preferenceResult.error || 'Erro no servidor ao verificar preferências';
+        showErrorToastFromStatus(preferenceResult.status, errorMessage);
+        throw new Error(errorMessage);
       }
       
       // Selecionar novo concurso
@@ -262,9 +318,12 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
         body: JSON.stringify({ concurso_id: concursoId, categoria_id: categoriaId })
       });
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Erro ao selecionar concurso');
+      const result = await handleApiResponse(response);
+      
+      if (!result.success) {
+        const errorMessage = result.error || 'Erro ao selecionar concurso';
+        showErrorToastFromStatus(result.status, errorMessage);
+        throw new Error(errorMessage);
       }
       
       // Recarregar preferência atualizada
@@ -275,8 +334,12 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
         console.error('Error selecting contest:', error.message);
         dispatch({ type: 'SET_ERROR', payload: error.message });
       } else {
-        dispatch({ type: 'SET_ERROR', payload: 'Erro ao selecionar concurso' });
+        const errorMessage = 'Erro ao selecionar concurso';
+        dispatch({ type: 'SET_ERROR', payload: errorMessage });
+        showErrorToast('Erro', errorMessage);
       }
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
 
@@ -352,11 +415,11 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
   const hasSelectedConcurso = !!state.context?.concurso_id;
   
   const canChangeConcurso = state.context
-    ? checkCanChangeConcurso(state.context.can_change_until)
+    ? checkCanChangeConcurso(state.context.pode_alterar_ate)
     : true;
   
   const daysUntilChange = state.context
-    ? calculateDaysUntilChange(state.context.can_change_until)
+    ? calculateDaysUntilChange(state.context.pode_alterar_ate)
     : 0;
   
   const categoriaSlug = state.context && state.availableCategories.length > 0
@@ -385,7 +448,7 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
       loadConteudo();
       loadProgress();
     }
-  }, [state.context?.concurso_id]);
+  }, [state.context?.concurso_id, loadConteudo, loadProgress]);
 
   // ========================================
   // CONTEXT VALUE

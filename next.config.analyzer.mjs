@@ -9,3 +9,5 @@ const analyzer = withBundleAnalyzer({
 });
 
 export default analyzer(nextConfig);
+
+

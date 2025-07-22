@@ -19,7 +19,7 @@ import { useMemo } from 'react';
 interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
   items: {
     href: string;
-    title: string;
+    titulo: string;
     icon: string;
   }[];
 }
@@ -65,7 +65,7 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
                 )}
               />
             )}
-            <span>{item.title}</span>
+            <span>{item.titulo}</span>
           </Link>
         );
       })}

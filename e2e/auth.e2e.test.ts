@@ -5,7 +5,7 @@ describe('Authentication E2E Tests', () => {
   const testUser = {
     email: 'test@aprovafacil.com',
     password: 'testpassword123',
-    name: 'Test User'
+    nome: 'Test User'
   }
 
   beforeEach(async () => {
@@ -15,7 +15,7 @@ describe('Authentication E2E Tests', () => {
       user: {
         id: 'mock-user-id',
         email: testUser.email,
-        user_metadata: { name: testUser.name }
+        user_metadata: { nome: testUser.nome }
       }
     })
   })
@@ -71,7 +71,7 @@ describe('Authentication E2E Tests', () => {
     it('should display registration form', async () => {
       await e2eHelpers.goto('/auth/register')
       
-      expect(await e2eHelpers.elementExists('[data-testid="name-input"]')).toBe(true)
+      expect(await e2eHelpers.elementExists('[data-testid="nome-input"]')).toBe(true)
       expect(await e2eHelpers.elementExists('[data-testid="email-input"]')).toBe(true)
       expect(await e2eHelpers.elementExists('[data-testid="password-input"]')).toBe(true)
       expect(await e2eHelpers.elementExists('[data-testid="confirm-password-input"]')).toBe(true)
@@ -89,7 +89,7 @@ describe('Authentication E2E Tests', () => {
 
     it('should successfully register with valid data', async () => {
       await e2eHelpers.goto('/auth/register')
-      await e2eHelpers.fillField('[data-testid="name-input"]', testUser.name)
+      await e2eHelpers.fillField('[data-testid="nome-input"]', testUser.nome)
       await e2eHelpers.fillField('[data-testid="email-input"]', testUser.email)
       await e2eHelpers.fillField('[data-testid="password-input"]', testUser.password)
       await e2eHelpers.fillField('[data-testid="confirm-password-input"]', testUser.password)
@@ -201,4 +201,7 @@ describe('Authentication E2E Tests', () => {
     })
   })
 })
+
+
+
 

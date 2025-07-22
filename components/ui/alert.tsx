@@ -32,7 +32,7 @@ const Alert = React.forwardRef<
 ));
 Alert.displayName = 'Alert';
 
-const AlertTitle = React.forwardRef<
+const Alerttitulo = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => (
@@ -42,9 +42,9 @@ const AlertTitle = React.forwardRef<
     {...props}
   />
 ));
-AlertTitle.displayName = 'AlertTitle';
+Alerttitulo.displayName = 'Alerttitulo';
 
-const AlertDescription = React.forwardRef<
+const Alertdescricao = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
@@ -54,6 +54,9 @@ const AlertDescription = React.forwardRef<
     {...props}
   />
 ));
-AlertDescription.displayName = 'AlertDescription';
+Alertdescricao.displayName = 'Alertdescricao';
 
-export { Alert, AlertTitle, AlertDescription };
+export { Alert, Alerttitulo, Alertdescricao };
+
+
+

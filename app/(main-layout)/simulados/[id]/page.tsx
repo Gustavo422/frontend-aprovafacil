@@ -15,10 +15,10 @@ interface Simulado {
   questions_count: number;
   time_minutes: number;
   difficulty: string;
-  created_at: string;
+  criado_em: string;
   concurso_id: string | null;
   is_public: boolean;
-  updated_at: string;
+  atualizado_em: string;
   deleted_at: string | null;
   created_by: string | null;
   concursos?: {
@@ -75,7 +75,7 @@ export default function SimuladoPage({ params }: { params: { id: string } }) {
       // Calcular pontuação
       const totalQuestions = questoes.length;
       const correctAnswers = questoes.filter(
-        (q, index) => answers[index] === q.correct_answer
+        (q, index) => answers[index] === q.resposta_correta
       ).length;
       const score = Math.round((correctAnswers / totalQuestions) * 100);
 
@@ -99,7 +99,7 @@ export default function SimuladoPage({ params }: { params: { id: string } }) {
 
       toast({
         title: 'Simulado finalizado!',
-        description: `Você acertou ${correctAnswers} de ${totalQuestions} questões (${score}%).`,
+        descricao: `Você acertou ${correctAnswers} de ${totalQuestions} questões (${score}%).`,
       });
 
       // Redirecionar para a página de resultados
@@ -110,7 +110,7 @@ export default function SimuladoPage({ params }: { params: { id: string } }) {
       });
       toast({
         title: 'Erro',
-        description: 'Erro ao salvar progresso. Tente novamente.',
+        descricao: 'Erro ao salvar progresso. Tente novamente.',
         variant: 'destructive',
       });
     }

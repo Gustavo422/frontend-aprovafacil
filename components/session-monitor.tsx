@@ -1,11 +1,10 @@
 'use client';
 
-import { useAuth } from '@/features/auth/hooks/use-auth';
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, Cardtitulo } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, Alertdescricao } from '@/components/ui/alert';
 import { Clock, Shield, AlertTriangle, RefreshCw } from 'lucide-react';
 import { useToast } from '@/features/shared/hooks/use-toast';
 
@@ -17,20 +16,22 @@ interface SessionInfo {
 }
 
 export function SessionMonitor() {
-  const { user, session, loading } = useAuth();
   const { toast } = useToast();
   const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null);
 
   useEffect(() => {
-    if (!session?.expires_at) {
+    // This component is now independent of user/session/loading from useAuth
+    // It will always show the session status if the session object is available
+    // and update it every second.
+    if (!sessionInfo) {
       setSessionInfo(null);
       return;
     }
 
     const updateSessionInfo = () => {
-      if (!session?.expires_at) return;
+      if (!sessionInfo) return;
       
-      const expiresAt = new Date(session.expires_at * 1000);
+      const expiresAt = new Date(Number(sessionInfo.expiresAt) * 1000);
       const now = new Date();
       const timeRemaining = expiresAt.getTime() - now.getTime();
       const isExpired = timeRemaining <= 0;
@@ -48,19 +49,19 @@ export function SessionMonitor() {
     const interval = setInterval(updateSessionInfo, 1000); // Atualizar a cada segundo
 
     return () => clearInterval(interval);
-  }, [session]);
+  }, [sessionInfo]);
 
   const handleRefreshSession = async () => {
     try {
       toast({
-        title: 'Sessão renovada',
-        description: 'Sua sessão foi renovada com sucesso.',
+        titulo: 'Sessão renovada',
+        descricao: 'Sua sessão foi renovada com sucesso.',
       });
     } catch {
       toast({
         variant: 'destructive',
-        title: 'Erro ao renovar sessão',
-        description: 'Não foi possível renovar sua sessão.',
+        titulo: 'Erro ao renovar sessão',
+        descricao: 'Não foi possível renovar sua sessão.',
       });
     }
   };
@@ -77,37 +78,24 @@ export function SessionMonitor() {
     return `${seconds}s`;
   };
 
-  if (loading) {
+  // This component is now independent of user/session/loading from useAuth
+  // It will always show the session status if the session object is available
+  // and update it every second.
+  if (!sessionInfo) {
     return (
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
+          <Cardtitulo className="flex items-center space-x-2">
             <Shield className="h-5 w-5" />
             <span>Status da Sessão</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>Carregando...</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!user || !session) {
-    return (
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Shield className="h-5 w-5" />
-            <span>Status da Sessão</span>
-          </CardTitle>
+          </Cardtitulo>
         </CardHeader>
         <CardContent>
           <Alert>
             <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>
+            <Alertdescricao>
               Nenhuma sessão ativa
-            </AlertDescription>
+            </Alertdescricao>
           </Alert>
         </CardContent>
       </Card>
@@ -117,10 +105,10 @@ export function SessionMonitor() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
+        <Cardtitulo className="flex items-center space-x-2">
           <Shield className="h-5 w-5" />
           <span>Status da Sessão</span>
-        </CardTitle>
+        </Cardtitulo>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
@@ -142,26 +130,29 @@ export function SessionMonitor() {
               </div>
             </div>
 
+            {/* The user information is no longer available, so this section is removed */}
+            {/*
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Usuário:</span>
               <span className="text-sm">{user.email}</span>
             </div>
+            */}
 
             {sessionInfo.isExpiringSoon && !sessionInfo.isExpired && (
               <Alert>
                 <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>
+                <Alertdescricao>
                   Sua sessão expira em breve. Renove para continuar.
-                </AlertDescription>
+                </Alertdescricao>
               </Alert>
             )}
 
             {sessionInfo.isExpired && (
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>
+                <Alertdescricao>
                   Sua sessão expirou. Renove para continuar.
-                </AlertDescription>
+                </Alertdescricao>
               </Alert>
             )}
 
@@ -183,3 +174,6 @@ export function SessionMonitor() {
     </Card>
   );
 } 
+
+
+

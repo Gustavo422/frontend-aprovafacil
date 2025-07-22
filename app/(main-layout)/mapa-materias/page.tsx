@@ -4,9 +4,9 @@ import { logger } from '@/lib/logger';
 import {
   Card,
   CardContent,
-  CardDescription,
+  Carddescricao,
   CardHeader,
-  CardTitle,
+  Cardtitulo,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -124,7 +124,7 @@ export default function MapaAssuntosPage() {
       </p>
 
       <div className="grid gap-6">
-        {Object.entries(assuntosPorDisciplina).map(([disciplina, assuntos]) => {
+        {assuntosPorDisciplina && Object.entries(assuntosPorDisciplina).map(([disciplina, assuntos]) => {
           const totalAssuntos = assuntos.length;
           const estudados = assuntos.filter(
             a => a.status === 'estudado'
@@ -136,11 +136,11 @@ export default function MapaAssuntosPage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>{disciplina}</CardTitle>
-                    <CardDescription>
+                    <Cardtitulo>{disciplina}</Cardtitulo>
+                    <Carddescricao>
                       {estudados} de {totalAssuntos} assuntos estudados (
                       {Math.round(progresso)}%)
-                    </CardDescription>
+                    </Carddescricao>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">

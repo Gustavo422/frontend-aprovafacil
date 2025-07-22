@@ -1,12 +1,4 @@
 import axios from 'axios'
-import { createClient } from '@supabase/supabase-js'
-import type { Database } from '@/src/types/supabase.types'
-
-// Configuração do Supabase
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
 
 // Configuração do Axios
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api'
@@ -32,13 +24,18 @@ class ApiClient {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       async (config: any) => {
         // Adicionar token de autenticação se disponível
-        const { data: { session } } = await supabase.auth.getSession()
-        
-        if (session?.access_token) {
-          config.headers = {
-            ...config.headers,
-            Authorization: `Bearer ${session.access_token}`,
+        try {
+          const session = await this.getSession()
+          
+          if (session?.access_token) {
+            config.headers = {
+              ...config.headers,
+              Authorization: `Bearer ${session.access_token}`,
+            }
           }
+        } catch (error) {
+          // Se não conseguir obter a sessão, continua sem token
+          console.warn('Não foi possível obter token de autenticação:', error)
         }
 
         return config
@@ -59,12 +56,20 @@ class ApiClient {
       async (error: any) => {
         // Handle 401 errors (unauthorized)
         if (error.response?.status === 401) {
-          // Tentar renovar o token
-          const { error: refreshError } = await supabase.auth.refreshSession()
-          
-          if (refreshError) {
+          // Tentar renovar o token via API
+          try {
+            const refreshResponse = await fetch('/api/auth/refresh', {
+              method: 'POST',
+            });
+            
+            if (!refreshResponse.ok) {
+              // Se não conseguir renovar, redirecionar para login
+              await this.signOut()
+              window.location.href = '/auth/login'
+            }
+          } catch {
             // Se não conseguir renovar, redirecionar para login
-            await supabase.auth.signOut()
+            await this.signOut()
             window.location.href = '/auth/login'
           }
         }
@@ -72,6 +77,27 @@ class ApiClient {
         return Promise.reject(error)
       }
     )
+  }
+
+  // Métodos de autenticação via API
+  private async getSession() {
+    try {
+      const res = await fetch('/api/auth/session')
+      if (res.ok) {
+        return await res.json()
+      }
+      return null
+    } catch {
+      return null
+    }
+  }
+
+  private async signOut() {
+    try {
+      await fetch('/api/auth/signout', { method: 'POST' })
+    } catch {
+      // Ignora erros no logout
+    }
   }
 
   // Métodos HTTP
@@ -136,4 +162,7 @@ export const api = {
 }
 
 export default api
+
+
+
 

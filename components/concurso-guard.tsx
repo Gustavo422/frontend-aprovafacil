@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@/lib/supabase';
 
 // ========================================
 // ROTAS QUE NÃO PRECISAM DE CONCURSO SELECIONADO
@@ -46,60 +45,114 @@ export async function verificarConcursoSelecionado(
   }
   
   try {
-    // Verificar se o usuário está autenticado
-    const supabase = await createRouteHandlerClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Verificar se o usuário está autenticado via API
+    const authResponse = await fetch(`${request.nextUrl.origin}/api/auth/session`, {
+      headers: {
+        'Cookie': request.headers.get('cookie') || '',
+      },
+    });
     
-    if (authError || !user) {
+    if (!authResponse.ok) {
       // Usuário não autenticado, redirecionar para login
       return NextResponse.redirect(new URL('/login', request.url));
     }
     
-    // Verificar se o usuário tem concurso selecionado
-    const { data: preference, error: preferenceError } = await supabase
-      .from('user_concurso_preferences')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('is_active', true)
-      .single();
+    const authData = await authResponse.json();
+    const user = authData.user;
     
-    if (preferenceError || !preference) {
+    if (!user) {
+      // Usuário não autenticado, redirecionar para login
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+    
+    // Verificar se o usuário tem concurso selecionado via API
+    const preferenceResponse = await fetch(`${request.nextUrl.origin}/api/user/concurso-preference`, {
+      headers: {
+        'Cookie': request.headers.get('cookie') || '',
+        'Authorization': `Bearer ${authData.access_token}`,
+      },
+    });
+    
+    if (!preferenceResponse.ok) {
       // Usuário não tem concurso selecionado, redirecionar para seleção
       return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
     }
     
-    // Verificar se o concurso ainda existe e está ativo
-    const { data: concurso, error: concursoError } = await supabase
-      .from('concursos')
-      .select('*')
-      .eq('id', preference.concurso_id)
-      .eq('is_active', true)
-      .single();
+    const preference = await preferenceResponse.json();
     
-    if (concursoError || !concurso) {
+    if (!preference || !preference.ativo) {
+      // Usuário não tem concurso selecionado, redirecionar para seleção
+      return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
+    }
+    
+    // Verificar se o concurso ainda existe e está ativo via API
+    const concursoResponse = await fetch(`${request.nextUrl.origin}/api/concursos/${preference.concurso_id}`, {
+      headers: {
+        'Cookie': request.headers.get('cookie') || '',
+        'Authorization': `Bearer ${authData.access_token}`,
+      },
+    });
+    
+    if (!concursoResponse.ok) {
       // Concurso não existe ou não está ativo, limpar preferência e redirecionar
-      await supabase
-        .from('user_concurso_preferences')
-        .update({ is_active: false })
-        .eq('id', preference.id);
+      await fetch(`${request.nextUrl.origin}/api/user/concurso-preference`, {
+        method: 'DELETE',
+        headers: {
+          'Cookie': request.headers.get('cookie') || '',
+          'Authorization': `Bearer ${authData.access_token}`,
+        },
+      });
       
       return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
     }
     
-    // Verificar se a categoria do concurso ainda existe e está ativa
-    const { data: categoria, error: categoriaError } = await supabase
-      .from('concurso_categorias')
-      .select('*')
-      .eq('id', concurso.categoria_id)
-      .eq('is_active', true)
-      .single();
+    const concurso = await concursoResponse.json();
     
-    if (categoriaError || !categoria) {
+    if (!concurso || !concurso.ativo) {
+      // Concurso não está ativo, limpar preferência e redirecionar
+      await fetch(`${request.nextUrl.origin}/api/user/concurso-preference`, {
+        method: 'DELETE',
+        headers: {
+          'Cookie': request.headers.get('cookie') || '',
+          'Authorization': `Bearer ${authData.access_token}`,
+        },
+      });
+      
+      return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
+    }
+    
+    // Verificar se a categoria do concurso ainda existe e está ativa via API
+    const categoriaResponse = await fetch(`${request.nextUrl.origin}/api/categoria-disciplinas/${concurso.categoria_id}`, {
+      headers: {
+        'Cookie': request.headers.get('cookie') || '',
+        'Authorization': `Bearer ${authData.access_token}`,
+      },
+    });
+    
+    if (!categoriaResponse.ok) {
       // Categoria não existe ou não está ativa, limpar preferência e redirecionar
-      await supabase
-        .from('user_concurso_preferences')
-        .update({ is_active: false })
-        .eq('id', preference.id);
+      await fetch(`${request.nextUrl.origin}/api/user/concurso-preference`, {
+        method: 'DELETE',
+        headers: {
+          'Cookie': request.headers.get('cookie') || '',
+          'Authorization': `Bearer ${authData.access_token}`,
+        },
+      });
+      
+      return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
+    }
+    
+    const categoria = await categoriaResponse.json();
+    
+    if (!categoria || !categoria.ativo) {
+      // Categoria não está ativa, limpar preferência e redirecionar
+      await fetch(`${request.nextUrl.origin}/api/user/concurso-preference`, {
+        method: 'DELETE',
+        headers: {
+          'Cookie': request.headers.get('cookie') || '',
+          'Authorization': `Bearer ${authData.access_token}`,
+        },
+      });
       
       return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
     }
@@ -167,3 +220,6 @@ export const config = {
     '/((?!_next/static|_next/image|favicon.ico|public).*)',
   ],
 }; 
+
+
+

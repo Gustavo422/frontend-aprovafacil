@@ -1,7 +1,8 @@
 import { createRouteHandlerClient } from '@/lib/supabase';
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
-export async function GET(_request: Request) {
+export async function GET(request: Request) {
   try {
     const supabase = await createRouteHandlerClient();
 
@@ -14,38 +15,22 @@ export async function GET(_request: Request) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    // Buscar simulados com join para concursos
-    const { data: simulados, error } = await supabase
-      .from('simulados')
-      .select(`
-        *,
-        concursos (
-          id,
-          nome,
-          categoria,
-          ano,
-          banca
-        )
-      `)
-      .is('deleted_at', null)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      return NextResponse.json(
-        { error: 'Erro ao buscar simulados', details: error.message },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({
-      data: simulados || [],
-      count: simulados?.length || 0,
-      page: 1,
-      limit: 10,
+    const backendUrl = `${process.env.BACKEND_API_URL}/api/simulados${new URL(request.url).search}`;
+    const res = await fetch(backendUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        'Content-Type': 'application/json',
+      },
     });
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
   } catch (error) {
+    logger.error('Erro ao buscar simulados:', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     return NextResponse.json(
-      { error: 'Erro interno do servidor', details: error },
+      { error: 'Erro interno do servidor' },
       { status: 500 }
     );
   }

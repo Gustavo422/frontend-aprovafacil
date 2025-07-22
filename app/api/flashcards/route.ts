@@ -1,7 +1,8 @@
 import { createRouteHandlerClient } from '@/lib/supabase';
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const supabase = await createRouteHandlerClient();
 
@@ -14,22 +15,20 @@ export async function GET() {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    // Buscar flashcards do banco
-    const { data: flashcards, error } = await supabase
-      .from('flashcards')
-      .select('*')
-      .is('deleted_at', null)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      return NextResponse.json(
-        { error: 'Erro ao buscar flashcards' },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json(flashcards || []);
-  } catch {
+    const backendUrl = `${process.env.BACKEND_API_URL}/api/flashcards${new URL(request.url).search}`;
+    const res = await fetch(backendUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
+  } catch (error) {
+    logger.error('Erro ao buscar flashcards:', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     return NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }
@@ -37,10 +36,10 @@ export async function GET() {
   }
 }
 
-export async function POST(_request: Request) {
-  const supabase = await createRouteHandlerClient();
-
+export async function POST(request: Request) {
   try {
+    const supabase = await createRouteHandlerClient();
+
     // Verificar se o usuário está autenticado
     const {
       data: { user },
@@ -50,44 +49,21 @@ export async function POST(_request: Request) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    // Obter os dados do corpo da requisição
-    const body = await _request.json();
-    const { front, back, disciplina, tema, subtema, concurso_id } = body;
-
-    // Validar os dados obrigatórios
-    if (!front || !back || !disciplina || !tema) {
-      return NextResponse.json(
-        { error: 'Dados obrigatórios não fornecidos' },
-        { status: 400 }
-      );
-    }
-
-    // Criar o flashcard
-    const { data: flashcard, error } = await supabase
-      .from('flashcards')
-      .insert({
-        front,
-        back,
-        disciplina,
-        tema,
-        subtema,
-        concurso_id,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      return NextResponse.json(
-        { error: 'Erro ao criar flashcard' },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({
-      message: 'Flashcard criado com sucesso',
-      flashcard,
+    const backendUrl = `${process.env.BACKEND_API_URL}/api/flashcards`;
+    const res = await fetch(backendUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: await request.text(),
     });
-  } catch {
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
+  } catch (error) {
+    logger.error('Erro ao criar flashcard:', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     return NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }

@@ -23,6 +23,7 @@ export function Providers({ children, locale = 'pt-BR', messages = {} }: Props) 
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
+          forcedTheme="dark"
         >
           {children}
           <Toaster />

@@ -1,4 +1,4 @@
-/* Estilos globais aprimorados */
+/* Estilos globais aprimorados com melhorias visuais modernas */
 
 @tailwind base;
 @tailwind components;
@@ -31,6 +31,15 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    
+    /* Novas variáveis para glassmorphism e efeitos modernos */
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --glass-shadow: rgba(0, 0, 0, 0.1);
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.8) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--secondary) / 0.8) 100%);
+    --glow-primary: 0 0 20px hsl(var(--primary) / 0.3);
+    --glow-secondary: 0 0 20px hsl(var(--secondary) / 0.3);
   }
 
   .dark {
@@ -58,6 +67,11 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    
+    /* Variáveis para modo escuro */
+    --glass-bg: rgba(0, 0, 0, 0.2);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: rgba(0, 0, 0, 0.3);
   }
 }
 
@@ -72,6 +86,39 @@
 }
 
 @layer components {
+  /* Glassmorphism Effects */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px var(--glass-shadow);
+  }
+
+  .glass-card {
+    @apply glass rounded-2xl p-6 transition-all duration-300;
+  }
+
+  .glass-card:hover {
+    @apply scale-[1.02];
+    box-shadow: 0 12px 40px var(--glass-shadow), var(--glow-primary);
+  }
+
+  /* Gradientes modernos */
+  .gradient-bg {
+    background: linear-gradient(135deg, 
+      hsl(var(--primary) / 0.1) 0%, 
+      hsl(var(--secondary) / 0.05) 50%, 
+      hsl(var(--accent) / 0.1) 100%);
+  }
+
+  .gradient-card {
+    background: linear-gradient(135deg, 
+      hsl(var(--card)) 0%, 
+      hsl(var(--card) / 0.95) 100%);
+    border: 1px solid hsl(var(--border) / 0.5);
+  }
+
   /* Animações e transições melhoradas */
   .animate-in {
     animation: animateIn 0.6s ease-out;
@@ -81,10 +128,18 @@
     animation: fadeIn 0.5s ease-out;
   }
 
+  .slide-up {
+    animation: slideUp 0.5s ease-out;
+  }
+
+  .scale-in {
+    animation: scaleIn 0.3s ease-out;
+  }
+
   @keyframes animateIn {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(20px);
     }
     to {
       opacity: 1;
@@ -101,14 +156,216 @@
     }
   }
 
-  /* Card hover effects */
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Card hover effects modernos */
   .card-hover {
-    @apply transition-all duration-200 ease-in-out;
+    @apply transition-all duration-300 ease-out;
   }
 
   .card-hover:hover {
-    @apply shadow-lg transform scale-[1.02];
+    @apply shadow-2xl;
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 
+      0 20px 40px hsl(var(--primary) / 0.1),
+      0 0 0 1px hsl(var(--primary) / 0.1);
   }
+
+  .card-modern {
+    @apply bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6;
+    @apply shadow-lg hover:shadow-2xl transition-all duration-300;
+    background: linear-gradient(135deg, 
+      hsl(var(--card)) 0%, 
+      hsl(var(--card) / 0.8) 100%);
+  }
+
+  .card-modern:hover {
+    @apply scale-[1.02] -translate-y-1;
+    box-shadow: 
+      0 25px 50px hsl(var(--primary) / 0.15),
+      0 0 0 1px hsl(var(--primary) / 0.1);
+  }
+
+  /* Botões com efeitos especiais */
+  .btn-glow {
+    @apply relative overflow-hidden;
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+
+  .btn-glow::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent;
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+  }
+
+  .btn-glow:hover::before {
+    transform: translateX(100%);
+  }
+
+  .btn-glow:hover {
+    box-shadow: 0 0 30px hsl(var(--primary) / 0.5);
+  }
+
+  /* Efeitos de texto */
+  .text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px hsl(var(--primary) / 0.5);
+  }
+
+  /* Loading states modernos */
+  .skeleton {
+    @apply animate-pulse bg-gradient-to-r from-muted via-muted/50 to-muted;
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  /* Scrollbar personalizada */
+  .scrollbar-modern {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--primary) / 0.3) transparent;
+  }
+
+  .scrollbar-modern::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .scrollbar-modern::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-modern::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.3);
+    border-radius: 4px;
+  }
+
+  .scrollbar-modern::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.5);
+  }
+
+  /* Containers responsivos modernos */
+  .container-modern {
+    @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+  }
+
+  .container-padding {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Grid moderno */
+  .grid-modern {
+    @apply grid gap-6 sm:gap-8;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  /* Seções com espaçamento moderno */
+  .section-modern {
+    @apply py-16 sm:py-20 lg:py-24;
+  }
+
+  /* Efeitos de foco melhorados */
+  .focus-modern {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background;
+  }
+
+  /* Indicadores de status modernos */
+  .status-dot {
+    @apply relative;
+  }
+
+  .status-dot::before {
+    content: '';
+    @apply absolute -top-1 -right-1 w-3 h-3 rounded-full;
+    animation: pulse-dot 2s infinite;
+  }
+
+  .status-dot.online::before {
+    @apply bg-green-500;
+  }
+
+  .status-dot.busy::before {
+    @apply bg-red-500;
+  }
+
+  .status-dot.away::before {
+    @apply bg-yellow-500;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.5;
+      transform: scale(1.1);
+    }
+  }
+
+  /* Efeitos de hover para links */
+  .link-modern {
+    @apply relative transition-colors duration-200;
+  }
+
+  .link-modern::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300;
+  }
+
+  .link-modern:hover::after {
+    @apply w-full;
+  }
+
+  /* Tipografia moderna */
+  .heading-modern {
+    @apply font-bold tracking-tight;
+    background: linear-gradient(135deg, 
+      hsl(var(--foreground)) 0%, 
+      hsl(var(--foreground) / 0.8) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
 
   /* Progress bar customizada */
   .progress-custom {
@@ -283,9 +540,8 @@
   .content-padding {
     @apply py-8 sm:py-12;
   }
-}
 
-/* Animações personalizadas */
+  /* Animações personalizadas */
 @keyframes slideInFromLeft {
   from {
     opacity: 0;
@@ -397,4 +653,3 @@
     page-break-before: always;
   }
 }
-

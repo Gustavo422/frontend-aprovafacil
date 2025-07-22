@@ -1,264 +1,38 @@
-# ===================================================================
-# APROVA FÁCIL - FRONTEND GITIGNORE
-# ===================================================================
-
-# ===================================================================
-# Dependencies
-# ===================================================================
-
-# Dependencies
+# Node
 node_modules/
-/.pnp
-.pnp.js
-pnpm-lock.yaml
-yarn.lock
-
-# ===================================================================
-# Build & Output
-# ===================================================================
-
-# Next.js
-/.next/
-/out/
-/build
-/.vercel/
-
-# Vite
-.vite/
-dist/
-
-# ===================================================================
-# Environment Variables
-# ===================================================================
-
-# Local Environment Variables
-.env
-.env.*.local
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Keep example files
-!.env.example
-
-# ===================================================================
-# Testing
-# ===================================================================
-
-# Coverage
-/coverage/
-.nyc_output/
-*.lcov
-
-# Test results
-test-results.*
-test-results.json
-test-results.html
-html.meta.json.gz
-vitest-debug.log
-
-# ===================================================================
-# Logs
-# ===================================================================
-
-# Logs
-*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
-# ===================================================================
-# TypeScript
-# ===================================================================
+# Build
+build/
+dist/
+.next/
+out/
 
-# TypeScript build info
-*.tsbuildinfo
-next-env.d.ts
-next-env.d.tsx
+# Environment
+.env
+.env.*
 
-# TypeScript reports
-tsc-*.txt
-tsc-*.json
-saida-tsc.txt
-ts-files.txt
+# Logs
+logs/
+*.log
 
-# ===================================================================
-# Cache & Temporary Files
-# ===================================================================
-
-# Cache
-.cache/
-.temp/
-.tmp/
-.parcel-cache/
-.rpt2_cache*/
-.rts2_cache*/
-
-# Temporary files
-*-temp/
-*.tmp
-*.temp
-*~
-*.bak
-*.patch
-*.diff
-*.err
-*.orig
-*.rej
-*.swo
-*.swp
-*.vi
-
-# ===================================================================
-# IDE & Editor
-# ===================================================================
-
-# VSCode
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-
-# IntelliJ IDEA
+# IDEs
+.vscode/
 .idea/
-
-# Other editors
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# ===================================================================
-# OS Generated Files
-# ===================================================================
-
-# macOS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-.AppleDouble
-.LSOverride
-Icon
+*.swp
+*.swo
 
-# Windows
+# OS
 Thumbs.db
-ehthumbs.db
 Desktop.ini
-$RECYCLE.BIN/
 
-# Linux
-*~
-.fuse_hidden*
-.directory
-.Trash-*
-.nfs*
+# Test/coverage
+coverage/
+*.lcov
 
-# ===================================================================
-# Development Tools
-# ===================================================================
-
-# ESLint
-eslint_output.json
-eslint_fix_report.md
-eslint-*.txt
-
-# Prettier
-.prettierrc.local
-
-# ===================================================================
-# Package Managers
-# ===================================================================
-
-# npm
-package-lock.json
-
-# yarn
-yarn.lock
-
-# pnpm
-pnpm-lock.yaml
-
-# ===================================================================
-# Development Tools
-# ===================================================================
-
-# Turbo
-.turbo
-turbo.json
-
-# Cypress
-cypress.config.js
-
-# Lighthouse
-.lighthouserc.js
-
-# Docker
-Dockerfile
-docker-compose.yml
-.dockerignore
-
-# Components config
-components.json
-
-# ===================================================================
-# Project Specific
-# ===================================================================
-
-# Node version files
-node_version.txt
-
-# Test configuration files
-tsconfig.vitest-temp.json
-tsconfig.jest.json
-setup-tsconfig.js
-test-runner.js
-minimal.test.ts
-
-# Build manifests
-app-build-manifest.json
-build-manifest.json
-react-loadable-manifest.json
-
-# ===================================================================
-# Security & Sensitive Files
-# ===================================================================
-
-# Certificates
-*.pem
-*.key
-*.crt
-*.p12
-*.pfx
-
-# SSH
-.ssh/
-id_rsa
-id_rsa.pub
-
-# ===================================================================
-# Archives & Backups
-# ===================================================================
-
-# Archives
-*.7z
-*.dmg
-*.gz
-*.iso
-*.jar
-*.rar
-*.tar
-*.zip
-
-# ===================================================================
-# Supabase
-# ===================================================================
-
-# Supabase local development
-.supabase/
+# Outros
+.kiro/ 

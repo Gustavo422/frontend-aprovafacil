@@ -6,7 +6,7 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
-  CardTitle,
+  Cardtitulo,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, XCircle, HelpCircle, CheckCircle } from 'lucide-react';
@@ -16,7 +16,7 @@ interface FlashcardType {
   id: string | number;
   front: string;
   back: string;
-  discipline?: string;
+  disciplina?: string;
   tema?: string;
   subtema?: string;
 }
@@ -74,9 +74,9 @@ export function Flashcard({
         }`}
       >
         <CardHeader className="pb-3">
-          <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <Cardtitulo className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <span className="text-base md:text-lg">
-              {flashcard.discipline || 'Flashcard'}
+              {flashcard.disciplina || 'Flashcard'}
             </span>
             {flashcard.tema && (
               <span className="text-xs md:text-sm font-normal text-muted-foreground">
@@ -84,7 +84,7 @@ export function Flashcard({
                 {flashcard.subtema ? `- ${flashcard.subtema}` : ''}
               </span>
             )}
-          </CardTitle>
+          </Cardtitulo>
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center p-4 md:p-6 flex-1">
           <div

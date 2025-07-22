@@ -4,8 +4,8 @@ import './globals.css';
 import ClientLayout from './client-layout';
 
 export const metadata = {
-  title: 'AprovaFacil',
-  description: 'Sua plataforma de estudos para concursos',
+  titulo: 'AprovaFacil',
+  descricao: 'Sua plataforma de estudos para concursos',
 };
 
 const fontSans = FontSans({

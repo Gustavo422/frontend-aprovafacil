@@ -11,14 +11,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 const sidebarNavItems = [
-  { title: 'Guru Da Aprovação', href: '/guru-da-aprovacao', icon: 'Compass' },
-  { title: 'Simulados', href: '/simulados', icon: 'FileCheck' },
-  { title: 'Questões Semanais', href: '/questoes-semanais', icon: 'RotateCcwSquare' },
-  { title: 'Plano de Estudos', href: '/plano-estudos', icon: 'Bot' },
-  { title: 'Mapa de Matérias', href: '/mapa-materias', icon: 'Map' },
-  { title: 'Cartões de Memorização', href: '/cartoes-memorizacao', icon: 'Layers' },
-  { title: 'Apostila Customizada', href: '/apostila-customizada', icon: 'BookMarked' },
-  { title: 'Cronograma', href: '/cronograma', icon: 'CalendarCheck' },
+  { titulo: 'Guru Da Aprovação', href: '/guru-da-aprovacao', icon: 'Compass' },
+  { titulo: 'Simulados', href: '/simulados', icon: 'FileCheck' },
+  { titulo: 'Questões Semanais', href: '/questoes-semanais', icon: 'RotateCcwSquare' },
+  { titulo: 'Plano de Estudos', href: '/plano-estudos', icon: 'Bot' },
+  { titulo: 'Mapa de Matérias', href: '/mapa-materias', icon: 'Map' },
+  { titulo: 'Cartões de Memorização', href: '/cartoes-memorizacao', icon: 'Layers' },
+  { titulo: 'Apostila Customizada', href: '/apostila-customizada', icon: 'BookMarked' },
+  { titulo: 'Cronograma', href: '/cronograma', icon: 'CalendarCheck' },
 ];
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {

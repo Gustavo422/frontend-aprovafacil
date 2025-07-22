@@ -117,3 +117,6 @@ export function BrowserExtensionSafe({ children }: { children: React.ReactNode }
 
   return <>{children}</>;
 } 
+
+
+

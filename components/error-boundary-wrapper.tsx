@@ -9,3 +9,6 @@ interface ErrorBoundaryWrapperProps {
 export function ErrorBoundaryWrapper({ children }: ErrorBoundaryWrapperProps) {
   return <ErrorBoundary>{children}</ErrorBoundary>;
 } 
+
+
+

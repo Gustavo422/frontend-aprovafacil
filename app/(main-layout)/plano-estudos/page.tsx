@@ -5,9 +5,9 @@ import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
-  CardDescription,
+  Carddescricao,
   CardHeader,
-  CardTitle,
+  Cardtitulo,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Target, Calendar, Clock, TrendingUp } from 'lucide-react';
@@ -68,11 +68,11 @@ export default function PlanoEstudosPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Nenhum plano ativo</CardTitle>
-            <CardDescription>
+            <Cardtitulo>Nenhum plano ativo</Cardtitulo>
+            <Carddescricao>
               Você ainda não tem um plano de estudos. Crie um para começar a
               estudar de forma organizada.
-            </CardDescription>
+            </Carddescricao>
           </CardHeader>
           <CardContent>
             <Button>Criar Plano de Estudos</Button>
@@ -103,9 +103,9 @@ export default function PlanoEstudosPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <Cardtitulo className="text-sm font-medium">
               Progresso Geral
-            </CardTitle>
+            </Cardtitulo>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -117,9 +117,9 @@ export default function PlanoEstudosPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <Cardtitulo className="text-sm font-medium">
               Dias Restantes
-            </CardTitle>
+            </Cardtitulo>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -131,7 +131,7 @@ export default function PlanoEstudosPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Horas por Dia</CardTitle>
+            <Cardtitulo className="text-sm font-medium">Horas por Dia</Cardtitulo>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -141,9 +141,9 @@ export default function PlanoEstudosPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <Cardtitulo className="text-sm font-medium">
               Assuntos Estudados
-            </CardTitle>
+            </Cardtitulo>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -155,11 +155,11 @@ export default function PlanoEstudosPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Cronograma de Estudos</CardTitle>
-          <CardDescription>
+          <Cardtitulo>Cronograma de Estudos</Cardtitulo>
+          <Carddescricao>
             Seu cronograma personalizado de {startDate.toLocaleDateString()} a{' '}
             {endDate.toLocaleDateString()}
-          </CardDescription>
+          </Carddescricao>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

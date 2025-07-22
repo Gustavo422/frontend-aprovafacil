@@ -13,3 +13,6 @@ export type {
   UserApostilaProgressInsert,
   ApostilaWithContent,
 } from './services/apostilas-service'; 
+
+
+

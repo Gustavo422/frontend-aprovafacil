@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import { 
   Card, 
   CardContent, 
-  CardDescription, 
+  Carddescricao, 
   CardHeader, 
-  CardTitle 
+  Cardtitulo 
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -89,8 +89,8 @@ export function ConcursoSelector() {
     concursos?.filter(concurso => {
       const matchesSearch =
         concurso.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (concurso.concurso_categorias?.nome &&
-          concurso.concurso_categorias.nome
+        (concurso.categoria?.nome &&
+          concurso.categoria.nome
             .toLowerCase()
             .includes(searchTerm.toLowerCase())) ||
         (concurso.banca &&
@@ -98,7 +98,7 @@ export function ConcursoSelector() {
 
       const matchesCategoria =
         selectedCategoria === 'todos' ||
-        concurso.concurso_categorias?.id === selectedCategoria;
+        concurso.categoria?.id === selectedCategoria;
 
       const matchesBanca =
         selectedBanca === 'todas' || concurso.banca === selectedBanca;
@@ -120,7 +120,7 @@ export function ConcursoSelector() {
     if (!categoriaId) {
       toast({
         title: 'Erro',
-        description:
+        descricao:
           'Este concurso não pode ser selecionado pois não possui uma categoria.',
         variant: 'destructive',
         duration: 3000,
@@ -133,7 +133,7 @@ export function ConcursoSelector() {
 
       toast({
         title: 'Concurso selecionado!',
-        description:
+        descricao:
           'Seu painel foi personalizado para o concurso escolhido.',
         duration: 3000,
       });
@@ -144,7 +144,7 @@ export function ConcursoSelector() {
       logger.error('Erro ao selecionar concurso:', { error });
       toast({
         title: 'Erro',
-        description:
+        descricao:
           error instanceof Error
             ? error.message
             : 'Não foi possível selecionar o concurso. Tente novamente.',
@@ -192,10 +192,10 @@ export function ConcursoSelector() {
       {/* Filtros */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
+          <Cardtitulo className="flex items-center space-x-2">
             <Search className="h-5 w-5" />
             <span>Filtrar Concursos</span>
-          </CardTitle>
+          </Cardtitulo>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Busca */}
@@ -291,10 +291,10 @@ export function ConcursoSelector() {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="space-y-2">
-                      <CardTitle className="text-lg">{concurso.nome}</CardTitle>
+                      <Cardtitulo className="text-lg">{concurso.nome}</Cardtitulo>
                       <div className="flex flex-wrap gap-2">
                         <Badge variant="secondary">
-                          {concurso.concurso_categorias?.nome || 'Sem categoria'}
+                          {concurso.categoria?.nome || 'Sem categoria'}
                         </Badge>
                         {concurso.banca && (
                           <Badge variant="outline">{concurso.banca}</Badge>
@@ -308,16 +308,16 @@ export function ConcursoSelector() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {concurso.descricao && (
-                    <CardDescription className="text-sm">
+                    <Carddescricao className="text-sm">
                       {concurso.descricao}
-                    </CardDescription>
+                    </Carddescricao>
                   )}
                   
                   <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <div className="flex items-center space-x-1">
                       <Building2 className="h-4 w-4" />
                       <span>
-                        {concurso.concurso_categorias?.nome || 'Sem categoria'}
+                        {concurso.categoria?.nome || 'Sem categoria'}
                       </span>
                     </div>
                     {concurso.data_prova && (
@@ -329,7 +329,7 @@ export function ConcursoSelector() {
                   </div>
 
                   <Button
-                    onClick={() => handleSelectConcurso(concurso.id, concurso.concurso_categorias?.id || '')}
+                    onClick={() => handleSelectConcurso(concurso.id, concurso.categoria?.id || '')}
                     disabled={selecting}
                     className="w-full"
                   >

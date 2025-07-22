@@ -7,10 +7,10 @@ import { z } from 'zod';
 import {
   Card,
   CardContent,
-  CardDescription,
+  Carddescricao,
   CardFooter,
   CardHeader,
-  CardTitle,
+  Cardtitulo,
 } from '@/components/ui/card';
 import {
   Form,
@@ -25,7 +25,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/features/shared/hooks/use-toast';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, Alertdescricao } from '@/components/ui/alert';
 import { CheckCircle, ArrowLeft } from 'lucide-react';
 import { logger } from '@/lib/logger';
 
@@ -67,7 +67,7 @@ export default function ForgotPasswordPage() {
         toast({
           variant: 'destructive',
           title: 'Erro ao enviar e-mail',
-          description: data.error?.message || 'Ocorreu um erro. Tente novamente.',
+          descricao: data.error?.message || 'Ocorreu um erro. Tente novamente.',
         });
         return;
       }
@@ -76,7 +76,7 @@ export default function ForgotPasswordPage() {
         setEmailSent(true);
         toast({
           title: 'E-mail enviado',
-          description: 'Verifique sua caixa de entrada para redefinir sua senha.',
+          descricao: 'Verifique sua caixa de entrada para redefinir sua senha.',
         });
       }
     } catch (error) {
@@ -86,7 +86,7 @@ export default function ForgotPasswordPage() {
       toast({
         variant: 'destructive',
         title: 'Erro ao enviar e-mail',
-        description: 'Ocorreu um erro inesperado. Tente novamente.',
+        descricao: 'Ocorreu um erro inesperado. Tente novamente.',
       });
     } finally {
       setIsLoading(false);
@@ -115,20 +115,20 @@ export default function ForgotPasswordPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <CardTitle className="text-2xl">E-mail enviado</CardTitle>
-                <CardDescription>
+                <Cardtitulo className="text-2xl">E-mail enviado</Cardtitulo>
+                <Carddescricao>
                   Verifique sua caixa de entrada
-                </CardDescription>
+                </Carddescricao>
               </div>
             </CardHeader>
 
             <CardContent>
               <Alert>
                 <CheckCircle className="h-4 w-4" />
-                <AlertDescription>
+                <Alertdescricao>
                   Enviamos um link para redefinição de senha para o seu e-mail. 
                   Verifique sua caixa de entrada e spam.
-                </AlertDescription>
+                </Alertdescricao>
               </Alert>
             </CardContent>
 
@@ -179,10 +179,10 @@ export default function ForgotPasswordPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <CardTitle className="text-2xl">Esqueceu sua senha?</CardTitle>
-              <CardDescription>
+              <Cardtitulo className="text-2xl">Esqueceu sua senha?</Cardtitulo>
+              <Carddescricao>
                 Digite seu e-mail para receber um link de redefinição
-              </CardDescription>
+              </Carddescricao>
             </div>
           </CardHeader>
 

@@ -7,428 +7,726 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instanciate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.3 (519615d)"
+  }
   public: {
     Tables: {
-      apostila_content: {
-        Row: {
-          id: string
-          apostila_id: string
-          module_number: number
-          title: string
-          content_json: Json
-          created_at: string
-          updated_at: string
-          is_active: boolean
-          order_index: number
-        }
-        Insert: {
-          id?: string
-          apostila_id: string
-          module_number: number
-          title: string
-          content_json: Json
-          created_at?: string
-          updated_at?: string
-          is_active?: boolean
-          order_index?: number
-        }
-        Update: {
-          id?: string
-          apostila_id?: string
-          module_number?: number
-          title?: string
-          content_json?: Json
-          created_at?: string
-          updated_at?: string
-          is_active?: boolean
-          order_index?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "apostila_content_apostila_id_fkey"
-            columns: ["apostila_id"]
-            isOneToOne: false
-            referencedRelation: "apostilas"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
       apostilas: {
         Row: {
+          atualizado_em: string | null
+          criado_em: string | null
+          descricao: string | null
           id: string
-          title: string
-          description: string | null
-          concurso_id: string | null
-          created_at: string
-          categoria_id: string | null
-          disciplinas: Json | null
-          is_active: boolean
-          updated_at: string
+          nome: string
+          slug: string
         }
         Insert: {
+          atualizado_em?: string | null
+          criado_em?: string | null
+          descricao?: string | null
           id?: string
-          title: string
-          description?: string | null
-          concurso_id?: string | null
-          created_at?: string
-          categoria_id?: string | null
-          disciplinas?: Json | null
-          is_active?: boolean
-          updated_at?: string
+          nome: string
+          slug: string
         }
         Update: {
+          atualizado_em?: string | null
+          criado_em?: string | null
+          descricao?: string | null
           id?: string
-          title?: string
-          description?: string | null
-          concurso_id?: string | null
-          created_at?: string
-          categoria_id?: string | null
-          disciplinas?: Json | null
-          is_active?: boolean
-          updated_at?: string
+          nome?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      cache_performance_usuario: {
+        Row: {
+          atualizado_em: string | null
+          chave_cache: string
+          criado_em: string | null
+          dados_cache: Json
+          expira_em: string
+          id: string
+          usuario_id: string
+        }
+        Insert: {
+          atualizado_em?: string | null
+          chave_cache: string
+          criado_em?: string | null
+          dados_cache: Json
+          expira_em: string
+          id?: string
+          usuario_id: string
+        }
+        Update: {
+          atualizado_em?: string | null
+          chave_cache?: string
+          criado_em?: string | null
+          dados_cache?: Json
+          expira_em?: string
+          id?: string
+          usuario_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "apostilas_concurso_id_fkey"
+            foreignKeyName: "cache_performance_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cartoes_memorizacao: {
+        Row: {
+          ativo: boolean | null
+          atualizado_em: string | null
+          categoria_id: string | null
+          concurso_id: string | null
+          criado_em: string | null
+          disciplina: string
+          frente: string
+          id: string
+          peso_disciplina: number | null
+          subtema: string | null
+          tema: string
+          verso: string
+        }
+        Insert: {
+          ativo?: boolean | null
+          atualizado_em?: string | null
+          categoria_id?: string | null
+          concurso_id?: string | null
+          criado_em?: string | null
+          disciplina: string
+          frente: string
+          id?: string
+          peso_disciplina?: number | null
+          subtema?: string | null
+          tema: string
+          verso: string
+        }
+        Update: {
+          ativo?: boolean | null
+          atualizado_em?: string | null
+          categoria_id?: string | null
+          concurso_id?: string | null
+          criado_em?: string | null
+          disciplina?: string
+          frente?: string
+          id?: string
+          peso_disciplina?: number | null
+          subtema?: string | null
+          tema?: string
+          verso?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cartoes_memorizacao_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias_concursos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cartoes_memorizacao_concurso_id_fkey"
             columns: ["concurso_id"]
             isOneToOne: false
             referencedRelation: "concursos"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "apostilas_categoria_id_fkey"
-            columns: ["categoria_id"]
-            isOneToOne: false
-            referencedRelation: "concurso_categorias"
-            referencedColumns: ["id"]
-          }
         ]
       }
-      audit_logs: {
+      categorias_concursos: {
         Row: {
-          id: string
-          user_id: string | null
-          action: string
-          table_name: string
-          record_id: string | null
-          old_values: Json | null
-          new_values: Json | null
-          ip_address: string | null
-          user_agent: string | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          user_id?: string | null
-          action: string
-          table_name: string
-          record_id?: string | null
-          old_values?: Json | null
-          new_values?: Json | null
-          ip_address?: string | null
-          user_agent?: string | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string | null
-          action?: string
-          table_name?: string
-          record_id?: string | null
-          old_values?: Json | null
-          new_values?: Json | null
-          ip_address?: string | null
-          user_agent?: string | null
-          created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "audit_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      cache_config: {
-        Row: {
-          id: string
-          cache_key: string
-          ttl_minutos: number
+          ativo: boolean | null
+          atualizado_em: string | null
+          cor_primaria: string | null
+          cor_secundaria: string | null
+          criado_em: string | null
           descricao: string | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          cache_key: string
-          ttl_minutos?: number
-          descricao?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          cache_key?: string
-          ttl_minutos?: number
-          descricao?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      categoria_disciplinas: {
-        Row: {
-          id: string
-          categoria_id: string
-          nome: string
-          peso: number
-          horas_semanais: number
-          ordem: number
-          is_active: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          categoria_id: string
-          nome: string
-          peso: number
-          horas_semanais: number
-          ordem?: number
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          categoria_id?: string
-          nome?: string
-          peso?: number
-          horas_semanais?: number
-          ordem?: number
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "categoria_disciplinas_categoria_id_fkey"
-            columns: ["categoria_id"]
-            isOneToOne: false
-            referencedRelation: "concurso_categorias"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      concurso_categorias: {
-        Row: {
           id: string
           nome: string
           slug: string
-          descricao: string | null
-          cor_primaria: string
-          cor_secundaria: string
-          is_active: boolean
-          parent_id: string | null
-          created_at: string
-          updated_at: string
         }
         Insert: {
+          ativo?: boolean | null
+          atualizado_em?: string | null
+          cor_primaria?: string | null
+          cor_secundaria?: string | null
+          criado_em?: string | null
+          descricao?: string | null
           id?: string
           nome: string
           slug: string
-          descricao?: string | null
-          cor_primaria?: string
-          cor_secundaria?: string
-          is_active?: boolean
-          parent_id?: string | null
-          created_at?: string
-          updated_at?: string
         }
         Update: {
+          ativo?: boolean | null
+          atualizado_em?: string | null
+          cor_primaria?: string | null
+          cor_secundaria?: string | null
+          criado_em?: string | null
+          descricao?: string | null
           id?: string
           nome?: string
           slug?: string
-          descricao?: string | null
-          cor_primaria?: string
-          cor_secundaria?: string
-          is_active?: boolean
-          parent_id?: string | null
-          created_at?: string
-          updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "concurso_categorias_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "concurso_categorias"
-            referencedColumns: ["id"]
-          }
-        ]
+        Relationships: []
       }
       concursos: {
         Row: {
-          id: string
-          nome: string
-          descricao: string | null
           ano: number | null
+          ativo: boolean | null
+          atualizado_em: string | null
           banca: string | null
-          is_active: boolean
-          created_at: string
-          updated_at: string
           categoria_id: string | null
-          edital_url: string | null
+          criado_em: string | null
           data_prova: string | null
-          vagas: number | null
+          descricao: string | null
+          id: string
+          multiplicador_questoes: number | null
+          nivel_dificuldade: string | null
+          nome: string
           salario: number | null
+          slug: string
+          url_edital: string | null
+          vagas: number | null
         }
         Insert: {
-          id?: string
-          nome: string
-          descricao?: string | null
           ano?: number | null
+          ativo?: boolean | null
+          atualizado_em?: string | null
           banca?: string | null
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
           categoria_id?: string | null
-          edital_url?: string | null
+          criado_em?: string | null
           data_prova?: string | null
-          vagas?: number | null
+          descricao?: string | null
+          id?: string
+          multiplicador_questoes?: number | null
+          nivel_dificuldade?: string | null
+          nome: string
           salario?: number | null
+          slug: string
+          url_edital?: string | null
+          vagas?: number | null
         }
         Update: {
-          id?: string
-          nome?: string
-          descricao?: string | null
           ano?: number | null
+          ativo?: boolean | null
+          atualizado_em?: string | null
           banca?: string | null
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
           categoria_id?: string | null
-          edital_url?: string | null
+          criado_em?: string | null
           data_prova?: string | null
-          vagas?: number | null
+          descricao?: string | null
+          id?: string
+          multiplicador_questoes?: number | null
+          nivel_dificuldade?: string | null
+          nome?: string
           salario?: number | null
+          slug?: string
+          url_edital?: string | null
+          vagas?: number | null
         }
         Relationships: [
           {
             foreignKeyName: "concursos_categoria_id_fkey"
             columns: ["categoria_id"]
             isOneToOne: false
-            referencedRelation: "concurso_categorias"
+            referencedRelation: "categorias_concursos"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
-      flashcards: {
+      configuracao_cache: {
         Row: {
+          atualizado_em: string | null
+          chave_cache: string
+          criado_em: string | null
+          descricao: string | null
           id: string
-          front: string
-          back: string
-          disciplina: string
-          tema: string
-          subtema: string | null
-          created_at: string
-          updated_at: string
-          concurso_id: string | null
-          categoria_id: string | null
-          peso_disciplina: number | null
-          is_active: boolean
+          ttl_minutos: number
         }
         Insert: {
+          atualizado_em?: string | null
+          chave_cache: string
+          criado_em?: string | null
+          descricao?: string | null
           id?: string
-          front: string
-          back: string
-          disciplina: string
-          tema: string
-          subtema?: string | null
-          created_at?: string
-          updated_at?: string
-          concurso_id?: string | null
-          categoria_id?: string | null
-          peso_disciplina?: number | null
-          is_active?: boolean
+          ttl_minutos?: number
         }
         Update: {
+          atualizado_em?: string | null
+          chave_cache?: string
+          criado_em?: string | null
+          descricao?: string | null
           id?: string
-          front?: string
-          back?: string
-          disciplina?: string
-          tema?: string
-          subtema?: string | null
-          created_at?: string
-          updated_at?: string
-          concurso_id?: string | null
-          categoria_id?: string | null
-          peso_disciplina?: number | null
-          is_active?: boolean
+          ttl_minutos?: number
+        }
+        Relationships: []
+      }
+      configuracoes_seguranca_usuario: {
+        Row: {
+          atualizado_em: string | null
+          autenticacao_dois_fatores: boolean | null
+          criado_em: string | null
+          id: string
+          max_tentativas_login: number | null
+          notificar_login_novo_dispositivo: boolean | null
+          sessoes_multiplas_permitidas: boolean | null
+          tempo_bloqueio_minutos: number | null
+          usuario_id: string
+        }
+        Insert: {
+          atualizado_em?: string | null
+          autenticacao_dois_fatores?: boolean | null
+          criado_em?: string | null
+          id?: string
+          max_tentativas_login?: number | null
+          notificar_login_novo_dispositivo?: boolean | null
+          sessoes_multiplas_permitidas?: boolean | null
+          tempo_bloqueio_minutos?: number | null
+          usuario_id: string
+        }
+        Update: {
+          atualizado_em?: string | null
+          autenticacao_dois_fatores?: boolean | null
+          criado_em?: string | null
+          id?: string
+          max_tentativas_login?: number | null
+          notificar_login_novo_dispositivo?: boolean | null
+          sessoes_multiplas_permitidas?: boolean | null
+          tempo_bloqueio_minutos?: number | null
+          usuario_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "flashcards_concurso_id_fkey"
+            foreignKeyName: "configuracoes_seguranca_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: true
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conteudo_apostila: {
+        Row: {
+          apostila_id: string
+          concurso_id: string | null
+          conteudo_json: Json
+          criado_em: string | null
+          id: string
+          numero_modulo: number
+          titulo: string
+        }
+        Insert: {
+          apostila_id: string
+          concurso_id?: string | null
+          conteudo_json: Json
+          criado_em?: string | null
+          id?: string
+          numero_modulo: number
+          titulo: string
+        }
+        Update: {
+          apostila_id?: string
+          concurso_id?: string | null
+          conteudo_json?: Json
+          criado_em?: string | null
+          id?: string
+          numero_modulo?: number
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conteudo_apostila_apostila_id_fkey"
+            columns: ["apostila_id"]
+            isOneToOne: false
+            referencedRelation: "apostilas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conteudo_apostila_concurso_id_fkey"
             columns: ["concurso_id"]
             isOneToOne: false
             referencedRelation: "concursos"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      disciplinas_categoria: {
+        Row: {
+          ativo: boolean | null
+          atualizado_em: string | null
+          categoria_id: string
+          criado_em: string | null
+          horas_semanais: number
+          id: string
+          nome: string
+          ordem: number
+          peso: number
+        }
+        Insert: {
+          ativo?: boolean | null
+          atualizado_em?: string | null
+          categoria_id: string
+          criado_em?: string | null
+          horas_semanais: number
+          id?: string
+          nome: string
+          ordem?: number
+          peso: number
+        }
+        Update: {
+          ativo?: boolean | null
+          atualizado_em?: string | null
+          categoria_id?: string
+          criado_em?: string | null
+          horas_semanais?: number
+          id?: string
+          nome?: string
+          ordem?: number
+          peso?: number
+        }
+        Relationships: [
           {
-            foreignKeyName: "flashcards_categoria_id_fkey"
+            foreignKeyName: "disciplinas_categoria_categoria_id_fkey"
             columns: ["categoria_id"]
             isOneToOne: false
-            referencedRelation: "concurso_categorias"
+            referencedRelation: "categorias_concursos"
             referencedColumns: ["id"]
-          }
+          },
+        ]
+      }
+      estatisticas_usuario_disciplina: {
+        Row: {
+          atualizado_em: string | null
+          criado_em: string | null
+          disciplina: string
+          id: string
+          pontuacao_media: number | null
+          tempo_estudo_minutos: number | null
+          total_acertos: number | null
+          total_questoes: number | null
+          ultima_atividade: string | null
+          usuario_id: string
+        }
+        Insert: {
+          atualizado_em?: string | null
+          criado_em?: string | null
+          disciplina: string
+          id?: string
+          pontuacao_media?: number | null
+          tempo_estudo_minutos?: number | null
+          total_acertos?: number | null
+          total_questoes?: number | null
+          ultima_atividade?: string | null
+          usuario_id: string
+        }
+        Update: {
+          atualizado_em?: string | null
+          criado_em?: string | null
+          disciplina?: string
+          id?: string
+          pontuacao_media?: number | null
+          tempo_estudo_minutos?: number | null
+          total_acertos?: number | null
+          total_questoes?: number | null
+          ultima_atividade?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estatisticas_usuario_disciplina_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      execucoes_teste: {
+        Row: {
+          arquivo: string | null
+          criado_em: string | null
+          duracao: number | null
+          email_usuario: string
+          erro: string | null
+          id: number
+          nome_teste: string | null
+          saida: string | null
+          status: string
+          usuario_id: string
+        }
+        Insert: {
+          arquivo?: string | null
+          criado_em?: string | null
+          duracao?: number | null
+          email_usuario: string
+          erro?: string | null
+          id?: number
+          nome_teste?: string | null
+          saida?: string | null
+          status: string
+          usuario_id: string
+        }
+        Update: {
+          arquivo?: string | null
+          criado_em?: string | null
+          duracao?: number | null
+          email_usuario?: string
+          erro?: string | null
+          id?: number
+          nome_teste?: string | null
+          saida?: string | null
+          status?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
+      health_check: {
+        Row: {
+          id: string
+          last_check: string
+          status: string
+          version: string
+        }
+        Insert: {
+          id?: string
+          last_check?: string
+          status?: string
+          version?: string
+        }
+        Update: {
+          id?: string
+          last_check?: string
+          status?: string
+          version?: string
+        }
+        Relationships: []
+      }
+      historico_logs: {
+        Row: {
+          criado_em: string | null
+          detalhes: string | null
+          email_usuario: string | null
+          id: number
+          mensagem: string
+          nivel: string
+          servico: string | null
+          usuario_id: string | null
+        }
+        Insert: {
+          criado_em?: string | null
+          detalhes?: string | null
+          email_usuario?: string | null
+          id?: number
+          mensagem: string
+          nivel: string
+          servico?: string | null
+          usuario_id?: string | null
+        }
+        Update: {
+          criado_em?: string | null
+          detalhes?: string | null
+          email_usuario?: string | null
+          id?: number
+          mensagem?: string
+          nivel?: string
+          servico?: string | null
+          usuario_id?: string | null
+        }
+        Relationships: []
+      }
+      historico_metricas: {
+        Row: {
+          coletado_em: string | null
+          coletado_por: string | null
+          detalhes: string | null
+          email_coletado_por: string | null
+          id: number
+          tipo: string
+          unidade: string | null
+          valor: number
+        }
+        Insert: {
+          coletado_em?: string | null
+          coletado_por?: string | null
+          detalhes?: string | null
+          email_coletado_por?: string | null
+          id?: number
+          tipo: string
+          unidade?: string | null
+          valor: number
+        }
+        Update: {
+          coletado_em?: string | null
+          coletado_por?: string | null
+          detalhes?: string | null
+          email_coletado_por?: string | null
+          id?: number
+          tipo?: string
+          unidade?: string | null
+          valor?: number
+        }
+        Relationships: []
+      }
+      itens_plano_estudo: {
+        Row: {
+          assunto: string | null
+          atualizado_em: string | null
+          concluido: boolean | null
+          criado_em: string | null
+          data_conclusao: string | null
+          data_prevista: string | null
+          descricao: string | null
+          disciplina: string | null
+          id: string
+          observacoes: string | null
+          ordem: number | null
+          plano_estudo_id: string
+          prioridade: string | null
+          status: string | null
+          tempo_estimado_minutos: number | null
+          tipo: string | null
+          titulo: string | null
+        }
+        Insert: {
+          assunto?: string | null
+          atualizado_em?: string | null
+          concluido?: boolean | null
+          criado_em?: string | null
+          data_conclusao?: string | null
+          data_prevista?: string | null
+          descricao?: string | null
+          disciplina?: string | null
+          id?: string
+          observacoes?: string | null
+          ordem?: number | null
+          plano_estudo_id: string
+          prioridade?: string | null
+          status?: string | null
+          tempo_estimado_minutos?: number | null
+          tipo?: string | null
+          titulo?: string | null
+        }
+        Update: {
+          assunto?: string | null
+          atualizado_em?: string | null
+          concluido?: boolean | null
+          criado_em?: string | null
+          data_conclusao?: string | null
+          data_prevista?: string | null
+          descricao?: string | null
+          disciplina?: string | null
+          id?: string
+          observacoes?: string | null
+          ordem?: number | null
+          plano_estudo_id?: string
+          prioridade?: string | null
+          status?: string | null
+          tempo_estimado_minutos?: number | null
+          tipo?: string | null
+          titulo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "itens_plano_estudo_plano_estudo_id_fkey"
+            columns: ["plano_estudo_id"]
+            isOneToOne: false
+            referencedRelation: "planos_estudo"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      logs_auditoria: {
+        Row: {
+          acao: string
+          criado_em: string | null
+          endereco_ip: unknown | null
+          id: string
+          id_registro: string | null
+          nome_tabela: string
+          user_agent: string | null
+          usuario_id: string | null
+          valores_antigos: Json | null
+          valores_novos: Json | null
+        }
+        Insert: {
+          acao: string
+          criado_em?: string | null
+          endereco_ip?: unknown | null
+          id?: string
+          id_registro?: string | null
+          nome_tabela: string
+          user_agent?: string | null
+          usuario_id?: string | null
+          valores_antigos?: Json | null
+          valores_novos?: Json | null
+        }
+        Update: {
+          acao?: string
+          criado_em?: string | null
+          endereco_ip?: unknown | null
+          id?: string
+          id_registro?: string | null
+          nome_tabela?: string
+          user_agent?: string | null
+          usuario_id?: string | null
+          valores_antigos?: Json | null
+          valores_novos?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logs_auditoria_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
         ]
       }
       mapa_assuntos: {
         Row: {
-          id: string
-          disciplina: string
-          tema: string
-          subtema: string | null
-          descricao: string | null
-          ordem: number
-          is_active: boolean
-          created_at: string
-          updated_at: string
-          concurso_id: string | null
           categoria_id: string | null
+          concurso_id: string | null
+          criado_em: string | null
+          disciplina: string
+          id: string
           peso_disciplina: number | null
+          subtema: string | null
+          tema: string
         }
         Insert: {
-          id?: string
-          disciplina: string
-          tema: string
-          subtema?: string | null
-          descricao?: string | null
-          ordem?: number
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-          concurso_id?: string | null
           categoria_id?: string | null
+          concurso_id?: string | null
+          criado_em?: string | null
+          disciplina: string
+          id?: string
           peso_disciplina?: number | null
+          subtema?: string | null
+          tema: string
         }
         Update: {
-          id?: string
-          disciplina?: string
-          tema?: string
-          subtema?: string | null
-          descricao?: string | null
-          ordem?: number
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-          concurso_id?: string | null
           categoria_id?: string | null
+          concurso_id?: string | null
+          criado_em?: string | null
+          disciplina?: string
+          id?: string
           peso_disciplina?: number | null
+          subtema?: string | null
+          tema?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "mapa_assuntos_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias_concursos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "mapa_assuntos_concurso_id_fkey"
             columns: ["concurso_id"]
@@ -436,106 +734,116 @@ export type Database = {
             referencedRelation: "concursos"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "mapa_assuntos_categoria_id_fkey"
-            columns: ["categoria_id"]
-            isOneToOne: false
-            referencedRelation: "concurso_categorias"
-            referencedColumns: ["id"]
-          }
         ]
       }
-      plano_estudo_itens: {
+      onboarding_respostas: {
         Row: {
+          concurso_id: string
+          criado_em: string | null
+          horas_disponiveis: number
           id: string
-          plano_estudo_id: string
-          tipo_item: string
-          item_id: string
-          dia_semana: number | null
-          ordem: number
-          tempo_estimado_minutos: number
-          is_completed: boolean
-          completed_at: string | null
-          created_at: string
-          updated_at: string
+          niveis_materias: Json
+          nivel_preparacao: string
+          tempo_falta_concurso: string
+          usuario_auth_user_id: string
         }
         Insert: {
+          concurso_id: string
+          criado_em?: string | null
+          horas_disponiveis: number
           id?: string
-          plano_estudo_id: string
-          tipo_item: string
-          item_id: string
-          dia_semana?: number | null
-          ordem?: number
-          tempo_estimado_minutos?: number
-          is_completed?: boolean
-          completed_at?: string | null
-          created_at?: string
-          updated_at?: string
+          niveis_materias: Json
+          nivel_preparacao: string
+          tempo_falta_concurso: string
+          usuario_auth_user_id: string
         }
         Update: {
+          concurso_id?: string
+          criado_em?: string | null
+          horas_disponiveis?: number
           id?: string
-          plano_estudo_id?: string
-          tipo_item?: string
-          item_id?: string
-          dia_semana?: number | null
-          ordem?: number
-          tempo_estimado_minutos?: number
-          is_completed?: boolean
-          completed_at?: string | null
-          created_at?: string
-          updated_at?: string
+          niveis_materias?: Json
+          nivel_preparacao?: string
+          tempo_falta_concurso?: string
+          usuario_auth_user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "plano_estudo_itens_plano_estudo_id_fkey"
-            columns: ["plano_estudo_id"]
+            foreignKeyName: "onboarding_respostas_concurso_id_fkey"
+            columns: ["concurso_id"]
             isOneToOne: false
-            referencedRelation: "planos_estudo"
+            referencedRelation: "concursos"
             referencedColumns: ["id"]
-          }
+          },
+          {
+            foreignKeyName: "onboarding_respostas_usuario_auth_user_id_fkey"
+            columns: ["usuario_auth_user_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["auth_user_id"]
+          },
         ]
       }
       planos_estudo: {
         Row: {
-          id: string
-          user_id: string
-          nome: string
-          descricao: string | null
-          is_active: boolean
-          start_date: string
-          end_date: string
-          created_at: string
-          updated_at: string
-          concurso_id: string | null
+          ativo: boolean | null
+          atualizado_em: string | null
           categoria_id: string | null
+          concurso_id: string | null
+          criado_em: string | null
+          cronograma: Json
+          data_fim: string
+          data_inicio: string
+          descricao: string | null
+          dias_semana: number[] | null
+          id: string
+          meta_horas_diarias: number | null
+          observacoes: string | null
+          titulo: string | null
+          usuario_id: string
         }
         Insert: {
-          id?: string
-          user_id: string
-          nome: string
-          descricao?: string | null
-          is_active?: boolean
-          start_date: string
-          end_date: string
-          created_at?: string
-          updated_at?: string
-          concurso_id?: string | null
+          ativo?: boolean | null
+          atualizado_em?: string | null
           categoria_id?: string | null
+          concurso_id?: string | null
+          criado_em?: string | null
+          cronograma: Json
+          data_fim: string
+          data_inicio: string
+          descricao?: string | null
+          dias_semana?: number[] | null
+          id?: string
+          meta_horas_diarias?: number | null
+          observacoes?: string | null
+          titulo?: string | null
+          usuario_id: string
         }
         Update: {
-          id?: string
-          user_id?: string
-          nome?: string
-          descricao?: string | null
-          is_active?: boolean
-          start_date?: string
-          end_date?: string
-          created_at?: string
-          updated_at?: string
-          concurso_id?: string | null
+          ativo?: boolean | null
+          atualizado_em?: string | null
           categoria_id?: string | null
+          concurso_id?: string | null
+          criado_em?: string | null
+          cronograma?: Json
+          data_fim?: string
+          data_inicio?: string
+          descricao?: string | null
+          dias_semana?: number[] | null
+          id?: string
+          meta_horas_diarias?: number | null
+          observacoes?: string | null
+          titulo?: string | null
+          usuario_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "planos_estudo_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias_concursos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "planos_estudo_concurso_id_fkey"
             columns: ["concurso_id"]
@@ -544,63 +852,367 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "planos_estudo_categoria_id_fkey"
-            columns: ["categoria_id"]
+            foreignKeyName: "planos_estudo_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: "concurso_categorias"
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      preferencias_usuario: {
+        Row: {
+          atualizado_em: string | null
+          criado_em: string | null
+          id: string
+          notificacoes_email: boolean
+          notificacoes_push: boolean
+          tema: string
+          usuario_id: string
+        }
+        Insert: {
+          atualizado_em?: string | null
+          criado_em?: string | null
+          id?: string
+          notificacoes_email?: boolean
+          notificacoes_push?: boolean
+          tema?: string
+          usuario_id: string
+        }
+        Update: {
+          atualizado_em?: string | null
+          criado_em?: string | null
+          id?: string
+          notificacoes_email?: boolean
+          notificacoes_push?: boolean
+          tema?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "preferencias_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: true
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      preferencias_usuario_concurso: {
+        Row: {
+          ativo: boolean | null
+          atualizado_em: string | null
+          concurso_id: string
+          criado_em: string | null
+          id: string
+          pode_alterar_ate: string
+          selecionado_em: string | null
+          usuario_id: string
+        }
+        Insert: {
+          ativo?: boolean | null
+          atualizado_em?: string | null
+          concurso_id: string
+          criado_em?: string | null
+          id?: string
+          pode_alterar_ate: string
+          selecionado_em?: string | null
+          usuario_id: string
+        }
+        Update: {
+          ativo?: boolean | null
+          atualizado_em?: string | null
+          concurso_id?: string
+          criado_em?: string | null
+          id?: string
+          pode_alterar_ate?: string
+          selecionado_em?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "preferencias_usuario_concurso_concurso_id_fkey"
+            columns: ["concurso_id"]
+            isOneToOne: false
+            referencedRelation: "concursos"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "planos_estudo_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "preferencias_usuario_concurso_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "usuarios"
             referencedColumns: ["id"]
-          }
+          },
+        ]
+      }
+      progresso_usuario_apostila: {
+        Row: {
+          atualizado_em: string | null
+          concluido: boolean | null
+          conteudo_apostila_id: string
+          id: string
+          percentual_progresso: number | null
+          usuario_id: string
+        }
+        Insert: {
+          atualizado_em?: string | null
+          concluido?: boolean | null
+          conteudo_apostila_id: string
+          id?: string
+          percentual_progresso?: number | null
+          usuario_id: string
+        }
+        Update: {
+          atualizado_em?: string | null
+          concluido?: boolean | null
+          conteudo_apostila_id?: string
+          id?: string
+          percentual_progresso?: number | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "progresso_usuario_apostila_conteudo_apostila_id_fkey"
+            columns: ["conteudo_apostila_id"]
+            isOneToOne: false
+            referencedRelation: "conteudo_apostila"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "progresso_usuario_apostila_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      progresso_usuario_flashcard: {
+        Row: {
+          atualizado_em: string | null
+          contador_revisoes: number | null
+          flashcard_id: string
+          id: string
+          proxima_revisao: string | null
+          status: string
+          usuario_id: string
+        }
+        Insert: {
+          atualizado_em?: string | null
+          contador_revisoes?: number | null
+          flashcard_id: string
+          id?: string
+          proxima_revisao?: string | null
+          status?: string
+          usuario_id: string
+        }
+        Update: {
+          atualizado_em?: string | null
+          contador_revisoes?: number | null
+          flashcard_id?: string
+          id?: string
+          proxima_revisao?: string | null
+          status?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "progresso_usuario_flashcard_flashcard_id_fkey"
+            columns: ["flashcard_id"]
+            isOneToOne: false
+            referencedRelation: "cartoes_memorizacao"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "progresso_usuario_flashcard_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      progresso_usuario_mapa_assuntos: {
+        Row: {
+          atualizado_em: string | null
+          id: string
+          mapa_assunto_id: string
+          status: string
+          usuario_id: string
+        }
+        Insert: {
+          atualizado_em?: string | null
+          id?: string
+          mapa_assunto_id: string
+          status?: string
+          usuario_id: string
+        }
+        Update: {
+          atualizado_em?: string | null
+          id?: string
+          mapa_assunto_id?: string
+          status?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "progresso_usuario_mapa_assuntos_mapa_assunto_id_fkey"
+            columns: ["mapa_assunto_id"]
+            isOneToOne: false
+            referencedRelation: "mapa_assuntos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "progresso_usuario_mapa_assuntos_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      progresso_usuario_questoes_semanais: {
+        Row: {
+          concluido_em: string | null
+          id: string
+          pontuacao: number
+          questoes_semanais_id: string
+          respostas: Json
+          total_questoes: number | null
+          usuario_id: string
+        }
+        Insert: {
+          concluido_em?: string | null
+          id?: string
+          pontuacao: number
+          questoes_semanais_id: string
+          respostas: Json
+          total_questoes?: number | null
+          usuario_id: string
+        }
+        Update: {
+          concluido_em?: string | null
+          id?: string
+          pontuacao?: number
+          questoes_semanais_id?: string
+          respostas?: Json
+          total_questoes?: number | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "progresso_usuario_questoes_semanais_questoes_semanais_id_fkey"
+            columns: ["questoes_semanais_id"]
+            isOneToOne: false
+            referencedRelation: "questoes_semanais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "progresso_usuario_questoes_semanais_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      progresso_usuario_simulado: {
+        Row: {
+          concluido_em: string | null
+          id: string
+          pontuacao: number
+          respostas: Json
+          simulado_id: string
+          tempo_gasto_minutos: number
+          usuario_id: string
+        }
+        Insert: {
+          concluido_em?: string | null
+          id?: string
+          pontuacao: number
+          respostas: Json
+          simulado_id: string
+          tempo_gasto_minutos: number
+          usuario_id: string
+        }
+        Update: {
+          concluido_em?: string | null
+          id?: string
+          pontuacao?: number
+          respostas?: Json
+          simulado_id?: string
+          tempo_gasto_minutos?: number
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "progresso_usuario_simulado_simulado_id_fkey"
+            columns: ["simulado_id"]
+            isOneToOne: false
+            referencedRelation: "simulados"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "progresso_usuario_simulado_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
         ]
       }
       questoes_semanais: {
         Row: {
-          id: string
-          titulo: string
-          descricao: string | null
-          semana_numero: number
           ano: number
-          is_active: boolean
-          data_liberacao: string
-          data_encerramento: string
-          created_at: string
-          updated_at: string
+          assunto: string | null
+          ativo: boolean | null
           concurso_id: string | null
-          categoria_id: string | null
+          criado_em: string | null
+          data_expiracao: string | null
+          data_publicacao: string | null
+          descricao: string | null
+          dificuldade: string | null
+          disciplina: string | null
+          id: string
+          numero_semana: number
+          pontos: number | null
+          questoes: Json
+          titulo: string
         }
         Insert: {
-          id?: string
-          titulo: string
-          descricao?: string | null
-          semana_numero: number
           ano: number
-          is_active?: boolean
-          data_liberacao: string
-          data_encerramento: string
-          created_at?: string
-          updated_at?: string
+          assunto?: string | null
+          ativo?: boolean | null
           concurso_id?: string | null
-          categoria_id?: string | null
+          criado_em?: string | null
+          data_expiracao?: string | null
+          data_publicacao?: string | null
+          descricao?: string | null
+          dificuldade?: string | null
+          disciplina?: string | null
+          id?: string
+          numero_semana: number
+          pontos?: number | null
+          questoes: Json
+          titulo: string
         }
         Update: {
-          id?: string
-          titulo?: string
-          descricao?: string | null
-          semana_numero?: number
           ano?: number
-          is_active?: boolean
-          data_liberacao?: string
-          data_encerramento?: string
-          created_at?: string
-          updated_at?: string
+          assunto?: string | null
+          ativo?: boolean | null
           concurso_id?: string | null
-          categoria_id?: string | null
+          criado_em?: string | null
+          data_expiracao?: string | null
+          data_publicacao?: string | null
+          descricao?: string | null
+          dificuldade?: string | null
+          disciplina?: string | null
+          id?: string
+          numero_semana?: number
+          pontos?: number | null
+          questoes?: Json
+          titulo?: string
         }
         Relationships: [
           {
@@ -610,153 +1222,225 @@ export type Database = {
             referencedRelation: "concursos"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "questoes_semanais_categoria_id_fkey"
-            columns: ["categoria_id"]
-            isOneToOne: false
-            referencedRelation: "concurso_categorias"
-            referencedColumns: ["id"]
-          }
         ]
       }
-      simulado_questoes: {
+      questoes_simulado: {
         Row: {
-          id: string
-          simulado_id: string
-          enunciado: string
           alternativas: Json
-          resposta_correta: string
-          explicacao: string | null
-          disciplina: string | null
           assunto: string | null
-          dificuldade: string
-          ordem: number
-          created_at: string
-          updated_at: string
-          deleted_at: string | null
-          concurso_id: string | null
-          categoria_id: string | null
+          ativo: boolean | null
+          atualizado_em: string | null
+          criado_em: string | null
+          dificuldade: string | null
+          disciplina: string | null
+          enunciado: string
+          explicacao: string | null
+          id: string
+          numero_questao: number
+          ordem: number | null
           peso_disciplina: number | null
+          resposta_correta: string
+          simulado_id: string
         }
         Insert: {
-          id?: string
-          simulado_id: string
-          enunciado: string
           alternativas: Json
-          resposta_correta: string
-          explicacao?: string | null
-          disciplina?: string | null
           assunto?: string | null
-          dificuldade?: string
-          ordem?: number
-          created_at?: string
-          updated_at?: string
-          deleted_at?: string | null
-          concurso_id?: string | null
-          categoria_id?: string | null
+          ativo?: boolean | null
+          atualizado_em?: string | null
+          criado_em?: string | null
+          dificuldade?: string | null
+          disciplina?: string | null
+          enunciado: string
+          explicacao?: string | null
+          id?: string
+          numero_questao: number
+          ordem?: number | null
           peso_disciplina?: number | null
+          resposta_correta: string
+          simulado_id: string
         }
         Update: {
-          id?: string
-          simulado_id?: string
-          enunciado?: string
           alternativas?: Json
-          resposta_correta?: string
-          explicacao?: string | null
-          disciplina?: string | null
           assunto?: string | null
-          dificuldade?: string
-          ordem?: number
-          created_at?: string
-          updated_at?: string
-          deleted_at?: string | null
-          concurso_id?: string | null
-          categoria_id?: string | null
+          ativo?: boolean | null
+          atualizado_em?: string | null
+          criado_em?: string | null
+          dificuldade?: string | null
+          disciplina?: string | null
+          enunciado?: string
+          explicacao?: string | null
+          id?: string
+          numero_questao?: number
+          ordem?: number | null
           peso_disciplina?: number | null
+          resposta_correta?: string
+          simulado_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "simulado_questoes_simulado_id_fkey"
+            foreignKeyName: "questoes_simulado_simulado_id_fkey"
             columns: ["simulado_id"]
             isOneToOne: false
             referencedRelation: "simulados"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      respostas_questoes_semanais: {
+        Row: {
+          correta: boolean | null
+          criado_em: string | null
+          id: string
+          pontos_ganhos: number | null
+          questao_semanal_id: string
+          resposta_escolhida: string
+          tempo_gasto_segundos: number | null
+          usuario_id: string
+        }
+        Insert: {
+          correta?: boolean | null
+          criado_em?: string | null
+          id?: string
+          pontos_ganhos?: number | null
+          questao_semanal_id: string
+          resposta_escolhida: string
+          tempo_gasto_segundos?: number | null
+          usuario_id: string
+        }
+        Update: {
+          correta?: boolean | null
+          criado_em?: string | null
+          id?: string
+          pontos_ganhos?: number | null
+          questao_semanal_id?: string
+          resposta_escolhida?: string
+          tempo_gasto_segundos?: number | null
+          usuario_id?: string
+        }
+        Relationships: [
           {
-            foreignKeyName: "simulado_questoes_concurso_id_fkey"
-            columns: ["concurso_id"]
+            foreignKeyName: "respostas_questoes_semanais_questao_semanal_id_fkey"
+            columns: ["questao_semanal_id"]
             isOneToOne: false
-            referencedRelation: "concursos"
+            referencedRelation: "questoes_semanais"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "simulado_questoes_categoria_id_fkey"
-            columns: ["categoria_id"]
+            foreignKeyName: "respostas_questoes_semanais_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: "concurso_categorias"
+            referencedRelation: "usuarios"
             referencedColumns: ["id"]
-          }
+          },
+        ]
+      }
+      sessoes_usuario: {
+        Row: {
+          ativo: boolean | null
+          criado_em: string | null
+          dispositivo: string | null
+          expira_em: string
+          id: string
+          ip_address: unknown | null
+          token_hash: string
+          ultimo_acesso: string | null
+          user_agent: string | null
+          usuario_id: string
+        }
+        Insert: {
+          ativo?: boolean | null
+          criado_em?: string | null
+          dispositivo?: string | null
+          expira_em: string
+          id?: string
+          ip_address?: unknown | null
+          token_hash: string
+          ultimo_acesso?: string | null
+          user_agent?: string | null
+          usuario_id: string
+        }
+        Update: {
+          ativo?: boolean | null
+          criado_em?: string | null
+          dispositivo?: string | null
+          expira_em?: string
+          id?: string
+          ip_address?: unknown | null
+          token_hash?: string
+          ultimo_acesso?: string | null
+          user_agent?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessoes_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
         ]
       }
       simulados: {
         Row: {
-          id: string
-          titulo: string
-          descricao: string | null
-          num_questoes: number
-          tempo_minutos: number
-          dificuldade: string
-          is_public: boolean
-          is_active: boolean
-          data_inicio: string | null
-          data_fim: string | null
-          created_at: string
-          updated_at: string
-          deleted_at: string | null
-          created_by: string | null
-          concurso_id: string | null
+          ativo: boolean | null
+          atualizado_em: string | null
           categoria_id: string | null
+          concurso_id: string | null
+          criado_em: string | null
+          criado_por: string | null
+          descricao: string | null
+          dificuldade: string
           disciplinas: Json | null
+          id: string
+          numero_questoes: number
+          publico: boolean | null
+          slug: string
+          tempo_minutos: number
+          titulo: string
         }
         Insert: {
-          id?: string
-          titulo: string
-          descricao?: string | null
-          num_questoes?: number
-          tempo_minutos?: number
-          dificuldade?: string
-          is_public?: boolean
-          is_active?: boolean
-          data_inicio?: string | null
-          data_fim?: string | null
-          created_at?: string
-          updated_at?: string
-          deleted_at?: string | null
-          created_by?: string | null
-          concurso_id?: string | null
+          ativo?: boolean | null
+          atualizado_em?: string | null
           categoria_id?: string | null
+          concurso_id?: string | null
+          criado_em?: string | null
+          criado_por?: string | null
+          descricao?: string | null
+          dificuldade?: string
           disciplinas?: Json | null
+          id?: string
+          numero_questoes?: number
+          publico?: boolean | null
+          slug: string
+          tempo_minutos?: number
+          titulo: string
         }
         Update: {
-          id?: string
-          titulo?: string
-          descricao?: string | null
-          num_questoes?: number
-          tempo_minutos?: number
-          dificuldade?: string
-          is_public?: boolean
-          is_active?: boolean
-          data_inicio?: string | null
-          data_fim?: string | null
-          created_at?: string
-          updated_at?: string
-          deleted_at?: string | null
-          created_by?: string | null
-          concurso_id?: string | null
+          ativo?: boolean | null
+          atualizado_em?: string | null
           categoria_id?: string | null
+          concurso_id?: string | null
+          criado_em?: string | null
+          criado_por?: string | null
+          descricao?: string | null
+          dificuldade?: string
           disciplinas?: Json | null
+          id?: string
+          numero_questoes?: number
+          publico?: boolean | null
+          slug?: string
+          tempo_minutos?: number
+          titulo?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "simulados_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias_concursos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "simulados_concurso_id_fkey"
             columns: ["concurso_id"]
@@ -765,478 +1449,198 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "simulados_categoria_id_fkey"
-            columns: ["categoria_id"]
+            foreignKeyName: "simulados_criado_por_fkey"
+            columns: ["criado_por"]
             isOneToOne: false
-            referencedRelation: "concurso_categorias"
+            referencedRelation: "usuarios"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "simulados_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
         ]
       }
-      user_apostila_progress: {
+      tentativas_login: {
         Row: {
-          id: string
-          user_id: string
-          apostila_content_id: string
-          completed: boolean
-          progress_percentage: number
-          last_accessed: string
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          apostila_content_id: string
-          completed?: boolean
-          progress_percentage?: number
-          last_accessed?: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          apostila_content_id?: string
-          completed?: boolean
-          progress_percentage?: number
-          last_accessed?: string
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_apostila_progress_apostila_content_id_fkey"
-            columns: ["apostila_content_id"]
-            isOneToOne: false
-            referencedRelation: "apostila_content"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_apostila_progress_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      user_concurso_preferences: {
-        Row: {
-          id: string
-          user_id: string
-          concurso_id: string
-          selected_at: string
-          can_change_until: string
-          is_active: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          concurso_id: string
-          selected_at?: string
-          can_change_until: string
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          concurso_id?: string
-          selected_at?: string
-          can_change_until?: string
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_concurso_preferences_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_concurso_preferences_concurso_id_fkey"
-            columns: ["concurso_id"]
-            isOneToOne: false
-            referencedRelation: "concursos"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      user_discipline_stats: {
-        Row: {
-          id: string
-          user_id: string
-          disciplina: string
-          total_questions: number
-          correct_answers: number
-          average_score: number
-          study_time_minutes: number
-          last_activity: string
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          disciplina: string
-          total_questions?: number
-          correct_answers?: number
-          average_score?: number
-          study_time_minutes?: number
-          last_activity?: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          disciplina?: string
-          total_questions?: number
-          correct_answers?: number
-          average_score?: number
-          study_time_minutes?: number
-          last_activity?: string
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_discipline_stats_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      user_flashcard_progress: {
-        Row: {
-          id: string
-          user_id: string
-          flashcard_id: string
-          status: string
-          next_review: string | null
-          review_count: number
-          ease_factor: number
-          interval_days: number
-          last_reviewed: string | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          flashcard_id: string
-          status?: string
-          next_review?: string | null
-          review_count?: number
-          ease_factor?: number
-          interval_days?: number
-          last_reviewed?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          flashcard_id?: string
-          status?: string
-          next_review?: string | null
-          review_count?: number
-          ease_factor?: number
-          interval_days?: number
-          last_reviewed?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_flashcard_progress_flashcard_id_fkey"
-            columns: ["flashcard_id"]
-            isOneToOne: false
-            referencedRelation: "flashcards"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_flashcard_progress_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      user_mapa_assuntos_status: {
-        Row: {
-          id: string
-          user_id: string
-          mapa_assunto_id: string
-          status: string
-          last_studied: string | null
-          study_count: number
-          notes: string | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          mapa_assunto_id: string
-          status?: string
-          last_studied?: string | null
-          study_count?: number
-          notes?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          mapa_assunto_id?: string
-          status?: string
-          last_studied?: string | null
-          study_count?: number
-          notes?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_mapa_assuntos_status_mapa_assunto_id_fkey"
-            columns: ["mapa_assunto_id"]
-            isOneToOne: false
-            referencedRelation: "mapa_assuntos"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_mapa_assuntos_status_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      user_performance_cache: {
-        Row: {
-          id: string
-          user_id: string
-          cache_key: string
-          cache_data: Json
-          expires_at: string
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          cache_key: string
-          cache_data: Json
-          expires_at: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          cache_key?: string
-          cache_data?: Json
-          expires_at?: string
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_performance_cache_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      user_questoes_semanais_progress: {
-        Row: {
-          id: string
-          user_id: string
-          questoes_semanais_id: string
-          score: number
-          respostas_corretas: number
-          total_questoes: number
-          tempo_gasto_minutos: number | null
-          data_conclusao: string | null
-          respostas: Json | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          questoes_semanais_id: string
-          score: number
-          respostas_corretas?: number
-          total_questoes?: number
-          tempo_gasto_minutos?: number | null
-          data_conclusao?: string | null
-          respostas?: Json | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          questoes_semanais_id?: string
-          score?: number
-          respostas_corretas?: number
-          total_questoes?: number
-          tempo_gasto_minutos?: number | null
-          data_conclusao?: string | null
-          respostas?: Json | null
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_questoes_semanais_progress_questoes_semanais_id_fkey"
-            columns: ["questoes_semanais_id"]
-            isOneToOne: false
-            referencedRelation: "questoes_semanais"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_questoes_semanais_progress_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      user_simulado_progress: {
-        Row: {
-          id: string
-          user_id: string
-          simulado_id: string
-          data_inicio: string
-          data_fim: string | null
-          tempo_gasto_segundos: number | null
-          respostas: Json | null
-          pontuacao: number | null
-          acertos: number
-          erros: number
-          em_branco: number
-          is_completed: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          simulado_id: string
-          data_inicio: string
-          data_fim?: string | null
-          tempo_gasto_segundos?: number | null
-          respostas?: Json | null
-          pontuacao?: number | null
-          acertos?: number
-          erros?: number
-          em_branco?: number
-          is_completed?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          simulado_id?: string
-          data_inicio?: string
-          data_fim?: string | null
-          tempo_gasto_segundos?: number | null
-          respostas?: Json | null
-          pontuacao?: number | null
-          acertos?: number
-          erros?: number
-          em_branco?: number
-          is_completed?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_simulado_progress_simulado_id_fkey"
-            columns: ["simulado_id"]
-            isOneToOne: false
-            referencedRelation: "simulados"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_simulado_progress_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      users: {
-        Row: {
-          id: string
-          name: string
           email: string
-          last_login: string | null
-          created_at: string
-          updated_at: string
-          total_questions_answered: number
-          total_correct_answers: number
-          study_time_minutes: number
-          average_score: number
+          id: string
+          ip_address: unknown
+          motivo_falha: string | null
+          sucesso: boolean | null
+          tentativa_em: string | null
+          user_agent: string | null
         }
         Insert: {
-          id?: string
-          name: string
           email: string
-          last_login?: string | null
-          created_at?: string
-          updated_at?: string
-          total_questions_answered?: number
-          total_correct_answers?: number
-          study_time_minutes?: number
-          average_score?: number
+          id?: string
+          ip_address: unknown
+          motivo_falha?: string | null
+          sucesso?: boolean | null
+          tentativa_em?: string | null
+          user_agent?: string | null
         }
         Update: {
-          id?: string
-          name?: string
           email?: string
-          last_login?: string | null
-          created_at?: string
-          updated_at?: string
-          total_questions_answered?: number
-          total_correct_answers?: number
-          study_time_minutes?: number
-          average_score?: number
+          id?: string
+          ip_address?: unknown
+          motivo_falha?: string | null
+          sucesso?: boolean | null
+          tentativa_em?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      tokens_recuperacao: {
+        Row: {
+          criado_em: string | null
+          expira_em: string
+          id: string
+          token_hash: string
+          usado: boolean | null
+          usado_em: string | null
+          usuario_id: string
+        }
+        Insert: {
+          criado_em?: string | null
+          expira_em: string
+          id?: string
+          token_hash: string
+          usado?: boolean | null
+          usado_em?: string | null
+          usuario_id: string
+        }
+        Update: {
+          criado_em?: string | null
+          expira_em?: string
+          id?: string
+          token_hash?: string
+          usado?: boolean | null
+          usado_em?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tokens_recuperacao_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      usuarios: {
+        Row: {
+          ativo: boolean | null
+          atualizado_em: string | null
+          auth_user_id: string | null
+          criado_em: string | null
+          email: string
+          id: string
+          nome: string
+          pontuacao_media: number | null
+          primeiro_login: boolean | null
+          role: string
+          senha_hash: string
+          tempo_estudo_minutos: number | null
+          total_acertos: number | null
+          total_questoes_respondidas: number | null
+          ultimo_login: string | null
+        }
+        Insert: {
+          ativo?: boolean | null
+          atualizado_em?: string | null
+          auth_user_id?: string | null
+          criado_em?: string | null
+          email: string
+          id?: string
+          nome: string
+          pontuacao_media?: number | null
+          primeiro_login?: boolean | null
+          role?: string
+          senha_hash: string
+          tempo_estudo_minutos?: number | null
+          total_acertos?: number | null
+          total_questoes_respondidas?: number | null
+          ultimo_login?: string | null
+        }
+        Update: {
+          ativo?: boolean | null
+          atualizado_em?: string | null
+          auth_user_id?: string | null
+          criado_em?: string | null
+          email?: string
+          id?: string
+          nome?: string
+          pontuacao_media?: number | null
+          primeiro_login?: boolean | null
+          role?: string
+          senha_hash?: string
+          tempo_estudo_minutos?: number | null
+          total_acertos?: number | null
+          total_questoes_respondidas?: number | null
+          ultimo_login?: string | null
         }
         Relationships: []
       }
     }
     Views: {
-      [_ in never]: never
+      view_estatisticas_login: {
+        Row: {
+          data: string | null
+          falhas: number | null
+          ips_unicos: number | null
+          sucessos: number | null
+          total_tentativas: number | null
+          usuarios_unicos: number | null
+        }
+        Relationships: []
+      }
+      view_sessoes_ativas: {
+        Row: {
+          criado_em: string | null
+          dispositivo: string | null
+          email: string | null
+          expira_em: string | null
+          id: string | null
+          ip_address: unknown | null
+          nome: string | null
+          ultimo_acesso: string | null
+          usuario_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessoes_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
-      [_ in never]: never
+      atualizar_ultimo_acesso_sessao: {
+        Args: { p_token_hash: string }
+        Returns: undefined
+      }
+      cleanup_old_connection_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      invalidar_sessoes_usuario: {
+        Args: { p_usuario_id: string; p_exceto_token_hash?: string }
+        Returns: undefined
+      }
+      limpar_sessoes_expiradas: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      verificar_tentativas_suspeitas: {
+        Args: {
+          p_email: string
+          p_ip_address: unknown
+          p_max_tentativas?: number
+          p_janela_minutos?: number
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
@@ -1247,26 +1651,33 @@ export type Database = {
   }
 }
 
-// Convenience types
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
 export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (Database["public"]["Tables"] & Database["public"]["Views"])
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : PublicTableNameOrOptions extends keyof (Database["public"]["Tables"] &
-        Database["public"]["Views"])
-    ? (Database["public"]["Tables"] &
-        Database["public"]["Views"])[PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -1274,20 +1685,24 @@ export type Tables<
     : never
 
 export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof Database["public"]["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
-    ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -1295,20 +1710,24 @@ export type TablesInsert<
     : never
 
 export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof Database["public"]["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
-    ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -1316,40 +1735,41 @@ export type TablesUpdate<
     : never
 
 export type Enums<
-  PublicEnumNameOrOptions extends
-    | keyof Database["public"]["Enums"]
-    | { schema: keyof Database },
-  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof Database["public"]["Enums"]
-    ? Database["public"]["Enums"][PublicEnumNameOrOptions]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
-// Specific types for common entities
-export type Concurso = Tables<'concursos'>
-export type ConcursoCategoria = Tables<'concurso_categorias'>
-export type Apostila = Tables<'apostilas'>
-export type ApostilaContent = Tables<'apostila_content'>
-export type Flashcard = Tables<'flashcards'>
-export type Simulado = Tables<'simulados'>
-export type SimuladoQuestao = Tables<'simulado_questoes'>
-export type User = Tables<'users'>
-export type MapaAssunto = Tables<'mapa_assuntos'>
-export type PlanoEstudo = Tables<'planos_estudo'>
-export type PlanoEstudoItem = Tables<'plano_estudo_itens'>
-export type QuestoesSemana = Tables<'questoes_semanais'>
-export type UserApostilaProgress = Tables<'user_apostila_progress'>
-export type UserFlashcardProgress = Tables<'user_flashcard_progress'>
-export type UserSimuladoProgress = Tables<'user_simulado_progress'>
-export type UserDisciplineStats = Tables<'user_discipline_stats'>
-export type UserMapaAssuntosStatus = Tables<'user_mapa_assuntos_status'>
-export type UserConcursoPreferences = Tables<'user_concurso_preferences'>
-export type UserQuestoesSemanaProgress = Tables<'user_questoes_semanais_progress'>
-export type CachConfig = Tables<'cache_config'>
-export type UserPerformanceCache = Tables<'user_performance_cache'>
-export type AuditLog = Tables<'audit_logs'>
-export type CategoriaDisciplina = Tables<'categoria_disciplinas'>
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
 
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const 

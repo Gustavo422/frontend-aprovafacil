@@ -1,0 +1,187 @@
+{
+  "config": {
+    "configFile": "D:\\AprovaFacil\\frontend\\playwright.config.ts",
+    "rootDir": "D:/AprovaFacil/frontend/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "D:\\AprovaFacil\\frontend\\e2e\\global-setup.ts",
+    "globalTeardown": "D:\\AprovaFacil\\frontend\\e2e\\global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "e2e/reports"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "e2e/reports/results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "e2e/reports/results.xml"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "D:/AprovaFacil/frontend/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "D:/AprovaFacil/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.e2e.test.{ts,tsx}"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "D:/AprovaFacil/frontend/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "D:/AprovaFacil/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.e2e.test.{ts,tsx}"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "D:/AprovaFacil/frontend/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "D:/AprovaFacil/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.e2e.test.{ts,tsx}"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "D:/AprovaFacil/frontend/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "D:/AprovaFacil/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.e2e.test.{ts,tsx}"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "D:/AprovaFacil/frontend/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "D:/AprovaFacil/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.e2e.test.{ts,tsx}"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "D:/AprovaFacil/frontend/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "Microsoft Edge",
+        "name": "Microsoft Edge",
+        "testDir": "D:/AprovaFacil/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.e2e.test.{ts,tsx}"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "D:/AprovaFacil/frontend/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "Google Chrome",
+        "name": "Google Chrome",
+        "testDir": "D:/AprovaFacil/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.e2e.test.{ts,tsx}"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.53.2",
+    "workers": 4,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:3000",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [],
+  "errors": [
+    {
+      "message": "TypeError: Cannot redefine property: Symbol($$jest-matchers-object)",
+      "stack": "TypeError: Cannot redefine property: Symbol($$jest-matchers-object)\n    at D:\\AprovaFacil\\frontend\\node_modules\\@vitest\\expect\\dist\\index.js:667:9"
+    },
+    {
+      "message": "TypeError: Cannot redefine property: Symbol($$jest-matchers-object)",
+      "stack": "TypeError: Cannot redefine property: Symbol($$jest-matchers-object)\n    at D:\\AprovaFacil\\frontend\\node_modules\\@vitest\\expect\\dist\\index.js:667:9"
+    },
+    {
+      "message": "TypeError: Cannot redefine property: Symbol($$jest-matchers-object)",
+      "stack": "TypeError: Cannot redefine property: Symbol($$jest-matchers-object)\n    at D:\\AprovaFacil\\frontend\\node_modules\\@vitest\\expect\\dist\\index.js:667:9"
+    },
+    {
+      "message": "TypeError: Cannot redefine property: Symbol($$jest-matchers-object)",
+      "stack": "TypeError: Cannot redefine property: Symbol($$jest-matchers-object)\n    at D:\\AprovaFacil\\frontend\\node_modules\\@vitest\\expect\\dist\\index.js:667:9"
+    },
+    {
+      "message": "TypeError: Cannot redefine property: Symbol($$jest-matchers-object)",
+      "stack": "TypeError: Cannot redefine property: Symbol($$jest-matchers-object)\n    at D:\\AprovaFacil\\frontend\\node_modules\\@vitest\\expect\\dist\\index.js:667:9"
+    },
+    {
+      "message": "Error: No tests found",
+      "stack": "Error: No tests found"
+    }
+  ],
+  "stats": {
+    "startTime": "2025-07-17T21:21:42.260Z",
+    "duration": 18500.219,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
