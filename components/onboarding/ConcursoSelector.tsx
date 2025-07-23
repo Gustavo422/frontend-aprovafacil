@@ -68,7 +68,14 @@ export function ConcursoSelector() {
       const response = await fetch('/api/concursos?ativo=true');
       if (response.ok) {
         const data = await response.json();
-        setConcursos(data.concursos || []);
+        // Suporte para formato paginado (data.items) e antigo (data.concursos)
+        if (data.data && Array.isArray(data.data.items)) {
+          setConcursos(data.data.items);
+        } else if (Array.isArray(data.concursos)) {
+          setConcursos(data.concursos);
+        } else {
+          setConcursos([]);
+        }
       }
     } catch (error) {
       logger.error('Erro ao carregar concursos:', { error });

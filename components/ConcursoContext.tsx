@@ -173,11 +173,37 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
     return calculateDaysUntilChange(canChangeUntil) === 0;
   };
 
+  // Verificar se o usuário está autenticado (tem token)
+  const isAuthenticated = (): boolean => {
+    // Verificar se há token nos cookies ou localStorage
+    const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+      const [key, value] = cookie.trim().split('=');
+      acc[key] = value;
+      return acc;
+    }, {} as Record<string, string>);
+
+    // Verificar tokens conhecidos
+    const hasAccessToken = cookies.accessToken || 
+                          cookies.auth_token || 
+                          localStorage.getItem('accessToken') ||
+                          localStorage.getItem('auth_token');
+
+    return !!hasAccessToken;
+  };
+
   // ========================================
   // AÇÕES DO CONTEXTO
   // ========================================
 
   const loadUserPreference = async (): Promise<void> => {
+    // Verificar se o usuário está autenticado antes de fazer a chamada
+    if (!isAuthenticated()) {
+      console.log('Usuário não autenticado, pulando carregamento de preferências');
+      dispatch({ type: 'CLEAR_CONTEXT' });
+      dispatch({ type: 'SET_LOADING', payload: false });
+      return;
+    }
+
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       
@@ -326,6 +352,12 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
   const loadConteudo = useCallback(async (filters?: ConteudoFilters): Promise<void> => {
     if (!state.context) return;
     
+    // Verificar se o usuário está autenticado antes de fazer a chamada
+    if (!isAuthenticated()) {
+      console.log('Usuário não autenticado, pulando carregamento de conteúdo');
+      return;
+    }
+    
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       
@@ -351,6 +383,12 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
 
   const loadProgress = useCallback(async (): Promise<void> => {
     if (!state.context) return;
+    
+    // Verificar se o usuário está autenticado antes de fazer a chamada
+    if (!isAuthenticated()) {
+      console.log('Usuário não autenticado, pulando carregamento de progresso');
+      return;
+    }
     
     try {
       dispatch({ type: 'SET_LOADING', payload: true });

@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useReducer, useEffect } from 'react';
+import { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { 
   ConcursoContext as ConcursoContextType,
@@ -16,6 +16,8 @@ import {
 } from '@/src/types/concurso';
 import { handleApiResponse, isAuthError, isServerError } from '@/utils/api-error-handler';
 import { showErrorToast, showErrorToastFromStatus, showNetworkErrorToast } from '@/utils/error-toast';
+import { useAuth } from '@/features/auth/contexts/auth-context';
+import { ConcursoSelector } from '@/components/onboarding/ConcursoSelector';
 
 // ========================================
 // TIPOS DO CONTEXTO
@@ -148,6 +150,7 @@ interface ConcursoProviderProps {
 }
 
 export function ConcursoProvider({ children }: ConcursoProviderProps) {
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [state, dispatch] = useReducer(concursoReducer, {
     isLoading: false,
     error: null,
@@ -179,87 +182,60 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
   // AÇÕES DO CONTEXTO
   // ========================================
 
-  const loadUserPreference = async (): Promise<void> => {
+  const loadUserPreference = useCallback(async (): Promise<void> => {
+    if (!isAuthenticated) {
+      console.log('Usuário não autenticado, pulando carregamento de preferências');
+      dispatch({ type: 'CLEAR_CONTEXT' });
+      dispatch({ type: 'SET_LOADING', payload: false });
+      return;
+    }
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       const response = await fetch('/api/user/concurso-preference');
-      
       const result = await handleApiResponse<UserPreferenceResponse>(response);
-      
       if (!result.success) {
-        // Tratamento específico para diferentes tipos de erro
         if (response.status === 404) {
-          // Usuário não tem preferência definida - comportamento normal
           dispatch({ type: 'CLEAR_CONTEXT' });
           return;
         }
-        
         if (isAuthError(response.status)) {
-          // Usuário não autenticado - comportamento normal
           dispatch({ type: 'CLEAR_CONTEXT' });
           return;
         }
-        
         if (isServerError(response.status)) {
-          // Erro de servidor - mostrar mensagem específica
-          console.error('Erro de servidor ao carregar preferências:', response.status);
-          
-          // Armazenar o código de status junto com a mensagem de erro para melhor tratamento na UI
           const errorMessage = result.error || 'Erro ao carregar preferências. Tente novamente mais tarde.';
-          dispatch({ 
-            type: 'SET_ERROR', 
-            payload: `[SERVER_ERROR:${response.status}] ${errorMessage}` 
-          });
-          
-          // Mostrar toast de erro de servidor (não relacionado a credenciais)
+          dispatch({ type: 'SET_ERROR', payload: `[SERVER_ERROR:${response.status}] ${errorMessage}` });
           showErrorToastFromStatus(response.status, 'Erro ao carregar preferências de concurso. Tente novamente mais tarde.');
         } else {
-          // Outros erros
-          console.error('Erro ao carregar preferências:', response.status);
-          
-          // Armazenar o código de status junto com a mensagem de erro
           const errorMessage = result.error || 'Erro ao carregar preferências. Tente novamente.';
-          dispatch({ 
-            type: 'SET_ERROR', 
-            payload: `[ERROR:${response.status}] ${errorMessage}` 
-          });
-          
-          // Mostrar toast de erro genérico
+          dispatch({ type: 'SET_ERROR', payload: `[ERROR:${response.status}] ${errorMessage}` });
           showErrorToastFromStatus(response.status, result.error);
         }
-        
         dispatch({ type: 'CLEAR_CONTEXT' });
         return;
       }
-      
       if (result.data?.data) {
         dispatch({ type: 'SET_CONTEXT', payload: result.data.data });
       } else {
         dispatch({ type: 'CLEAR_CONTEXT' });
       }
     } catch (error: unknown) {
-      // Para erros de rede ou outros, mostrar mensagem apropriada
       console.error('Erro ao carregar preferências:', error);
       dispatch({ type: 'SET_ERROR', payload: 'Erro de conexão. Verifique sua internet e tente novamente.' });
       dispatch({ type: 'CLEAR_CONTEXT' });
-      
-      // Mostrar toast de erro de rede
       showNetworkErrorToast();
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
-  };
+  }, [isAuthenticated]);
 
-  const loadCategories = async (): Promise<void> => {
+  const loadCategories = useCallback(async (): Promise<void> => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
-      
       const response = await fetch('/api/concurso-categorias');
-      
       if (!response.ok) {
         throw new Error('Erro ao carregar categorias');
       }
-      
       const data = await response.json();
       dispatch({ type: 'SET_CATEGORIES', payload: data.data || [] });
     } catch (error: unknown) {
@@ -268,7 +244,7 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
       }
       dispatch({ type: 'SET_CATEGORIES', payload: [] });
     }
-  };
+  }, []);
 
   const loadConcursosByCategory = async (categoriaId: string): Promise<void> => {
     try {
@@ -343,8 +319,14 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
     }
   };
 
-  const loadConteudo = async (filters?: ConteudoFilters): Promise<void> => {
-    if (!state.context) return;
+  const loadConteudo = useCallback(async (filters?: ConteudoFilters): Promise<void> => {
+    if (!state.context || !state.context.categoria_id || !state.context.concurso_id) return;
+    
+    if (!isAuthenticated) {
+      console.log('Usuário não autenticado, pulando carregamento de conteúdo');
+      return;
+    }
+    
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       const params = new URLSearchParams({
@@ -368,11 +350,19 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
         page: 1,
         limit: 10
       } });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
-  };
+  }, [state.context?.categoria_id, state.context?.concurso_id, isAuthenticated]);
 
-  const loadProgress = async (): Promise<void> => {
-    if (!state.context) return;
+  const loadProgress = useCallback(async (): Promise<void> => {
+    if (!state.context || !state.context.concurso_id) return;
+    
+    if (!isAuthenticated) {
+      console.log('Usuário não autenticado, pulando carregamento de progresso');
+      return;
+    }
+    
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       const response = await fetch(`/api/dashboard/stats?concurso_id=${state.context.concurso_id}`);
@@ -397,8 +387,10 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
         progresso_disciplinas: {},
         ultima_atualizacao: new Date().toISOString()
       } });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
-  };
+  }, [state.context?.concurso_id, isAuthenticated]);
 
   const updateProgress = (progress: Partial<UserProgress>): void => {
     dispatch({ type: 'UPDATE_PROGRESS', payload: progress });
@@ -439,16 +431,18 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
   // ========================================
 
   useEffect(() => {
-    loadUserPreference();
-    loadCategories();
-  }, []);
+    if (!authLoading && isAuthenticated) {
+      loadUserPreference();
+      loadCategories();
+    }
+  }, [authLoading, isAuthenticated, loadUserPreference, loadCategories]);
 
   useEffect(() => {
-    if (state.context) {
+    if (state.context && state.context.concurso_id) {
       loadConteudo();
       loadProgress();
     }
-  }, [state.context?.concurso_id, loadConteudo, loadProgress]);
+  }, [state.context?.concurso_id]);
 
   // ========================================
   // CONTEXT VALUE
@@ -478,7 +472,11 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
 
   return (
     <ConcursoContext.Provider value={contextValue}>
-      {children}
+      {state.context && state.context.concurso_id && state.context.categoria_id ? (
+        children
+      ) : (
+        <ConcursoSelector />
+      )}
     </ConcursoContext.Provider>
   );
 }
