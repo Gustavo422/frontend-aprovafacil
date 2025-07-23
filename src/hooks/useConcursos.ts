@@ -305,6 +305,14 @@ export function useConcursos(filters?: ConcursoFilters) {
     }
   );
   
+  // Log temporário para verificar dados
+  console.log('[DEBUG] useConcursos - Dados recebidos:', {
+    hasData: !!query.data,
+    dataStructure: query.data ? Object.keys(query.data) : 'no data',
+    dataData: query.data?.data,
+    pagination: query.data?.pagination
+  });
+  
   return {
     concursos: query.data?.data || [],
     pagination: query.data?.pagination,
@@ -334,7 +342,7 @@ export function useConcurso(id: string) {
   );
   
   return {
-    concurso: query.data,
+    concurso: query.data?.data || null,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
@@ -361,7 +369,7 @@ export function useConcursoBySlug(slug: string) {
   );
   
   return {
-    concurso: query.data,
+    concurso: query.data?.data || null,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
@@ -414,7 +422,7 @@ export function useConcursosAtivos() {
   );
   
   return {
-    concursos: query.data || [],
+    concursos: query.data?.data || [],
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,

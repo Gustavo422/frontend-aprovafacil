@@ -324,8 +324,8 @@ export function useEnhancedConcursos(filters?: ConcursoFilters) {
   );
   
   return {
-    concursos: query.data ? ((query.data as unknown) as PaginatedResponse<Concurso>).data : [],
-    pagination: query.data ? ((query.data as unknown) as PaginatedResponse<Concurso>).pagination : undefined,
+    concursos: query.data?.data || [],
+    pagination: query.data?.pagination,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,

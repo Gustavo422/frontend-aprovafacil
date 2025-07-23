@@ -68,14 +68,15 @@ export function ConcursoSelector() {
       const response = await fetch('/api/concursos?ativo=true');
       if (response.ok) {
         const data = await response.json();
-        // Suporte para formato paginado (data.items) e antigo (data.concursos)
-        if (data.data && Array.isArray(data.data.items)) {
-          setConcursos(data.data.items);
-        } else if (Array.isArray(data.concursos)) {
-          setConcursos(data.concursos);
-        } else {
-          setConcursos([]);
-        }
+        // Log temporário para verificar dados
+        console.log('[DEBUG] ConcursoSelector - Dados de concursos recebidos:', {
+          hasData: !!data,
+          dataStructure: data ? Object.keys(data) : 'no data',
+          dataData: data.data,
+          dataLength: data.data?.length || 0
+        });
+        // Padrão padronizado: sempre acessar via data.data
+        setConcursos(data.data || []);
       }
     } catch (error) {
       logger.error('Erro ao carregar concursos:', { error });
@@ -90,7 +91,14 @@ export function ConcursoSelector() {
         const response = await fetch('/api/concurso-categorias?ativo=true');
         if (response.ok) {
           const data = await response.json();
-          setCategorias(data.categorias || []);
+          // Log temporário para verificar dados
+          console.log('[DEBUG] ConcursoSelector - Dados de categorias recebidos:', {
+            hasData: !!data,
+            dataStructure: data ? Object.keys(data) : 'no data',
+            dataData: data.data,
+            dataLength: data.data?.length || 0
+          });
+          setCategorias(data.data || []);
         }
       } catch (error) {
         logger.error('Erro ao carregar categorias:', { error });

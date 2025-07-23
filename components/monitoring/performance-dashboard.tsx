@@ -95,7 +95,14 @@ export function PerformanceDashboard() {
       }
       
       const data = await response.json();
-      setPerformanceData(data);
+      // Log temporário para verificar dados
+      console.log('[DEBUG] performance-dashboard - Dados recebidos:', {
+        hasData: !!data,
+        dataStructure: data ? Object.keys(data) : 'no data',
+        dataData: data.data,
+        dataLength: data.data ? Object.keys(data.data).length : 0
+      });
+      setPerformanceData(data.data || data);
       setLastRefreshed(new Date());
       setError(null);
     } catch (err) {

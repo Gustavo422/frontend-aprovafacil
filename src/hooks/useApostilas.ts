@@ -340,6 +340,14 @@ export function useApostilas(filters?: ApostilaFilters) {
     }
   );
   
+  // Log temporário para verificar dados
+  console.log('[DEBUG] useApostilas - Dados recebidos:', {
+    hasData: !!query.data,
+    dataStructure: query.data ? Object.keys(query.data) : 'no data',
+    dataData: query.data?.data,
+    pagination: query.data?.pagination
+  });
+  
   return {
     apostilas: query.data?.data || [],
     pagination: query.data?.pagination,
@@ -369,7 +377,7 @@ export function useApostila(id: string) {
   );
   
   return {
-    apostila: query.data,
+    apostila: query.data || null,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
@@ -396,7 +404,7 @@ export function useApostilaBySlug(slug: string) {
   );
   
   return {
-    apostila: query.data,
+    apostila: query.data || null,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,

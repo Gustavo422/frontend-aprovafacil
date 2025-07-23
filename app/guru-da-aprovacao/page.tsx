@@ -143,14 +143,28 @@ export default function DashboardPage() {
         const statsResponse = await fetch('/api/dashboard/enhanced-stats');
         if (statsResponse.ok) {
           const statsData = await statsResponse.json();
-          setPerformanceStats(statsData);
+          // Log temporário para verificar dados
+          console.log('[DEBUG] guru-da-aprovacao - Dados de estatísticas recebidos:', {
+            hasData: !!statsData,
+            dataStructure: statsData ? Object.keys(statsData) : 'no data',
+            dataData: statsData.data,
+            dataLength: statsData.data ? Object.keys(statsData.data).length : 0
+          });
+          setPerformanceStats(statsData.data || statsData);
         }
         
         // Buscar atividades recentes
         const activitiesResponse = await fetch('/api/dashboard/activities');
         if (activitiesResponse.ok) {
           const activitiesData = await activitiesResponse.json();
-          setRecentActivities(activitiesData);
+          // Log temporário para verificar dados
+          console.log('[DEBUG] guru-da-aprovacao - Dados de atividades recebidos:', {
+            hasData: !!activitiesData,
+            dataStructure: activitiesData ? Object.keys(activitiesData) : 'no data',
+            dataData: activitiesData.data,
+            dataLength: activitiesData.data?.length || 0
+          });
+          setRecentActivities(activitiesData.data || activitiesData);
         }
       } catch (error) {
         logger.error('Erro ao buscar dados do dashboard:', {

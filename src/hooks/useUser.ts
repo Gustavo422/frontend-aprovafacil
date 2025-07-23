@@ -181,8 +181,15 @@ export function useUserStats(userId?: string) {
     }
   );
   
+  // Log temporário para verificar dados
+  console.log('[DEBUG] useUserStats - Dados recebidos:', {
+    hasData: !!query.data,
+    dataStructure: query.data ? Object.keys(query.data) : 'no data',
+    dataData: query.data
+  });
+  
   return {
-    stats: query.data,
+    stats: query.data || null,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,

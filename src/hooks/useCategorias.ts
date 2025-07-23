@@ -262,6 +262,14 @@ export function useCategorias(filters?: CategoriaFilters) {
     }
   );
   
+  // Log temporário para verificar dados
+  console.log('[DEBUG] useCategorias - Dados recebidos:', {
+    hasData: !!query.data,
+    dataStructure: query.data ? Object.keys(query.data) : 'no data',
+    dataData: query.data?.data,
+    pagination: query.data?.pagination
+  });
+  
   return {
     categorias: query.data?.data || [],
     pagination: query.data?.pagination,

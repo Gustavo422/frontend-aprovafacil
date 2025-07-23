@@ -37,7 +37,14 @@ export function AlertIndicator() {
       }
       
       const data = await response.json();
-      setAlerts(data.alerts || []);
+      // Log temporário para verificar dados
+      console.log('[DEBUG] alert-indicator - Dados recebidos:', {
+        hasData: !!data,
+        dataStructure: data ? Object.keys(data) : 'no data',
+        dataData: data.data,
+        dataLength: data.data?.length || 0
+      });
+      setAlerts(data.data || data.alerts || []);
     } catch (error) {
       console.error('Error fetching alerts:', error);
     } finally {

@@ -237,6 +237,13 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
         throw new Error('Erro ao carregar categorias');
       }
       const data = await response.json();
+      // Log temporário para verificar dados
+      console.log('[DEBUG] ConcursoContext - Dados de categorias recebidos:', {
+        hasData: !!data,
+        dataStructure: data ? Object.keys(data) : 'no data',
+        dataData: data.data,
+        dataLength: data.data?.length || 0
+      });
       dispatch({ type: 'SET_CATEGORIES', payload: data.data || [] });
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -257,6 +264,14 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
       }
       
       const data = await response.json();
+      // Log temporário para verificar dados
+      console.log('[DEBUG] ConcursoContext - Dados de concursos por categoria recebidos:', {
+        categoriaId,
+        hasData: !!data,
+        dataStructure: data ? Object.keys(data) : 'no data',
+        dataData: data.data,
+        dataLength: data.data?.length || 0
+      });
       dispatch({ type: 'SET_CONCURSOS', payload: data.data || [] });
     } catch (error: unknown) {
       if (error instanceof Error) {
