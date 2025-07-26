@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { 
   Card, 
   CardContent, 
@@ -46,7 +45,6 @@ import { logger } from '@/lib/logger';
 // ========================================
 
 export function ConcursoSelector() {
-  const router = useRouter();
   const { toast } = useToast();
   const { selectConcurso, loadConcursosByCategory } = useConcursoActions();
   
@@ -147,8 +145,12 @@ export function ConcursoSelector() {
 
   const handleSelectConcurso = async (concursoId: string, categoriaId: string) => {
     try {
+      console.log('[DEBUG] Iniciando seleção de concurso:', { concursoId, categoriaId });
       setSelecting(true);
+      
+      console.log('[DEBUG] Chamando selectConcurso...');
       await selectConcurso(concursoId, categoriaId);
+      console.log('[DEBUG] selectConcurso concluído com sucesso');
       
       toast({
         title: "Concurso selecionado!",
@@ -156,9 +158,11 @@ export function ConcursoSelector() {
         duration: 3000,
       });
       
-      // Redirecionar para o dashboard
-      router.push('/dashboard');
+      console.log('[DEBUG] Redirecionando para dashboard...');
+      // Forçar navegação completa para garantir que a página mude
+      window.location.href = '/dashboard';
     } catch (error) {
+      console.error('[DEBUG] Erro ao selecionar concurso:', error);
       logger.error('Erro ao selecionar concurso:', { error });
       toast({
         title: "Erro",
@@ -362,4 +366,4 @@ export function ConcursoSelector() {
       </div>
     </div>
   );
-} 
+}

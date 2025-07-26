@@ -1,9 +1,6 @@
 'use client';
 
-import Link from 'next/link';
-import Image from 'next/image';
 import { Card, CardHeader, Cardtitulo } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import {
   Compass,
   FileCheck,
@@ -12,17 +9,14 @@ import {
   Map,
   Layers,
   CalendarCheck,
-  BookMarked,
-  BookOpen,
-  HelpCircle
+  BookMarked
 } from 'lucide-react';
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { SidebarNav } from '@/components/sidebar-nav';
-import { UserNav } from '@/components/user-nav';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
-import { Menu } from 'lucide-react';
 import { BrowserExtensionSafe } from '@/components/hydration-safe';
+import { AppHeader } from '@/components/ui/AppHeader';
 
 const sidebarNavItems = [
   {
@@ -185,41 +179,7 @@ export default function HomePage() {
         {/* Main Content Wrapper */}
         <div className="flex flex-col flex-1">
           {/* Header */}
-          <header className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-            <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-              <div className="flex items-center space-x-4">
-                <Button
-                  size="icon"
-                  className="bg-accent text-accent-foreground"
-                  onClick={handleSidebarToggle}
-                >
-                  <Menu className="h-full w-full" />
-                  <span className="sr-only">Abrir menu</span>
-                </Button>
-              </div>
-
-              {/* Logo Centralizada */}
-              <div className="absolute left-1/2 transform -translate-x-1/2">
-                <Link href="/" className="flex items-center space-x-3">
-                  <Image
-                    src="/aprova_facil_logo.png"
-                    alt="AprovaFácil Logo"
-                    width={40}
-                    height={40}
-                    priority
-                    className="object-contain"
-                  />
-                  <span className="text-xl font-black text-[#1e40af] hidden sm:block">
-                    AprovaFácil
-                  </span>
-                </Link>
-              </div>
-
-              <div className="flex items-center space-x-4">
-                <UserNav />
-              </div>
-            </div>
-          </header>
+          <AppHeader onSidebarToggle={handleSidebarToggle} />
 
           {/* Page Content */}
           <main className="container-padding py-16">
@@ -248,7 +208,7 @@ export default function HomePage() {
                   {memoizedFeatureItems.map((item) => {
                     const IconComponent = item.icon;
                     return (
-                      <Link href={item.href} key={item.titulo}>
+                      <a href={item.href} key={item.titulo}>
                           <Card className="card-hover cursor-pointer group h-full">
                           <CardHeader className="text-center space-y-4">
                             <div className="mx-auto w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -264,34 +224,13 @@ export default function HomePage() {
                             </div>
                           </CardHeader>
                         </Card>
-                      </Link>
+                      </a>
                     );
                   })}
                 </div>
               </div>
 
               {/* Call to Action Section */}
-              <div className="text-center space-y-6">
-                <div className="space-y-3">
-                  <h2 className="text-3xl font-bold">
-                    Pronto para começar?
-                  </h2>
-                  <p className="text-muted-foreground max-w-2xl mx-auto">
-                    Inicie sua jornada de estudos agora mesmo
-                  </p>
-                </div>
-                
-                <div className="flex flex-wrap justify-center gap-4">
-                  <Button size="lg" className="bg-primary hover:bg-primary/90">
-                    <BookOpen className="mr-2 h-5 w-5" />
-                    Começar Agora
-                  </Button>
-                  <Button size="lg" variant="outline">
-                    <HelpCircle className="mr-2 h-5 w-5" />
-                    Saiba Mais
-                  </Button>
-                </div>
-              </div>
             </div>
           </main>
         </div>

@@ -342,7 +342,7 @@ export function useConcurso(id: string) {
   );
   
   return {
-    concurso: query.data?.data || null,
+    concurso: query.data || null,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
@@ -369,7 +369,7 @@ export function useConcursoBySlug(slug: string) {
   );
   
   return {
-    concurso: query.data?.data || null,
+    concurso: query.data || null,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
@@ -422,7 +422,7 @@ export function useConcursosAtivos() {
   );
   
   return {
-    concursos: query.data?.data || [],
+    concursos: query.data || [],
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,

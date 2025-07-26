@@ -25,15 +25,20 @@ export default function Dashboard() {
   const [apiData, setApiData] = useState<ApiData | null>(null);
   const router = useRouter();
   
+  console.log('[DEBUG] Dashboard - Componente renderizado');
+  
   // Verificar autenticação ao carregar a página
   useEffect(() => {
+    console.log('[DEBUG] Dashboard - useEffect executado');
     const checkAuth = async () => {
       try {
+        console.log('[DEBUG] Dashboard - Verificando autenticação...');
         // Verificar se há token no localStorage
         const storedToken = localStorage.getItem('auth_token');
         const storedUser = localStorage.getItem('auth_user');
         
         if (!storedToken) {
+          console.log('[DEBUG] Dashboard - Token não encontrado, redirecionando para login');
           // Redirecionar para login se não houver token
           router.push('/login-simples');
           return;

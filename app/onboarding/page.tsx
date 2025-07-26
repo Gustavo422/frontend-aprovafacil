@@ -11,12 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/features/shared/hooks/use-toast';
 import { Loader2, GraduationCap, Clock, Target, BookOpen } from 'lucide-react';
-
-interface Concurso {
-  id: string;
-  nome: string;
-  descricao?: string;
-}
+import { useListarConcursos } from '@/src/features/concursos/hooks/use-concursos';
 
 interface OnboardingData {
   concurso_id: string;
@@ -31,7 +26,8 @@ export default function OnboardingPage() {
   const { user, loading } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [concursos, setConcursos] = useState<Concurso[]>([]);
+  // Remover estado local de concursos
+  // const [concursos, setConcursos] = useState<Concurso[]>([]);
   const [formData, setFormData] = useState<OnboardingData>({
     concurso_id: '',
     horas_disponiveis: 2,
@@ -40,6 +36,14 @@ export default function OnboardingPage() {
     niveis_materias: {}
   });
 
+  // Buscar concursos com React Query
+  const {
+    data: concursos = [],
+    isLoading: loadingConcursos,
+    isError: isErrorConcursos,
+    refetch: refetchConcursos
+  } = useListarConcursos();
+
   // Verificar se usuário está autenticado
   useEffect(() => {
     if (!loading && !user) {
@@ -47,29 +51,24 @@ export default function OnboardingPage() {
     }
   }, [user, loading, router]);
 
-  // Carregar concursos disponíveis
-  useEffect(() => {
-    const loadConcursos = async () => {
-      try {
-        const response = await fetch('/api/concursos');
-        if (response.ok) {
-          const data = await response.json();
-          setConcursos(data.concursos || []);
-        }
-      } catch (error) {
-        console.error('Erro ao carregar concursos:', error);
-        toast({
-          title: 'Erro',
-          descricao: 'Não foi possível carregar os concursos disponíveis.',
-          variant: 'destructive',
-        });
-      }
-    };
+  // Remover useEffect de fetch manual de concursos
 
-    if (user) {
-      loadConcursos();
-    }
-  }, [user, toast]);
+  if (loadingConcursos) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+        <p className="text-muted-foreground">Carregando concursos...</p>
+      </div>
+    );
+        }
+  if (isErrorConcursos) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px]">
+        <p className="text-red-500 mb-2">Erro ao carregar concursos.</p>
+        <Button onClick={() => refetchConcursos()}>Tentar novamente</Button>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

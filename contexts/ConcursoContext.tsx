@@ -487,11 +487,7 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
 
   return (
     <ConcursoContext.Provider value={contextValue}>
-      {state.context && state.context.concurso_id && state.context.categoria_id ? (
-        children
-      ) : (
-        <ConcursoSelector />
-      )}
+      {children}
     </ConcursoContext.Provider>
   );
 }

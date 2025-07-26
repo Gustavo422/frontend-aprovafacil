@@ -69,7 +69,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Set token in storage
   const setToken = (token: string, expiresIn: number = 7 * 24 * 60 * 60) => {
-    storeTokenInAllStorages(token, expiresIn);
+    // Sempre usar 7 dias de expiração
+    storeTokenInAllStorages(token, 60 * 60 * 24 * 7);
   };
 
   // Clear token from storage
@@ -95,7 +96,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.data?.token) {
-          setToken(data.data.token);
+          // Sempre usar 7 dias de expiração
+          setToken(data.data.token, 60 * 60 * 24 * 7);
           return true;
         }
       }
@@ -178,7 +180,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data.success && data.data && data.data.usuario) {
         // Save token
         if (data.data.token) {
-          setToken(data.data.token);
+          // Sempre usar 7 dias de expiração
+          setToken(data.data.token, 60 * 60 * 24 * 7);
         }
         
         setUser(data.data.usuario);

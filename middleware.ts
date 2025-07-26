@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { verificarConcursoSelecionado } from './middleware/concurso-guard';
 
 /**
  * Apply Content Security Policy headers
@@ -84,6 +85,26 @@ export async function middleware(request: NextRequest) {
       const redirectResponse = NextResponse.redirect(loginUrl);
       applySecurityHeaders(redirectResponse);
       return redirectResponse;
+    }
+  }
+
+  // Verificar se é uma rota que precisa de verificação de concurso
+  if (pathname.startsWith('/dashboard') || 
+      pathname.startsWith('/simulados') || 
+      pathname.startsWith('/flashcards') || 
+      pathname.startsWith('/cartoes-memorizacao') ||
+      pathname.startsWith('/apostila-customizada') ||
+      pathname.startsWith('/mapa-materias') ||
+      pathname.startsWith('/questoes-semanais') ||
+      pathname.startsWith('/plano-estudos') || 
+      pathname.startsWith('/cronograma') ||
+      pathname.startsWith('/guru-da-aprovacao') ||
+      pathname.startsWith('/configuracoes')) {
+    
+    const concursoCheck = await verificarConcursoSelecionado(request);
+    if (concursoCheck) {
+      applySecurityHeaders(concursoCheck);
+      return concursoCheck;
     }
   }
 

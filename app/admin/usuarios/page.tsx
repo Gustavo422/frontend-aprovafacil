@@ -4,6 +4,8 @@ import React, { memo, useMemo } from "react";
 import { useListarUsuarios } from "@/features/auth/hooks/use-usuarios";
 import { VirtualizedList } from "@/components/ui/virtualized-list";
 import type { AppUser } from '@/src/features/auth/types/user.types';
+import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 // Define the user type
 interface Usuario {
@@ -57,19 +59,34 @@ const UserRow = memo(({ item, style }: { item: Usuario; style: React.CSSProperti
 UserRow.displayName = 'UserRow';
 
 export default function UsuariosAdminPage() {
-  const { data: usuarios, isLoading, error } = useListarUsuarios();
+  const { data: usuarios, isLoading, error, refetch } = useListarUsuarios();
 
   // Generate a stable key for each user row
   const getItemKey = (index: number, data: AppUser) => {
     return data.id;
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+        <p className="text-muted-foreground">Carregando usuários...</p>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px]">
+        <p className="text-red-500 mb-2">Erro ao carregar usuários</p>
+        <Button onClick={() => refetch()}>Tentar novamente</Button>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <h1 className="text-2xl font-bold mb-4">Usuários do Sistema</h1>
-      {isLoading && <p>Carregando usuários...</p>}
-      {error && <p className="text-red-500">Erro ao carregar usuários</p>}
-      {!isLoading && usuarios && usuarios.length > 0 ? (
+      {usuarios && usuarios.length > 0 ? (
         <div className="border rounded-md">
           <TableHeader />
           <div className="h-[600px]">
@@ -84,7 +101,7 @@ export default function UsuariosAdminPage() {
           </div>
         </div>
       ) : (
-        !isLoading && <p className="text-muted-foreground">Nenhum usuário cadastrado ainda.</p>
+        <p className="text-muted-foreground">Nenhum usuário cadastrado ainda.</p>
       )}
     </div>
   );

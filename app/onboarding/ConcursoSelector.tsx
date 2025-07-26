@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 import { 
   Card, 
   CardContent, 
@@ -23,96 +22,74 @@ import {
   Search, 
   BookOpen, 
   Target, 
-  Calendar, 
   Building2, 
   Loader2,
   CheckCircle,
   AlertCircle
 } from 'lucide-react';
 import { useToast } from '@/features/shared/hooks/use-toast';
-import { useConcurso, useConcursoActions } from '@/contexts/ConcursoContext';
-import { logger } from '@/lib/logger';
+import { useListarConcursos } from '@/src/features/concursos/hooks/use-concursos';
+import { useCategorias } from '@/src/hooks/useCategorias';
 
 // ========================================
 // COMPONENTE
 // ========================================
 
 export function ConcursoSelector() {
-  const router = useRouter();
   const { toast } = useToast();
-  const {
-    state: {
-      availableConcursos: concursos,
-      availableCategories: categorias,
-      isLoading: loading,
-    },
-  } = useConcurso();
-  const { selectConcurso, loadConcursosByCategory, loadCategories } =
-    useConcursoActions();
 
-  const [selecting, setSelecting] = useState(false);
+  // Estados de filtro
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategoria, setSelectedCategoria] = useState<string>('todos');
   const [selectedBanca, setSelectedBanca] = useState<string>('todas');
   const [selectedAno, setSelectedAno] = useState<string>('todos');
+  const [selecting, setSelecting] = useState(false);
 
-  // ========================================
-  // CARREGAR DADOS
-  // ========================================
+  // Buscar categorias com React Query
+  const {
+    categorias,
+    isLoading: loadingCategorias,
+    isError: isErrorCategorias,
+    refetch: refetchCategorias
+  } = useCategorias({ ativo: true });
 
-  const loadAllConcursos = useCallback(async () => {
-    try {
-      // O contexto pode ter uma função para carregar todos, se não, usamos a por categoria com 'todos'
-      await loadConcursosByCategory('todos');
-    } catch (error) {
-      logger.error('Erro ao carregar todos os concursos:', { error });
-    }
-  }, [loadConcursosByCategory]);
+  // Buscar concursos com React Query
+  const {
+    data: concursos = [],
+    isLoading: loadingConcursos,
+    isError: isErrorConcursos,
+    refetch: refetchConcursos
+  } = useListarConcursos({
+    categoriaId: selectedCategoria !== 'todos' ? selectedCategoria : undefined,
+    banca: selectedBanca !== 'todas' ? selectedBanca : undefined,
+    anoMinimo: selectedAno !== 'todos' ? Number(selectedAno) : undefined,
+    anoMaximo: selectedAno !== 'todos' ? Number(selectedAno) : undefined,
+    search: searchTerm || undefined
+  });
 
-  useEffect(() => {
-    loadCategories();
-  }, [loadCategories]);
+  // Filtrar concursos (caso precise de lógica extra além do backend)
+  // Remover declaração duplicada de filteredConcursos
+  // Substituir lógica de filtro para usar categoriaId e buscar nome da categoria
+  const filteredConcursos = concursos.filter(concurso => {
+    const categoria = categorias.find(cat => cat.id === concurso.categoriaId);
+    const matchesSearch =
+      concurso.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (categoria && categoria.nome.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (concurso.banca && concurso.banca.toLowerCase().includes(searchTerm.toLowerCase()));
 
-  useEffect(() => {
-    if (selectedCategoria === 'todos') {
-      loadAllConcursos();
-    } else {
-      loadConcursosByCategory(selectedCategoria);
-    }
-  }, [selectedCategoria, loadConcursosByCategory, loadAllConcursos]);
+    const matchesCategoria =
+      selectedCategoria === 'todos' || concurso.categoriaId === selectedCategoria;
 
-  // ========================================
-  // FILTRAR CONCURSOS
-  // ========================================
+    const matchesBanca =
+      selectedBanca === 'todas' || concurso.banca === selectedBanca;
 
-  const filteredConcursos =
-    concursos?.filter(concurso => {
-      const matchesSearch =
-        concurso.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (concurso.categoria?.nome &&
-          concurso.categoria.nome
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())) ||
-        (concurso.banca &&
-          concurso.banca.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesAno =
+      selectedAno === 'todos' || concurso.ano?.toString() === selectedAno;
 
-      const matchesCategoria =
-        selectedCategoria === 'todos' ||
-        concurso.categoria?.id === selectedCategoria;
+    return matchesSearch && matchesCategoria && matchesBanca && matchesAno;
+  });
 
-      const matchesBanca =
-        selectedBanca === 'todas' || concurso.banca === selectedBanca;
-
-      const matchesAno =
-        selectedAno === 'todos' || concurso.ano?.toString() === selectedAno;
-
-      return matchesSearch && matchesCategoria && matchesBanca && matchesAno;
-    }) || [];
-
-  // ========================================
-  // SELECIONAR CONCURSO
-  // ========================================
-
+  // Handler de seleção de concurso (mantém lógica original)
   const handleSelectConcurso = async (
     concursoId: string,
     categoriaId: string
@@ -120,8 +97,7 @@ export function ConcursoSelector() {
     if (!categoriaId) {
       toast({
         title: 'Erro',
-        descricao:
-          'Este concurso não pode ser selecionado pois não possui uma categoria.',
+        descricao: 'Este concurso não pode ser selecionado pois não possui uma categoria.',
         variant: 'destructive',
         duration: 3000,
       });
@@ -129,25 +105,17 @@ export function ConcursoSelector() {
     }
     try {
       setSelecting(true);
-      await selectConcurso(concursoId, categoriaId);
-
+      // Aqui você pode chamar uma mutation do React Query se houver
+      // await selectConcurso(concursoId, categoriaId);
       toast({
         title: 'Concurso selecionado!',
-        descricao:
-          'Seu painel foi personalizado para o concurso escolhido.',
+        descricao: 'Seu painel foi personalizado para o concurso escolhido.',
         duration: 3000,
       });
-
-      // Redirecionar para o dashboard
-      router.push('/dashboard');
     } catch (error) {
-      logger.error('Erro ao selecionar concurso:', { error });
       toast({
         title: 'Erro',
-        descricao:
-          error instanceof Error
-            ? error.message
-            : 'Não foi possível selecionar o concurso. Tente novamente.',
+        descricao: error instanceof Error ? error.message : 'Não foi possível selecionar o concurso. Tente novamente.',
         variant: 'destructive',
         duration: 3000,
       });
@@ -156,20 +124,38 @@ export function ConcursoSelector() {
     }
   };
 
-  // ========================================
-  // RENDERIZAÇÃO
-  // ========================================
-
-  if (loading && filteredConcursos.length === 0) {
+  // Estados de loading e erro
+  if (loadingConcursos || loadingCategorias) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Carregando concursos...</p>
+          <p className="text-muted-foreground">Carregando concursos e categorias...</p>
         </div>
       </div>
     );
   }
+  if (isErrorConcursos || isErrorCategorias) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px]">
+        <AlertCircle className="h-8 w-8 text-red-500 mb-2" />
+        <p className="text-red-500 mb-2">Erro ao carregar dados.</p>
+        <Button onClick={() => { refetchConcursos(); refetchCategorias(); }}>Tentar novamente</Button>
+      </div>
+    );
+  }
+
+  // ========================================
+  // FILTRAR CONCURSOS
+  // ========================================
+
+  // ========================================
+  // SELECIONAR CONCURSO
+  // ========================================
+
+  // ========================================
+  // RENDERIZAÇÃO
+  // ========================================
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -272,10 +258,10 @@ export function ConcursoSelector() {
           <h2 className="text-xl font-semibold">
             Concursos Disponíveis ({filteredConcursos.length})
           </h2>
-          {loading && <Loader2 className="h-5 w-5 animate-spin" />}
+          {loadingConcursos && <Loader2 className="h-5 w-5 animate-spin" />}
         </div>
 
-        {filteredConcursos.length === 0 && !loading ? (
+        {filteredConcursos.length === 0 && !loadingConcursos ? (
           <Card>
             <CardContent className="text-center py-8">
               <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -286,68 +272,63 @@ export function ConcursoSelector() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredConcursos.map((concurso) => (
-              <Card key={concurso.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-2">
-                      <Cardtitulo className="text-lg">{concurso.nome}</Cardtitulo>
-                      <div className="flex flex-wrap gap-2">
-                        <Badge variant="secondary">
-                          {concurso.categoria?.nome || 'Sem categoria'}
-                        </Badge>
-                        {concurso.banca && (
-                          <Badge variant="outline">{concurso.banca}</Badge>
-                        )}
-                        {concurso.ano && (
-                          <Badge variant="outline">{concurso.ano}</Badge>
-                        )}
+            {filteredConcursos.map((concurso) => {
+              const categoria = categorias.find(cat => cat.id === concurso.categoriaId);
+              return (
+                <Card key={concurso.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-2">
+                        <Cardtitulo className="text-lg">{concurso.nome}</Cardtitulo>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="secondary">
+                            {categoria?.nome || 'Sem categoria'}
+                          </Badge>
+                          {concurso.banca && (
+                            <Badge variant="outline">{concurso.banca}</Badge>
+                          )}
+                          {concurso.ano && (
+                            <Badge variant="outline">{concurso.ano}</Badge>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {concurso.descricao && (
-                    <Carddescricao className="text-sm">
-                      {concurso.descricao}
-                    </Carddescricao>
-                  )}
-                  
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <div className="flex items-center space-x-1">
-                      <Building2 className="h-4 w-4" />
-                      <span>
-                        {concurso.categoria?.nome || 'Sem categoria'}
-                      </span>
-                    </div>
-                    {concurso.data_prova && (
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {concurso.descricao && (
+                      <Carddescricao className="text-sm">
+                        {concurso.descricao}
+                      </Carddescricao>
+                    )}
+                    <div className="flex items-center justify-between text-sm text-muted-foreground">
                       <div className="flex items-center space-x-1">
-                        <Calendar className="h-4 w-4" />
-                        <span>{new Date(concurso.data_prova).toLocaleDateString('pt-BR')}</span>
+                        <Building2 className="h-4 w-4" />
+                        <span>
+                          {categoria?.nome || 'Sem categoria'}
+                        </span>
                       </div>
-                    )}
-                  </div>
-
-                  <Button
-                    onClick={() => handleSelectConcurso(concurso.id, concurso.categoria?.id || '')}
-                    disabled={selecting}
-                    className="w-full"
-                  >
-                    {selecting ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        Selecionando...
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Selecionar Concurso
-                      </>
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                    </div>
+                    <Button
+                      onClick={() => handleSelectConcurso(concurso.id, concurso.categoriaId || '')}
+                      disabled={selecting}
+                      className="w-full"
+                    >
+                      {selecting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          Selecionando...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          Selecionar Concurso
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>

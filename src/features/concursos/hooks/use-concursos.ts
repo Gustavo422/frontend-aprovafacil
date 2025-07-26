@@ -73,6 +73,7 @@ const concursoRepo = {
     }
     throw new Error('Concurso não encontrado');
   },
+  findById: async (id: string) => concursosMock.find(c => c.id === id) || null,
 };
 // ConcursoType é o tipo do repositório
 
@@ -158,7 +159,8 @@ export const useBuscarConcurso = (
     queryKey: concursoKeys.detail(id),
     queryFn: async () => {
       if (!id) return null;
-      return null; // Corrigir: nunca retornar undefined
+      const concurso = await concursoRepo.findById(id);
+      return concurso || null;
     },
     enabled: !!id,
     ...options,
@@ -201,9 +203,8 @@ export const useCriarConcurso = () => {
     // Em caso de erro, reverter para o estado anterior
     onError: (error, newConcurso, context) => {
       if (context?.previousConcursos) {
-        queryClient.setQueryData(concursoKeys.lists(), context.previousConcursos);
+        queryClient.setQueryData(concursoKeys.list(), context.previousConcursos);
       }
-
     },
     // Sempre revalidar os dados após a mutação
     onSettled: () => {
@@ -225,32 +226,19 @@ export const useAtualizarConcurso = () => {
     { id: string; data: AtualizarConcursoData },
     { previousConcurso: ConcursoType | undefined }
   >({
-    mutationFn: ({ id, data }) => {
-      return concursoRepo.atualizarConcurso(id, {
-        ...data,
-        nivel_dificuldade: (data.nivel_dificuldade === 'facil' || data.nivel_dificuldade === 'medio' || data.nivel_dificuldade === 'dificil') ? data.nivel_dificuldade : undefined,
-        multiplicador_questoes: typeof data.multiplicador_questoes === 'number' ? data.multiplicador_questoes : undefined,
-      });
-    },
+    mutationFn: ({ id, data }) => concursoRepo.atualizarConcurso(id, data),
     // Otimista UI update
     onMutate: async ({ id, data }) => {
       // Cancelar queries em andamento
       await queryClient.cancelQueries({ queryKey: concursoKeys.detail(id) });
+      await queryClient.cancelQueries({ queryKey: concursoKeys.lists() });
       
       // Salvar o estado anterior para rollback em caso de erro
-      const previousConcurso = queryClient.getQueryData<ConcursoType>(
-        concursoKeys.detail(id)
-      );
+      const previousConcurso = queryClient.getQueryData<ConcursoType>(concursoKeys.detail(id));
       
       // Atualizar o cache otimisticamente
       if (previousConcurso) {
-        const updatedConcurso = {
-          ...previousConcurso,
-          ...data,
-          atualizado_em: new Date().toISOString(),
-        };
-        
-        queryClient.setQueryData(concursoKeys.detail(id), updatedConcurso);
+        queryClient.setQueryData(concursoKeys.detail(id), { ...previousConcurso, ...data });
       }
       
       return { previousConcurso };
@@ -260,13 +248,10 @@ export const useAtualizarConcurso = () => {
       if (context?.previousConcurso) {
         queryClient.setQueryData(concursoKeys.detail(id), context.previousConcurso);
       }
-
     },
     // Sempre revalidar os dados após a mutação
-    onSettled: (data) => {
-      if (data) {
-        queryClient.invalidateQueries({ queryKey: concursoKeys.detail(data.id) });
-      }
+    onSettled: (data, error, { id }) => {
+      queryClient.invalidateQueries({ queryKey: concursoKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: concursoKeys.lists() });
     },
   });
@@ -282,24 +267,19 @@ export const useDesativarConcurso = () => {
     string,
     { previousConcurso: ConcursoType | undefined }
   >({
-    mutationFn: (id: string) => concursoRepo.desativarConcurso(id),
+    mutationFn: (id) => concursoRepo.desativarConcurso(id),
     // Otimista UI update
     onMutate: async (id) => {
       // Cancelar queries em andamento
       await queryClient.cancelQueries({ queryKey: concursoKeys.detail(id) });
+      await queryClient.cancelQueries({ queryKey: concursoKeys.lists() });
       
       // Salvar o estado anterior para rollback em caso de erro
-      const previousConcurso = queryClient.getQueryData<ConcursoType>(
-        concursoKeys.detail(id)
-      );
+      const previousConcurso = queryClient.getQueryData<ConcursoType>(concursoKeys.detail(id));
       
       // Atualizar o cache otimisticamente
       if (previousConcurso) {
-        queryClient.setQueryData(concursoKeys.detail(id), {
-          ...previousConcurso,
-          ativo: false,
-          atualizado_em: new Date().toISOString(),
-        });
+        queryClient.setQueryData(concursoKeys.detail(id), { ...previousConcurso, ativo: false });
       }
       
       return { previousConcurso };
@@ -309,13 +289,10 @@ export const useDesativarConcurso = () => {
       if (context?.previousConcurso) {
         queryClient.setQueryData(concursoKeys.detail(id), context.previousConcurso);
       }
-
     },
     // Sempre revalidar os dados após a mutação
-    onSettled: (data) => {
-      if (data) {
-        queryClient.invalidateQueries({ queryKey: concursoKeys.detail(data.id) });
-      }
+    onSettled: (data, error, id) => {
+      queryClient.invalidateQueries({ queryKey: concursoKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: concursoKeys.lists() });
     },
   });
@@ -331,24 +308,19 @@ export const useAtivarConcurso = () => {
     string,
     { previousConcurso: ConcursoType | undefined }
   >({
-    mutationFn: (id: string) => concursoRepo.ativarConcurso(id),
+    mutationFn: (id) => concursoRepo.ativarConcurso(id),
     // Otimista UI update
     onMutate: async (id) => {
       // Cancelar queries em andamento
       await queryClient.cancelQueries({ queryKey: concursoKeys.detail(id) });
+      await queryClient.cancelQueries({ queryKey: concursoKeys.lists() });
       
       // Salvar o estado anterior para rollback em caso de erro
-      const previousConcurso = queryClient.getQueryData<ConcursoType>(
-        concursoKeys.detail(id)
-      );
+      const previousConcurso = queryClient.getQueryData<ConcursoType>(concursoKeys.detail(id));
       
       // Atualizar o cache otimisticamente
       if (previousConcurso) {
-        queryClient.setQueryData(concursoKeys.detail(id), {
-          ...previousConcurso,
-          ativo: true,
-          atualizado_em: new Date().toISOString(),
-        });
+        queryClient.setQueryData(concursoKeys.detail(id), { ...previousConcurso, ativo: true });
       }
       
       return { previousConcurso };
@@ -358,13 +330,10 @@ export const useAtivarConcurso = () => {
       if (context?.previousConcurso) {
         queryClient.setQueryData(concursoKeys.detail(id), context.previousConcurso);
       }
-
     },
     // Sempre revalidar os dados após a mutação
-    onSettled: (data) => {
-      if (data) {
-        queryClient.invalidateQueries({ queryKey: concursoKeys.detail(data.id) });
-      }
+    onSettled: (data, error, id) => {
+      queryClient.invalidateQueries({ queryKey: concursoKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: concursoKeys.lists() });
     },
   });

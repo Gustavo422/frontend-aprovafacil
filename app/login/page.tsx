@@ -287,15 +287,6 @@ export default function LoginPage() {
 
           <CardFooter className="flex flex-col space-y-4">
             <div className="text-center space-y-2">
-              <p className="text-sm text-muted-foreground">
-                Não tem uma conta?{' '}
-                <Link 
-                  href="/register" 
-                  className="text-primary font-medium hover:text-primary/80"
-                >
-                  Cadastre-se
-                </Link>
-              </p>
               <Link 
                 href="/forgot-password" 
                 className="text-sm text-muted-foreground hover:text-foreground"

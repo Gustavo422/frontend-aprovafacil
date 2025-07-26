@@ -195,7 +195,7 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
   // AÇÕES DO CONTEXTO
   // ========================================
 
-  const loadUserPreference = async (): Promise<void> => {
+  const loadUserPreference = useCallback(async (): Promise<void> => {
     // Verificar se o usuário está autenticado antes de fazer a chamada
     if (!isAuthenticated()) {
       console.log('Usuário não autenticado, pulando carregamento de preferências');
@@ -273,7 +273,7 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
         payload: error instanceof Error ? error.message : 'Erro ao carregar preferência do usuário' 
       });
     }
-  };
+  }, []);
 
   const loadCategories = async (): Promise<void> => {
     try {
@@ -442,7 +442,7 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
   useEffect(() => {
     loadUserPreference();
     loadCategories();
-  }, []);
+  }, [loadUserPreference]);
 
   useEffect(() => {
     if (state.context) {

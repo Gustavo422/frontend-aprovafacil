@@ -36,23 +36,69 @@ export async function verificarConcursoSelecionado(
 ): Promise<NextResponse | null> {
   const { pathname } = request.nextUrl;
   
+  console.log('[DEBUG] Verificando concurso para rota:', pathname);
+  
   // Verificar se é uma rota pública
   if (isPublicRoute(pathname)) {
+    console.log('[DEBUG] Rota pública, permitindo acesso');
     return null; // Permitir acesso
   }
   
   // Verificar se é uma rota de API pública
   if (isApiPublicRoute(pathname)) {
+    console.log('[DEBUG] Rota de API pública, permitindo acesso');
     return null; // Permitir acesso
   }
   
+  // Verificação especial para a página de seleção de concurso
+  if (pathname === '/selecionar-concurso') {
+    console.log('[DEBUG] Página de seleção de concurso, verificando se já tem preferência');
+    
+    try {
+      const token = request.cookies.get('auth_token')?.value;
+      if (!token) {
+        console.log('[DEBUG] Token não encontrado, redirecionando para login');
+        return NextResponse.redirect(new URL('/login', request.url));
+      }
+      
+      const authHeader = { 'Authorization': `Bearer ${token}` };
+      const preferenceResponse = await fetch(`${request.nextUrl.origin}/api/user/concurso-preference`, {
+        headers: authHeader
+      });
+      
+      if (preferenceResponse.ok) {
+        const preference = await preferenceResponse.json();
+        console.log('[DEBUG] Verificação na página de seleção:', {
+          hasData: !!preference,
+          hasDataData: !!preference?.data,
+          isAtivo: preference?.data?.ativo
+        });
+        
+        // Se já tem uma preferência válida, redirecionar para dashboard
+        if (preference && preference.data && preference.data.ativo) {
+          console.log('[DEBUG] Já tem concurso selecionado, redirecionando para dashboard');
+          return NextResponse.redirect(new URL('/dashboard', request.url));
+        }
+      }
+      
+      console.log('[DEBUG] Não tem concurso selecionado, permitindo acesso à página de seleção');
+      return null; // Permitir acesso à página de seleção
+    } catch (error) {
+      console.log('[DEBUG] Erro na verificação da página de seleção:', error);
+      return null; // Em caso de erro, permitir acesso
+    }
+  }
+  
   try {
-    // NOVO: Buscar token JWT do backend salvo em cookie
+    // Buscar token JWT do backend salvo em cookie
     const token = request.cookies.get('auth_token')?.value;
     if (!token) {
-      // Usuário não autenticado, redirecionar para login
+      console.log('[DEBUG] Token não encontrado, redirecionando para login');
       return NextResponse.redirect(new URL('/login', request.url));
     }
+    
+    console.log('[DEBUG] Token encontrado, verificando preferência');
+    
     // Usar o token JWT do backend para autenticação nas requisições
     const authHeader = { 'Authorization': `Bearer ${token}` };
 
@@ -60,58 +106,39 @@ export async function verificarConcursoSelecionado(
     const preferenceResponse = await fetch(`${request.nextUrl.origin}/api/user/concurso-preference`, {
       headers: authHeader
     });
+    
+    console.log('[DEBUG] Resposta da API de preferência:', preferenceResponse.status);
+    
+    // Se o token estiver expirado, redirecionar para login
+    if (preferenceResponse.status === 401) {
+      console.log('[DEBUG] Token expirado, redirecionando para login');
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+    
     if (!preferenceResponse.ok) {
+      console.log('[DEBUG] Erro na API de preferência, redirecionando para seleção');
       return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
     }
+    
     const preference = await preferenceResponse.json();
-    if (!preference || !preference.ativo) {
-      return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
-    }
-    // Verificar se o concurso ainda existe e está ativo via API
-    const concursoResponse = await fetch(`${request.nextUrl.origin}/api/concursos/${preference.concurso_id}`, {
-      headers: authHeader
+    console.log('[DEBUG] Dados da preferência:', {
+      hasData: !!preference,
+      hasDataData: !!preference?.data,
+      isAtivo: preference?.data?.ativo,
+      isFallback: preference?.isFallback
     });
-    if (!concursoResponse.ok) {
-      await fetch(`${request.nextUrl.origin}/api/user/concurso-preference`, {
-        method: 'PUT',
-        headers: { ...authHeader, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ativo: false })
-      });
+    
+    // Verificação simplificada: se há dados de preferência (mesmo que seja fallback), permitir acesso
+    if (!preference || !preference.data) {
+      console.log('[DEBUG] Nenhuma preferência encontrada, redirecionando para seleção');
       return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
     }
-    const concurso = await concursoResponse.json();
-    if (!concurso || !concurso.ativo) {
-      await fetch(`${request.nextUrl.origin}/api/user/concurso-preference`, {
-        method: 'PUT',
-        headers: { ...authHeader, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ativo: false })
-      });
-      return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
-    }
-    // Verificar se a categoria do concurso ainda existe e está ativa via API
-    const categoriaResponse = await fetch(`${request.nextUrl.origin}/api/concurso-categorias/${concurso.categoria_id}`, {
-      headers: authHeader
-    });
-    if (!categoriaResponse.ok) {
-      await fetch(`${request.nextUrl.origin}/api/user/concurso-preference`, {
-        method: 'PUT',
-        headers: { ...authHeader, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ativo: false })
-      });
-      return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
-    }
-    const categoria = await categoriaResponse.json();
-    if (!categoria || !categoria.ativo) {
-      await fetch(`${request.nextUrl.origin}/api/user/concurso-preference`, {
-        method: 'PUT',
-        headers: { ...authHeader, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ativo: false })
-      });
-      return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
-    }
+    
+    console.log('[DEBUG] Preferência encontrada, permitindo acesso');
     // Tudo OK, permitir acesso
     return null;
   } catch (error) {
+    console.log('[DEBUG] Erro na verificação de concurso:', error);
     return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
   }
 }
