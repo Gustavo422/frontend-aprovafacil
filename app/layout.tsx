@@ -4,6 +4,7 @@ import { Providers } from '@/src/providers';
 import { ErrorBoundaryWrapper } from '@/components/error-boundary-wrapper';
 import { ConcursoProvider } from '@/contexts/ConcursoContext';
 import { AuthProvider } from '@/features/auth/contexts/auth-context';
+import { DebugProvider } from '@/components/debug/DebugProvider';
 import './globals.css';
 import '@/styles/globals.css';
 
@@ -71,7 +72,9 @@ export default function RootLayout({
           <ErrorBoundaryWrapper>
             <AuthProvider>
               <ConcursoProvider>
-                {children}
+                <DebugProvider>
+                  {children}
+                </DebugProvider>
               </ConcursoProvider>
             </AuthProvider>
           </ErrorBoundaryWrapper>

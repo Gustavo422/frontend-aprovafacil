@@ -1,24 +1,25 @@
-import { createRouteHandlerClient } from '@/lib/supabase';
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
+import { extractAuthToken } from '@/lib/auth-utils';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const supabase = await createRouteHandlerClient();
-
-    // Verificar se o usuário está autenticado
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
+    console.log('[DEBUG] Processando requisição GET /api/dashboard/activities');
+    console.log('[DEBUG] Headers da requisição:', Object.fromEntries(request.headers.entries()));
+    
+    // Obter token de autenticação
+    const token = extractAuthToken(request);
+    
+    if (!token) {
+      console.log('[DEBUG] Token não encontrado');
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    // Repassar a requisição para o backend
     const response = await fetch(`${process.env.BACKEND_API_URL}/api/dashboard/activities`, {
+      method: 'GET',
       headers: {
-        'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
     });
 

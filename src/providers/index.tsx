@@ -15,6 +15,7 @@ type Props = {
 };
 
 export function Providers({ children, locale = 'pt-BR', messages = {} }: Props) {
+
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       <QueryClientProvider client={queryClient}>
@@ -28,7 +29,9 @@ export function Providers({ children, locale = 'pt-BR', messages = {} }: Props) 
           {children}
           <Toaster />
           {process.env.NODE_ENV === 'development' && (
-            <ReactQueryDevtools initialIsOpen={false} />
+            <ReactQueryDevtools 
+              initialIsOpen={false}
+            />
           )}
         </ThemeProvider>
       </QueryClientProvider>
