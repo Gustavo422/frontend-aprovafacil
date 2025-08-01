@@ -9,8 +9,7 @@ import {
   Map,
   Layers,
   CalendarCheck,
-  BookMarked,
-  Activity
+  BookMarked
 } from 'lucide-react';
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';

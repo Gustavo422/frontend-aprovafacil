@@ -4,18 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState, useCallback } from 'react';
+// Imports removidos pois não são mais utilizados
+// import { useState, useCallback } from 'react';
 
 export default function SelecionarConcursoLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const handleSidebarToggle = useCallback(() => {
-    setSidebarOpen(prev => !prev);
-  }, []);
+  // Removidas variáveis não utilizadas
+  // const [sidebarOpen, setSidebarOpen] = useState(false);
+  // const handleSidebarToggle = useCallback(() => {
+  //   setSidebarOpen(prev => !prev);
+  // }, []);
 
   return (
     <div className="flex min-h-screen bg-background">

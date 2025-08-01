@@ -1,4 +1,7 @@
-import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+// Import removido pois não é usado diretamente
 
 // Configurar debug para o frontend
 const debugFrontend = (process.env.NODE_ENV === 'development' && 
@@ -12,10 +15,10 @@ interface DebugInfo {
   url: string;
   statusCode?: number;
   duration?: number;
-  payload?: any;
-  response?: any;
-  error?: any;
-  headers?: any;
+  payload?: unknown;
+  response?: unknown;
+  error?: unknown;
+  headers?: Record<string, unknown>;
 }
 
 class FrontendDebugLogger {
@@ -74,10 +77,10 @@ class FrontendDebugLogger {
     }
   }
 
-  private sanitizeHeaders(headers: any): any {
-    if (!headers) return headers;
+  private sanitizeHeaders(headers: unknown): Record<string, unknown> {
+    if (!headers || typeof headers !== 'object') return {};
     
-    const sanitized = { ...headers };
+    const sanitized = { ...headers as Record<string, unknown> };
     const sensitiveKeys = ['authorization', 'cookie', 'set-cookie', 'x-api-key'];
     
     sensitiveKeys.forEach(key => {
@@ -89,20 +92,20 @@ class FrontendDebugLogger {
     return sanitized;
   }
 
-  private sanitizeData(data: any): any {
+  private sanitizeData(data: unknown): unknown {
     if (!data) return data;
     
     const sensitiveKeys = ['password', 'token', 'secret', 'key', 'authorization'];
     const sanitized = JSON.parse(JSON.stringify(data));
     
-    const sanitizeObject = (obj: any): any => {
+    const sanitizeObject = (obj: unknown): unknown => {
       if (typeof obj !== 'object' || obj === null) return obj;
       
-      for (const key in obj) {
+      for (const key in obj as Record<string, unknown>) {
         if (sensitiveKeys.some(sensitive => key.toLowerCase().includes(sensitive))) {
-          obj[key] = '[REDACTED]';
-        } else if (typeof obj[key] === 'object') {
-          obj[key] = sanitizeObject(obj[key]);
+          (obj as Record<string, unknown>)[key] = '[REDACTED]';
+        } else if (typeof (obj as Record<string, unknown>)[key] === 'object') {
+          (obj as Record<string, unknown>)[key] = sanitizeObject((obj as Record<string, unknown>)[key]);
         }
       }
       
@@ -112,7 +115,7 @@ class FrontendDebugLogger {
     return sanitizeObject(sanitized);
   }
 
-  logRequest(config: AxiosRequestConfig): void {
+  logRequest(config: any): void {
     const requestId = `${config.method}-${config.url}-${Date.now()}`;
     this.requestStartTimes.set(requestId, Date.now());
     
@@ -126,7 +129,7 @@ class FrontendDebugLogger {
     });
   }
 
-  logResponse(response: AxiosResponse): void {
+  logResponse(response: any): void {
     const requestId = `${response.config.method}-${response.config.url}-${Date.now()}`;
     const startTime = this.requestStartTimes.get(requestId);
     const duration = startTime ? Date.now() - startTime : 0;
@@ -144,7 +147,7 @@ class FrontendDebugLogger {
     this.requestStartTimes.delete(requestId);
   }
 
-  logError(error: AxiosError): void {
+  logError(error: any): void {
     const requestId = `${error.config?.method}-${error.config?.url}-${Date.now()}`;
     const startTime = this.requestStartTimes.get(requestId);
     const duration = startTime ? Date.now() - startTime : 0;
@@ -167,18 +170,35 @@ class FrontendDebugLogger {
   }
 }
 
+// Variável global para controlar o modo debug
+let isDebugEnabled = debugFrontend;
+
+export function enableDebugMode(): void {
+  isDebugEnabled = true;
+  console.log('[DEBUG] 🔧 Modo debug habilitado');
+}
+
+export function disableDebugMode(): void {
+  isDebugEnabled = false;
+  console.log('[DEBUG] 🔧 Modo debug desabilitado');
+}
+
+export function isDebugModeEnabled(): boolean {
+  return isDebugEnabled;
+}
+
 export function setupDebugInterceptors(axiosInstance: any): void {
-  if (!debugFrontend) return;
+  if (!isDebugEnabled) return;
 
   const logger = FrontendDebugLogger.getInstance();
 
   // Request interceptor
   axiosInstance.interceptors.request.use(
-    (config: AxiosRequestConfig) => {
+    (config: any) => {
       logger.logRequest(config);
       return config;
     },
-    (error: AxiosError) => {
+    (error: any) => {
       logger.logError(error);
       return Promise.reject(error);
     }
@@ -186,11 +206,11 @@ export function setupDebugInterceptors(axiosInstance: any): void {
 
   // Response interceptor
   axiosInstance.interceptors.response.use(
-    (response: AxiosResponse) => {
+    (response: any) => {
       logger.logResponse(response);
       return response;
     },
-    (error: AxiosError) => {
+    (error: any) => {
       logger.logError(error);
       return Promise.reject(error);
     }
