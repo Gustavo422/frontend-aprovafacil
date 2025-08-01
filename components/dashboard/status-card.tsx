@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardContent, CardHeader, Cardtitulo } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { ReactNode } from 'react';
 
@@ -27,7 +27,7 @@ export function StatusCard({
   return (
     <Card className={cn('relative overflow-hidden', classnome)}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <Cardtitulo className="text-sm font-medium">{titulo}</Cardtitulo>
+        <CardTitle className="text-sm font-medium">{titulo}</CardTitle>
         <div className="h-4 w-4 text-muted-foreground">{icon}</div>
       </CardHeader>
       <CardContent>

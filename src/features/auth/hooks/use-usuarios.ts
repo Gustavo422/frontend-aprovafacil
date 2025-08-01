@@ -121,10 +121,10 @@ export const useAtualizarEstatisticasUsuario = () => {
   
   return useMutation({
     mutationKey: ['updateusuariostats'],
-    mutationFn: async ({ userId, stats }: { userId: string; stats: usuariostatsUpdate }) => {
-      const updatedUser = await userRepo.updateusuariostats(userId, {
+    mutationFn: async ({ usuarioId, stats }: { usuarioId: string; stats: usuariostatsUpdate }) => {
+      const updatedUser = await userRepo.updateusuariostats(usuarioId, {
         total_questoes_respondidas: stats.total_questoes_respondidas ?? 0,
-        total_acertos: stats.total_resposta_corretas ?? 0,
+        total_acertos: stats.total_acertos ?? 0, // CORRETO conforme schema
         tempo_estudo_minutos: stats.tempo_estudo_minutos ?? 0,
         pontuacao_media: stats.pontuacao_media ?? 0,
       });
@@ -134,32 +134,24 @@ export const useAtualizarEstatisticasUsuario = () => {
       return mappedUser;
     },
     // Otimista UI update
-    onMutate: async ({ userId, stats }) => {
+    onMutate: async ({ usuarioId, stats }) => {
       // Cancelar queries em andamento
-      await queryClient.cancelQueries({ queryKey: userKeys.detail(userId) });
+      await queryClient.cancelQueries({ queryKey: userKeys.detail(usuarioId) });
       
       // Salvar o estado anterior para rollback em caso de erro
-      const previousUser = queryClient.getQueryData<AppUser>(userKeys.detail(userId));
+      const previousUser = queryClient.getQueryData<AppUser>(userKeys.detail(usuarioId));
       
       // Atualizar o cache otimisticamente
       if (previousUser) {
         const updatedUser: AppUser = {
           ...previousUser,
-          // Atualizar campos principais
-          total_questoes_respondidas: stats.total_questoes_respondidas ?? previousUser.total_questoes_respondidas,
-          total_resposta_corretas: stats.total_resposta_corretas ?? previousUser.total_resposta_corretas,
           tempo_estudo_minutos: stats.tempo_estudo_minutos ?? previousUser.tempo_estudo_minutos,
+          total_questoes_respondidas: stats.total_questoes_respondidas ?? previousUser.total_questoes_respondidas,
+          total_acertos: stats.total_acertos ?? previousUser.total_acertos, // CORRETO conforme schema
           pontuacao_media: stats.pontuacao_media ?? previousUser.pontuacao_media,
-          atualizado_em: new Date().toISOString(),
-          
-          // Atualizar campos calculados
-          total_questions: stats.total_questoes_respondidas ?? previousUser.total_questions,
-          total_correct: stats.total_resposta_corretas ?? previousUser.total_correct,
-          total_time_minutes: stats.tempo_estudo_minutos ?? previousUser.total_time_minutes,
-          score: stats.pontuacao_media ?? previousUser.score,
         };
         
-        queryClient.setQueryData(userKeys.detail(userId), updatedUser);
+        queryClient.setQueryData(userKeys.detail(usuarioId), updatedUser);
       }
       
       return { previousUser };
@@ -187,16 +179,16 @@ export const useDesativarConta = () => {
   const queryClient = useQueryClient();
   
   return useMutation<boolean, Error, string, { previousUser: AppUser | undefined }>({
-    mutationFn: (userId: string) => userRepo.deactivateAccount(userId),
+    mutationFn: (usuarioId: string) => userRepo.deactivateAccount(usuarioId),
     // Otimista UI update
-    onMutate: async (userId: string) => {
-      await queryClient.cancelQueries({ queryKey: userKeys.detail(userId) });
+    onMutate: async (usuarioId: string) => {
+      await queryClient.cancelQueries({ queryKey: userKeys.detail(usuarioId) });
       
-      const previousUser = queryClient.getQueryData<AppUser>(userKeys.detail(userId));
+      const previousUser = queryClient.getQueryData<AppUser>(userKeys.detail(usuarioId));
       
       if (previousUser) {
         queryClient.setQueryData(
-          userKeys.detail(userId),
+          userKeys.detail(usuarioId),
           { 
             ...previousUser, 
             ativo: false, 
@@ -208,14 +200,14 @@ export const useDesativarConta = () => {
       return { previousUser };
     },
     // Em caso de erro, reverter para o estado anterior
-    onError: (error, userId, context) => {
+    onError: (error, usuarioId, context) => {
       if (context?.previousUser) {
-        queryClient.setQueryData(userKeys.detail(userId), context.previousUser);
+        queryClient.setQueryData(userKeys.detail(usuarioId), context.previousUser);
       }
     },
     // Sempre revalidar os dados após a mutação
-    onSettled: (data, error, userId) => {
-      queryClient.invalidateQueries({ queryKey: userKeys.detail(userId) });
+    onSettled: (data, error, usuarioId) => {
+      queryClient.invalidateQueries({ queryKey: userKeys.detail(usuarioId) });
       queryClient.invalidateQueries({ queryKey: userKeys.lists() });
     },
   });

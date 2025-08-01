@@ -1,7 +1,7 @@
 'use client';
 
 import React, { memo, useMemo } from 'react';
-import { Card, CardContent, CardHeader, Cardtitulo } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 
 interface DashboardChartProps {
@@ -48,7 +48,7 @@ export const DashboardChart = memo(function DashboardChart({
   return (
     <Card className={className}>
       <CardHeader>
-        <Cardtitulo className="text-sm font-medium">{titulo}</Cardtitulo>
+        <CardTitle className="text-sm font-medium">{titulo}</CardTitle>
       </CardHeader>
       <CardContent>
         <div style={{ width: '100%', height }}>

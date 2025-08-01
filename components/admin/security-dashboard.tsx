@@ -9,8 +9,8 @@ import {
   Globe,
   Smartphone
 } from 'lucide-react';
-import { Card, CardContent, Carddescricao, CardHeader, Cardtitulo } from '@/components/ui/card';
-import { Alert, Alertdescricao } from '@/components/ui/alert';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -47,7 +47,7 @@ interface SecurityBlock {
 
 interface ActiveSession {
   id: string;
-  userId: string;
+  usuarioId: string;
   userEmail: string;
   deviceInfo: {
     deviceName?: string;
@@ -220,7 +220,7 @@ export default function SecurityDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <Cardtitulo className="text-sm font-medium">Tentativas de Login</Cardtitulo>
+              <CardTitle className="text-sm font-medium">Tentativas de Login</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -233,7 +233,7 @@ export default function SecurityDashboard() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <Cardtitulo className="text-sm font-medium">Bloqueios Ativos</Cardtitulo>
+              <CardTitle className="text-sm font-medium">Bloqueios Ativos</CardTitle>
               <Ban className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -246,7 +246,7 @@ export default function SecurityDashboard() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <Cardtitulo className="text-sm font-medium">IPs Únicos</Cardtitulo>
+              <CardTitle className="text-sm font-medium">IPs Únicos</CardTitle>
               <Globe className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -259,7 +259,7 @@ export default function SecurityDashboard() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <Cardtitulo className="text-sm font-medium">Sessões Ativas</Cardtitulo>
+              <CardTitle className="text-sm font-medium">Sessões Ativas</CardTitle>
               <Monitor className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -276,7 +276,7 @@ export default function SecurityDashboard() {
       {error && (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
-          <Alertdescricao>{error}</Alertdescricao>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
@@ -292,10 +292,10 @@ export default function SecurityDashboard() {
         <TabsContent value="attempts">
           <Card>
             <CardHeader>
-              <Cardtitulo>Tentativas de Login Recentes</Cardtitulo>
-              <Carddescricao>
+              <CardTitle>Tentativas de Login Recentes</CardTitle>
+              <CardDescription>
                 Últimas 50 tentativas de login registradas no sistema
-              </Carddescricao>
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -343,10 +343,10 @@ export default function SecurityDashboard() {
         <TabsContent value="blocks">
           <Card>
             <CardHeader>
-              <Cardtitulo>Bloqueios de Segurança Ativos</Cardtitulo>
-              <Carddescricao>
+              <CardTitle>Bloqueios de Segurança Ativos</CardTitle>
+              <CardDescription>
                 IPs e emails atualmente bloqueados por motivos de segurança
-              </Carddescricao>
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -397,10 +397,10 @@ export default function SecurityDashboard() {
         <TabsContent value="sessions">
           <Card>
             <CardHeader>
-              <Cardtitulo>Sessões Ativas</Cardtitulo>
-              <Carddescricao>
+              <CardTitle>Sessões Ativas</CardTitle>
+              <CardDescription>
                 Usuários atualmente conectados ao sistema
-              </Carddescricao>
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">

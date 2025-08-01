@@ -6,9 +6,9 @@ import { logger } from '@/lib/logger';
 import {
   Card,
   CardContent,
-  Carddescricao,
+  CardDescription,
   CardHeader,
-  Cardtitulo,
+  CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
@@ -65,11 +65,11 @@ function ErrorFallbackComponent({
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
             <AlertTriangle className="h-8 w-8 text-red-600" />
           </div>
-          <Cardtitulo className="text-xl">Ops! Algo deu errado</Cardtitulo>
-          <Carddescricao className="text-sm">
+          <CardTitle className="text-xl">Ops! Algo deu errado</CardTitle>
+          <CardDescription className="text-sm">
             Ocorreu um erro inesperado. Não se preocupe, nossa equipe foi
             notificada.
-          </Carddescricao>
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="text-center">

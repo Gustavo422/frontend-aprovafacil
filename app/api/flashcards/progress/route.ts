@@ -1,24 +1,16 @@
-import { createRouteHandlerClient } from '@/lib/supabase';
+import { extractAuthToken } from '@/lib/auth-utils';
 import { logger } from '@/lib/logger';
 import { NextResponse } from 'next/server';
 
 export async function PUT(request: Request) {
-  const supabase = await createRouteHandlerClient();
-
   try {
-    // Verificar se o usuário está autenticado
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
+    const token = extractAuthToken(request);
+    if (!token) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
-
     // Obter os dados do corpo da requisição
     const body = await request.json();
     const { flashcard_id, status, next_review } = body;
-
     // Validar os dados
     if (!flashcard_id || !status) {
       return NextResponse.json(
@@ -26,19 +18,17 @@ export async function PUT(request: Request) {
         { status: 400 }
       );
     }
-
     // Validar o status
     const statusValidos = ['novo', 'aprendendo', 'revisando', 'dominado'];
     if (!statusValidos.includes(status)) {
       return NextResponse.json({ error: 'Status inválido' }, { status: 400 });
     }
-
     // Repassar a requisição para o backend
     const response = await fetch(`${process.env.BACKEND_API_URL}/api/flashcards/progress`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({
         flashcard_id,
@@ -46,7 +36,6 @@ export async function PUT(request: Request) {
         next_review,
       }),
     });
-
     if (!response.ok) {
       const errorData = await response.json();
       return NextResponse.json(
@@ -54,9 +43,7 @@ export async function PUT(request: Request) {
         { status: response.status }
       );
     }
-
     const data = await response.json();
-
     return NextResponse.json({
       message: 'Progresso atualizado com sucesso',
       data,
@@ -73,35 +60,25 @@ export async function PUT(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const status = searchParams.get('status');
-  const limit = searchParams.get('limit') || '10';
-
-  const supabase = await createRouteHandlerClient();
-
   try {
-    // Verificar se o usuário está autenticado
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
+    const token = extractAuthToken(request);
+    if (!token) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
-
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status');
+    const limit = searchParams.get('limit') || '10';
     // Construir parâmetros da query
     const params = new URLSearchParams({
       limit,
       ...(status && { status }),
     });
-
     // Repassar a requisição para o backend
     const response = await fetch(`${process.env.BACKEND_API_URL}/api/flashcards/progress?${params}`, {
       headers: {
-        'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        'Authorization': `Bearer ${token}`,
       },
     });
-
     if (!response.ok) {
       const errorData = await response.json();
       return NextResponse.json(
@@ -109,9 +86,7 @@ export async function GET(request: Request) {
         { status: response.status }
       );
     }
-
     const data = await response.json();
-
     return NextResponse.json({
       progress: data.progress,
     });

@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
         }
 
         const { entries } = importData;
-        const { overwrite = true, userId } = options || {};
+        const { overwrite = true, usuarioId } = options || {};
 
         // Validate entries
         const validEntries = entries.filter((entry: ImportedCacheEntry) => {
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
                     const existingEntry = await cacheMonitor.getCacheEntryMetadata(
                         entry.key,
                         entry.cacheType,
-                        userId
+                        usuarioId
                     );
 
                     if (existingEntry) {
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
                     entry.data,
                     {
                         type: entry.cacheType,
-                        userId,
+                        usuarioId,
                         expiresAt,
                         createdAt,
                         relatedKeys: entry.relatedKeys
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
                     key: entry.key,
                     cacheType: entry.cacheType,
                     error: errorMessage,
-                    userId
+                    usuarioId
                 });
             }
         }
@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
             totalEntries: validEntries.length,
             successCount,
             failureCount: validEntries.length - successCount,
-            userId,
+            usuarioId,
             timestamp: new Date().toISOString()
         });
 

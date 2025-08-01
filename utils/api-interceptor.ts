@@ -5,9 +5,6 @@
  * automaticamente no sistema de debug.
  */
 
-import { createDebugger } from './debugger';
-
-const debug = createDebugger('api-interceptor');
 
 interface ApiRequest {
   url: string;
@@ -112,9 +109,9 @@ class ApiInterceptor {
 
         // Logar no console se for erro
         if (!response.ok) {
-          debug.warn(`${method} ${url} - Erro ${response.status}: ${response.statusText}`);
+          console.warn(`${method} ${url} - Erro ${response.status}: ${response.statusText}`);
         } else {
-          debug.info(`${method} ${url} - Sucesso (${duration.toFixed(2)}ms)`);
+          console.info(`${method} ${url} - Sucesso (${duration.toFixed(2)}ms)`);
         }
 
         return response;
@@ -132,7 +129,7 @@ class ApiInterceptor {
         // Registrar a chamada com erro
         this.addCall({ request, error: errorData });
 
-        debug.error(`${method} ${url} - Erro após ${duration.toFixed(2)}ms:`, error);
+        console.error(`${method} ${url} - Erro após ${duration.toFixed(2)}ms:`, error);
         throw error;
       }
     };
@@ -201,9 +198,9 @@ class ApiInterceptor {
         apiInterceptor.addCall({ request, response: responseData });
 
         if (!this.status.toString().startsWith('2')) {
-          debug.warn(`${method} ${url} - Erro ${this.status}: ${this.statusText}`);
+          console.warn(`${method} ${url} - Erro ${this.status}: ${this.statusText}`);
         } else {
-          debug.info(`${method} ${url} - Sucesso (${duration.toFixed(2)}ms)`);
+          console.info(`${method} ${url} - Sucesso (${duration.toFixed(2)}ms)`);
         }
       });
 
@@ -218,7 +215,7 @@ class ApiInterceptor {
         };
 
         apiInterceptor.addCall({ request, error: errorData });
-        debug.error(`${method} ${url} - Erro de rede após ${duration.toFixed(2)}ms`);
+        console.error(`${method} ${url} - Erro de rede após ${duration.toFixed(2)}ms`);
       });
 
       return originalSend.call(this, body);
@@ -298,7 +295,7 @@ class ApiInterceptor {
    */
   clearCalls(): void {
     this.calls = [];
-    debug.info('Histórico de chamadas de API limpo');
+    console.info('Histórico de chamadas de API limpo');
   }
 
   /**
@@ -318,7 +315,7 @@ class ApiInterceptor {
    */
   setEnabled(enabled: boolean): void {
     this.isEnabled = enabled;
-    debug.info(`Interceptação de API ${enabled ? 'habilitada' : 'desabilitada'}`);
+    console.info(`Interceptação de API ${enabled ? 'habilitada' : 'desabilitada'}`);
   }
 
   /**

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { Card, CardContent, CardHeader, Cardtitulo } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -31,7 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Alert, Alertdescricao } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CacheType } from '@/lib/cache-manager';
 import { useToast } from '@/features/shared/hooks/use-toast';
 import {
@@ -374,7 +374,7 @@ export function CacheManagement() {
       {/* Cache Management Controls */}
       <Card>
         <CardHeader>
-          <Cardtitulo>Cache Management</Cardtitulo>
+          <CardTitle>Cache Management</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="invalidate">
@@ -426,10 +426,10 @@ export function CacheManagement() {
                 </div>
                 
                 <Alert>
-                  <Alertdescricao>
+                  <AlertDescription>
                     Select cache entries from the Inspector tab to invalidate them.
                     Invalidating a cache entry will remove it and all its related entries.
-                  </Alertdescricao>
+                  </AlertDescription>
                 </Alert>
               </div>
             </TabsContent>
@@ -499,10 +499,10 @@ export function CacheManagement() {
                 
                 <Alert variant="destructive">
                   <ShieldAlert className="h-4 w-4" />
-                  <Alertdescricao>
+                  <AlertDescription>
                     <strong>Warning:</strong> Clearing cache is a destructive operation and cannot be undone.
                     This may affect application performance until the cache is rebuilt.
-                  </Alertdescricao>
+                  </AlertDescription>
                 </Alert>
               </div>
             </TabsContent>
@@ -532,10 +532,10 @@ export function CacheManagement() {
                 
                 <Alert>
                   <FileJson className="h-4 w-4" />
-                  <Alertdescricao>
+                  <AlertDescription>
                     Import and export cache entries for backup or migration purposes.
                     Exported data includes all cache entries with their metadata.
-                  </Alertdescricao>
+                  </AlertDescription>
                 </Alert>
               </div>
             </TabsContent>
@@ -706,10 +706,10 @@ export function CacheManagement() {
             
             <Alert>
               <FileJson className="h-4 w-4" />
-              <Alertdescricao>
+              <AlertDescription>
                 The import data should be in the same format as the exported data.
                 Existing cache entries with the same keys will be overwritten.
-              </Alertdescricao>
+              </AlertDescription>
             </Alert>
           </div>
           

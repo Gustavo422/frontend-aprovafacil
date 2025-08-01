@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, Cardtitulo } from '../ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Button } from '../ui/button';
-import { Alert, Alertdescricao, Alerttitulo } from '../ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { Badge } from '../ui/badge';
 import { 
   XAxis, 
@@ -197,10 +197,10 @@ export function PerformanceDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <Cardtitulo className="text-sm font-medium flex items-center">
+            <CardTitle className="text-sm font-medium flex items-center">
               <Cpu className="mr-2 h-4 w-4" />
               CPU Usage
-            </Cardtitulo>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{system.cpuUsage.toFixed(1)}%</div>
@@ -209,7 +209,7 @@ export function PerformanceDashboard() {
             </p>
             <div className="mt-2 h-2 w-full bg-secondary rounded-full overflow-hidden">
               <div 
-                className={`h-full ${system.cpuUsage > 80 ? 'bg-destructive' : system.cpuUsage > 60 ? 'bg-warning' : 'bg-primary'}`} 
+                className={`h-full ${system.cpuUsage > 80 ? 'bg-destructive' : system.cpuUsage > 60 ? 'bg-secondary' : 'bg-primary'}`} 
                 style={{ width: `${Math.min(system.cpuUsage, 100)}%` }}
               />
             </div>
@@ -218,10 +218,10 @@ export function PerformanceDashboard() {
         
         <Card>
           <CardHeader className="pb-2">
-            <Cardtitulo className="text-sm font-medium flex items-center">
+            <CardTitle className="text-sm font-medium flex items-center">
               <Server className="mr-2 h-4 w-4" />
               Memory Usage
-            </Cardtitulo>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{system.memoryUsage.toFixed(1)}%</div>
@@ -230,7 +230,7 @@ export function PerformanceDashboard() {
             </p>
             <div className="mt-2 h-2 w-full bg-secondary rounded-full overflow-hidden">
               <div 
-                className={`h-full ${system.memoryUsage > 80 ? 'bg-destructive' : system.memoryUsage > 60 ? 'bg-warning' : 'bg-primary'}`} 
+                className={`h-full ${system.memoryUsage > 80 ? 'bg-destructive' : system.memoryUsage > 60 ? 'bg-secondary' : 'bg-primary'}`} 
                 style={{ width: `${Math.min(system.memoryUsage, 100)}%` }}
               />
             </div>
@@ -239,10 +239,10 @@ export function PerformanceDashboard() {
         
         <Card>
           <CardHeader className="pb-2">
-            <Cardtitulo className="text-sm font-medium flex items-center">
+            <CardTitle className="text-sm font-medium flex items-center">
               <Database className="mr-2 h-4 w-4" />
               Database Response
-            </Cardtitulo>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{database.avgResponseTime.toFixed(0)}ms</div>
@@ -251,7 +251,7 @@ export function PerformanceDashboard() {
             </p>
             <div className="mt-2 h-2 w-full bg-secondary rounded-full overflow-hidden">
               <div 
-                className={`h-full ${database.avgResponseTime > 500 ? 'bg-destructive' : database.avgResponseTime > 200 ? 'bg-warning' : 'bg-primary'}`} 
+                className={`h-full ${database.avgResponseTime > 500 ? 'bg-destructive' : database.avgResponseTime > 200 ? 'bg-secondary' : 'bg-primary'}`} 
                 style={{ width: `${Math.min((database.avgResponseTime / 1000) * 100, 100)}%` }}
               />
             </div>
@@ -260,10 +260,10 @@ export function PerformanceDashboard() {
         
         <Card>
           <CardHeader className="pb-2">
-            <Cardtitulo className="text-sm font-medium flex items-center">
+            <CardTitle className="text-sm font-medium flex items-center">
               <Activity className="mr-2 h-4 w-4" />
               System Status
-            </Cardtitulo>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -280,7 +280,7 @@ export function PerformanceDashboard() {
               <Badge variant={performanceData.alerts.filter(a => a.status === 'active' && a.type === 'critical').length > 0 ? "destructive" : "outline"}>
                 {performanceData.alerts.filter(a => a.status === 'active' && a.type === 'critical').length} Críticos
               </Badge>
-              <Badge variant={performanceData.alerts.filter(a => a.status === 'active' && a.type === 'warning').length > 0 ? "warning" : "outline"}>
+              <Badge variant={performanceData.alerts.filter(a => a.status === 'active' && a.type === 'warning').length > 0 ? "secondary" : "outline"}>
                 {performanceData.alerts.filter(a => a.status === 'active' && a.type === 'warning').length} Avisos
               </Badge>
             </div>
@@ -303,7 +303,7 @@ export function PerformanceDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         <Card>
           <CardHeader>
-            <Cardtitulo>Tempo de Resposta por Endpoint (Top 10)</Cardtitulo>
+            <CardTitle>Tempo de Resposta por Endpoint (Top 10)</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-80">
@@ -334,7 +334,7 @@ export function PerformanceDashboard() {
         
         <Card>
           <CardHeader>
-            <Cardtitulo>Requisições por Endpoint (Top 10)</Cardtitulo>
+            <CardTitle>Requisições por Endpoint (Top 10)</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-80">
@@ -384,10 +384,10 @@ export function PerformanceDashboard() {
         <div className="mt-6">
           <Alert>
             <CheckCircle2 className="h-4 w-4" />
-            <Alerttitulo>Sem alertas ativos</Alerttitulo>
-            <Alertdescricao>
+            <AlertTitle>Sem alertas ativos</AlertTitle>
+            <AlertDescription>
               Todos os sistemas estão operando normalmente.
-            </Alertdescricao>
+            </AlertDescription>
           </Alert>
         </div>
       );
@@ -405,15 +405,15 @@ export function PerformanceDashboard() {
                   <AlertTriangle className="h-4 w-4 mt-1" />
                 )}
                 <div>
-                  <Alerttitulo className="mb-1">
+                  <AlertTitle className="mb-1">
                     {alert.type === 'critical' ? 'Alerta Crítico' : 'Aviso'}: {alert.category}
-                  </Alerttitulo>
-                  <Alertdescricao>
+                  </AlertTitle>
+                  <AlertDescription>
                     <p>{alert.message}</p>
                     <p className="text-xs mt-1">
                       Valor: {alert.value} (Limite: {alert.threshold}) • {formatTimeAgo(alert.timestamp)}
                     </p>
-                  </Alertdescricao>
+                  </AlertDescription>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -449,7 +449,7 @@ export function PerformanceDashboard() {
       <div className="mt-6">
         <Card>
           <CardHeader>
-            <Cardtitulo>Desempenho dos Endpoints</Cardtitulo>
+            <CardTitle>Desempenho dos Endpoints</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -482,7 +482,7 @@ export function PerformanceDashboard() {
                       <td className="py-2 px-4 text-right">
                         <span className={
                           endpoint.avgResponseTime > 1000 ? 'text-destructive' :
-                          endpoint.avgResponseTime > 500 ? 'text-warning' : ''
+                          endpoint.avgResponseTime > 500 ? 'text-secondary' : ''
                         }>
                           {endpoint.avgResponseTime.toFixed(0)}ms
                         </span>
@@ -490,7 +490,7 @@ export function PerformanceDashboard() {
                       <td className="py-2 px-4 text-right">
                         <span className={
                           endpoint.p95ResponseTime > 1000 ? 'text-destructive' :
-                          endpoint.p95ResponseTime > 500 ? 'text-warning' : ''
+                          endpoint.p95ResponseTime > 500 ? 'text-secondary' : ''
                         }>
                           {endpoint.p95ResponseTime.toFixed(0)}ms
                         </span>
@@ -498,7 +498,7 @@ export function PerformanceDashboard() {
                       <td className="py-2 px-4 text-right">
                         <span className={
                           endpoint.errorRate > 0.1 ? 'text-destructive' :
-                          endpoint.errorRate > 0.05 ? 'text-warning' : ''
+                          endpoint.errorRate > 0.05 ? 'text-secondary' : ''
                         }>
                           {(endpoint.errorRate * 100).toFixed(1)}%
                         </span>
@@ -569,8 +569,8 @@ export function PerformanceDashboard() {
       {error ? (
         <Alert variant="destructive">
           <XCircle className="h-4 w-4" />
-          <Alerttitulo>Erro</Alerttitulo>
-          <Alertdescricao>{error}</Alertdescricao>
+          <AlertTitle>Erro</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : (
         <>
@@ -585,7 +585,7 @@ export function PerformanceDashboard() {
                 <Badge variant="destructive">
                   {performanceData.alerts.filter(a => a.status === 'active' && a.type === 'critical').length} Críticos
                 </Badge>
-                <Badge variant="warning">
+                <Badge variant="secondary">
                   {performanceData.alerts.filter(a => a.status === 'active' && a.type === 'warning').length} Avisos
                 </Badge>
               </div>

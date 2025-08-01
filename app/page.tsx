@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardHeader, Cardtitulo } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Compass,
   FileCheck,
@@ -9,14 +9,19 @@ import {
   Map,
   Layers,
   CalendarCheck,
-  BookMarked
+  BookMarked,
+  Activity
 } from 'lucide-react';
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { SidebarNav } from '@/components/sidebar-nav';
+import { UserNav } from '@/components/user-nav';
+import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { BrowserExtensionSafe } from '@/components/hydration-safe';
-import { AppHeader } from '@/components/ui/AppHeader';
+import { Menu } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 
 const sidebarNavItems = [
   {
@@ -178,8 +183,42 @@ export default function HomePage() {
 
         {/* Main Content Wrapper */}
         <div className="flex flex-col flex-1">
-          {/* Header */}
-          <AppHeader onSidebarToggle={handleSidebarToggle} />
+          {/* Header - IDÊNTICO AO GURU-DA-APROVACAO */}
+          <header className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+            <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center space-x-4">
+                <Button
+                  size="icon"
+                  className="bg-accent text-accent-foreground"
+                  onClick={handleSidebarToggle}
+                >
+                  <Menu className="h-full w-full" />
+                  <span className="sr-only">Abrir menu</span>
+                </Button>
+              </div>
+
+              {/* Logo Centralizada */}
+              <div className="absolute left-1/2 transform -translate-x-1/2">
+                <Link href="/" className="flex items-center space-x-3">
+                  <Image
+                    src="/aprova_facil_logo.png"
+                    alt="AprovaFácil Logo"
+                    width={40}
+                    height={40}
+                    priority
+                    className="object-contain"
+                  />
+                  <span className="text-xl font-black text-[#1e40af]">
+                    AprovaFácil
+                  </span>
+                </Link>
+              </div>
+
+              <div className="flex items-center space-x-4">
+                <UserNav />
+              </div>
+            </div>
+          </header>
 
           {/* Page Content */}
           <main className="container-padding py-16">
@@ -215,9 +254,9 @@ export default function HomePage() {
                               <IconComponent className="h-6 w-6 text-primary" />
                             </div>
                             <div className="space-y-2">
-                              <Cardtitulo className="text-lg">
+                              <CardTitle className="text-lg">
                                 {item.titulo}
-                              </Cardtitulo>
+                              </CardTitle>
                               <p className="text-sm text-muted-foreground leading-relaxed">
                                 {item.descricao}
                               </p>

@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Card, CardContent, Carddescricao, CardHeader, Cardtitulo } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Alert, Alertdescricao } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ExportJsonButton } from '@/components/ui/export-json-button';
 import { 
@@ -300,7 +300,7 @@ export default function DatabaseMonitorPage() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <Cardtitulo className="text-sm font-medium">Status Geral</Cardtitulo>
+                    <CardTitle className="text-sm font-medium">Status Geral</CardTitle>
                     {schemaValidation.isValid ? (
                       <CheckCircle className="h-4 w-4 text-green-600" />
                     ) : (
@@ -316,7 +316,7 @@ export default function DatabaseMonitorPage() {
 
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <Cardtitulo className="text-sm font-medium">Tabelas</Cardtitulo>
+                    <CardTitle className="text-sm font-medium">Tabelas</CardTitle>
                     <Database className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
@@ -331,7 +331,7 @@ export default function DatabaseMonitorPage() {
 
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <Cardtitulo className="text-sm font-medium">Colunas</Cardtitulo>
+                    <CardTitle className="text-sm font-medium">Colunas</CardTitle>
                     <Database className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
@@ -346,7 +346,7 @@ export default function DatabaseMonitorPage() {
 
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <Cardtitulo className="text-sm font-medium">Problemas</Cardtitulo>
+                    <CardTitle className="text-sm font-medium">Problemas</CardTitle>
                     <AlertTriangle className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
@@ -364,7 +364,7 @@ export default function DatabaseMonitorPage() {
               {schemaValidation.errors.length > 0 && (
                 <Alert variant="destructive">
                   <AlertTriangle className="h-4 w-4" />
-                  <Alertdescricao>
+                  <AlertDescription>
                     <div className="space-y-2">
                       <p className="font-semibold">Erros Críticos ({schemaValidation.errors.length}):</p>
                       <ul className="list-disc list-inside space-y-1">
@@ -373,14 +373,14 @@ export default function DatabaseMonitorPage() {
                         ))}
                       </ul>
                     </div>
-                  </Alertdescricao>
+                  </AlertDescription>
                 </Alert>
               )}
 
               {schemaValidation.warnings.length > 0 && (
                 <Alert>
                   <AlertTriangle className="h-4 w-4" />
-                  <Alertdescricao>
+                  <AlertDescription>
                     <div className="space-y-2">
                       <p className="font-semibold">Avisos ({schemaValidation.warnings.length}):</p>
                       <ul className="list-disc list-inside space-y-1">
@@ -394,17 +394,17 @@ export default function DatabaseMonitorPage() {
                         )}
                       </ul>
                     </div>
-                  </Alertdescricao>
+                  </AlertDescription>
                 </Alert>
               )}
 
               {/* Detalhes das Tabelas */}
               <Card>
                 <CardHeader>
-                  <Cardtitulo>Detalhes das Tabelas</Cardtitulo>
-                  <Carddescricao>
+                  <CardTitle>Detalhes das Tabelas</CardTitle>
+                  <CardDescription>
                     Status detalhado de cada tabela e suas colunas
-                  </Carddescricao>
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -447,9 +447,7 @@ export default function DatabaseMonitorPage() {
                     exportType: 'schema-validation',
                     generatedAt: new Date().toISOString()
                   }}
-                  filenome="schema-validation-report"
-                  variant="default"
-                  className="bg-blue-600 hover:bg-blue-700"
+                  filename="schema-validation-report"
                 />
               </div>
             </>
@@ -463,7 +461,7 @@ export default function DatabaseMonitorPage() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <Cardtitulo className="text-sm font-medium">Total de Tabelas</Cardtitulo>
+                    <CardTitle className="text-sm font-medium">Total de Tabelas</CardTitle>
                     <Database className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
@@ -473,7 +471,7 @@ export default function DatabaseMonitorPage() {
 
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <Cardtitulo className="text-sm font-medium">Tabelas Usadas</Cardtitulo>
+                    <CardTitle className="text-sm font-medium">Tabelas Usadas</CardTitle>
                     <CheckCircle className="h-4 w-4 text-green-600" />
                   </CardHeader>
                   <CardContent>
@@ -486,7 +484,7 @@ export default function DatabaseMonitorPage() {
 
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <Cardtitulo className="text-sm font-medium">Tabelas Não Usadas</Cardtitulo>
+                    <CardTitle className="text-sm font-medium">Tabelas Não Usadas</CardTitle>
                     <AlertTriangle className="h-4 w-4 text-yellow-600" />
                   </CardHeader>
                   <CardContent>
@@ -496,7 +494,7 @@ export default function DatabaseMonitorPage() {
 
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <Cardtitulo className="text-sm font-medium">Alto Risco</Cardtitulo>
+                    <CardTitle className="text-sm font-medium">Alto Risco</CardTitle>
                     <XCircle className="h-4 w-4 text-red-600" />
                   </CardHeader>
                   <CardContent>
@@ -512,7 +510,7 @@ export default function DatabaseMonitorPage() {
               {usageReport.summary.recommendations.length > 0 && (
                 <Alert>
                   <Info className="h-4 w-4" />
-                  <Alertdescricao>
+                  <AlertDescription>
                     <div className="space-y-2">
                       <p className="font-semibold">Recomendações Gerais:</p>
                       <ul className="list-disc list-inside space-y-1">
@@ -521,17 +519,17 @@ export default function DatabaseMonitorPage() {
                         ))}
                       </ul>
                     </div>
-                  </Alertdescricao>
+                  </AlertDescription>
                 </Alert>
               )}
 
               {/* Detalhes das Tabelas */}
               <Card>
                 <CardHeader>
-                  <Cardtitulo>Análise Detalhada por Tabela</Cardtitulo>
-                  <Carddescricao>
+                  <CardTitle>Análise Detalhada por Tabela</CardTitle>
+                  <CardDescription>
                     Uso, localização e recomendações para cada tabela
-                  </Carddescricao>
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -604,9 +602,7 @@ export default function DatabaseMonitorPage() {
                     exportType: 'database-usage-analysis',
                     generatedAt: new Date().toISOString()
                   }}
-                  filenome="database-usage-report"
-                  variant="default"
-                  className="bg-green-600 hover:bg-green-700"
+                  filename="database-usage-report"
                 />
               </div>
             </>
@@ -644,7 +640,7 @@ export default function DatabaseMonitorPage() {
               </Button>
               <ExportJsonButton
                 data={{ results: benchmarks, exportType: 'benchmarks', generatedAt: new Date().toISOString() }}
-                filenome={`benchmarks_${new Date().toISOString()}.json`}
+                filename={`benchmarks_${new Date().toISOString()}.json`}
               />
               <a
                 href={`data:text/csv;charset=utf-8,${encodeURIComponent(csvData)}`}
@@ -658,15 +654,15 @@ export default function DatabaseMonitorPage() {
           </div>
           {isRunningBenchmarks && (
             <Alert>
-              <Alertdescricao>Executando benchmarks... Aguarde.</Alertdescricao>
+              <AlertDescription>Executando benchmarks... Aguarde.</AlertDescription>
             </Alert>
           )}
           {runResults && Array.isArray(runResults) && (
             <div className="space-y-2">
               <Alert>
-                <Alertdescricao>
+                <AlertDescription>
                   Benchmarks executados! Veja os resultados abaixo.
-                </Alertdescricao>
+                </AlertDescription>
               </Alert>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {runResults.map((b: BenchmarkResult, idx: number) => {
@@ -674,7 +670,7 @@ export default function DatabaseMonitorPage() {
                   return (
                     <Card key={idx}>
                       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <Cardtitulo className="text-sm font-medium">{b.tipo}</Cardtitulo>
+                        <CardTitle className="text-sm font-medium">{b.tipo}</CardTitle>
                         <span className={`px-2 py-1 rounded text-xs font-bold ${getBenchmarkBadgeColor(classificacao)}`}>{classificacao}</span>
                       </CardHeader>
                       <CardContent>
@@ -692,7 +688,7 @@ export default function DatabaseMonitorPage() {
           )}
           {benchmarks.length === 0 ? (
             <Alert>
-              <Alertdescricao>Nenhum resultado de benchmark encontrado.</Alertdescricao>
+              <AlertDescription>Nenhum resultado de benchmark encontrado.</AlertDescription>
             </Alert>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -701,7 +697,7 @@ export default function DatabaseMonitorPage() {
                 return (
                   <Card key={idx}>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <Cardtitulo className="text-sm font-medium">{b.tipo}</Cardtitulo>
+                      <CardTitle className="text-sm font-medium">{b.tipo}</CardTitle>
                       <span className={`px-2 py-1 rounded text-xs font-bold ${getBenchmarkBadgeColor(classificacao)}`}>{classificacao}</span>
                     </CardHeader>
                     <CardContent>

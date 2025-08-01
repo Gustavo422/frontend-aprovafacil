@@ -8,10 +8,10 @@ import { LoginForm } from '@/features/auth/components/login-form';
 import {
   Card,
   CardContent,
-  Carddescricao,
+  CardDescription,
   CardFooter,
   CardHeader,
-  Cardtitulo,
+  CardTitle,
 } from '@/components/ui/card';
 
 export default function LoginPage() {
@@ -61,10 +61,10 @@ export default function LoginPage() {
         {/* Login Card */}
         <Card className="border-border/50">
           <CardHeader className="space-y-1 text-center">
-            <Cardtitulo className="text-xl font-semibold">Fazer Login</Cardtitulo>
-            <Carddescricao>
+            <CardTitle className="text-xl font-semibold">Fazer Login</CardTitle>
+            <CardDescription>
               Digite seu email e senha para continuar
-            </Carddescricao>
+            </CardDescription>
           </CardHeader>
           
           <CardContent>

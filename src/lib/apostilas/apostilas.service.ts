@@ -5,14 +5,14 @@ type Apostila = {
   descricao?: string;
   concurso_id: string;
   categoria_id?: string;
-  user_id: string;
+  usuario_id: string;
   ativo: boolean;
   criado_em: string;
   atualizado_em: string;
 };
 
 type ApostilaInsert = Omit<Apostila, 'id' | 'criado_em' | 'atualizado_em'>;
-type ApostilaUpdate = Partial<Omit<Apostila, 'id' | 'criado_em' | 'user_id'>>;
+type ApostilaUpdate = Partial<Omit<Apostila, 'id' | 'criado_em' | 'usuario_id'>>;
 
 /**
  * Serviço para gerenciar apostilas
@@ -76,14 +76,14 @@ class ApostilasService {
   /**
    * Cria uma nova apostila
    */
-  async create(apostila: Omit<ApostilaInsert, 'id' | 'criado_em' | 'atualizado_em' | 'user_id'>, userId: string): Promise<Apostila> {
+  async create(apostila: Omit<ApostilaInsert, 'id' | 'criado_em' | 'atualizado_em' | 'usuario_id'>, usuarioId: string): Promise<Apostila> {
     try {
       const res = await fetch('/api/apostilas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...apostila,
-          user_id: userId,
+          usuario_id: usuarioId,
         }),
       });
 
@@ -101,7 +101,7 @@ class ApostilasService {
    */
   async update(
     id: string,
-    updates: Partial<Omit<ApostilaUpdate, 'id' | 'criado_em' | 'user_id'>>
+    updates: Partial<Omit<ApostilaUpdate, 'id' | 'criado_em' | 'usuario_id'>>
   ): Promise<Apostila> {
     try {
       const res = await fetch(`/api/apostilas/${id}`, {
@@ -190,9 +190,9 @@ class ApostilasService {
   /**
    * Busca apostilas por usuário
    */
-  async findByUser(userId: string): Promise<Apostila[]> {
+  async findByUser(usuarioId: string): Promise<Apostila[]> {
     try {
-      const res = await fetch(`/api/apostilas?userId=${encodeURIComponent(userId)}`);
+      const res = await fetch(`/api/apostilas?usuarioId=${encodeURIComponent(usuarioId)}`);
       if (!res.ok) throw new Error('Erro ao buscar apostilas do usuário');
       
       const data = await res.json();

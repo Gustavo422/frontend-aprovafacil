@@ -3,7 +3,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, Cardtitulo, Carddescricao } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { logger } from '@/lib/logger';
@@ -341,7 +341,7 @@ export default function DashboardPage() {
         {/* Gráfico de Desempenho */}
         <Card className="col-span-4">
           <CardHeader>
-            <Cardtitulo>Evolução do Desempenho</Cardtitulo>
+            <CardTitle>Evolução do Desempenho</CardTitle>
           </CardHeader>
           <CardContent className="pl-2">
             <div className="h-[300px]">
@@ -394,7 +394,7 @@ export default function DashboardPage() {
         {/* Atividades Recentes */}
         <Card className="col-span-3">
           <CardHeader>
-            <Cardtitulo>Atividades Recentes</Cardtitulo>
+            <CardTitle>Atividades Recentes</CardTitle>
           </CardHeader>
           <CardContent>
             <RecentActivity 
@@ -419,9 +419,9 @@ export default function DashboardPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card className="card-hover border-l-4 border-l-blue-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <Cardtitulo className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium">
               Simulados Realizados
-            </Cardtitulo>
+            </CardTitle>
             <div className="flex items-center gap-2">
               <FileText className="h-4 w-4 text-blue-500" />
               {performanceStats.weeklyProgress.simulados > 0 && (
@@ -447,9 +447,9 @@ export default function DashboardPage() {
 
         <Card className="card-hover border-l-4 border-l-green-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <Cardtitulo className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium">
               Taxa de Acerto
-            </Cardtitulo>
+            </CardTitle>
             <div className="flex items-center gap-2">
               <Target className="h-4 w-4 text-green-500" />
               {performanceStats.weeklyProgress.scoreImprovement > 0 ? (
@@ -477,9 +477,9 @@ export default function DashboardPage() {
 
         <Card className="card-hover border-l-4 border-l-purple-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <Cardtitulo className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium">
               Tempo de Estudo
-            </Cardtitulo>
+            </CardTitle>
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-purple-500" />
               <Brain className="h-3 w-3 text-purple-400" />
@@ -500,9 +500,9 @@ export default function DashboardPage() {
 
         <Card className="card-hover border-l-4 border-l-orange-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <Cardtitulo className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium">
               Ranking
-            </Cardtitulo>
+            </CardTitle>
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-orange-500" />
               <BarChart3 className="h-3 w-3 text-orange-400" />
@@ -527,10 +527,10 @@ export default function DashboardPage() {
         {/* Gráfico de Desempenho */}
         <Card className="lg:col-span-4">
           <CardHeader>
-            <Cardtitulo>Evolução do Desempenho</Cardtitulo>
-            <Carddescricao>
+            <CardTitle>Evolução do Desempenho</CardTitle>
+            <CardDescription>
               Acompanhe sua evolução ao longo do tempo
-            </Carddescricao>
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {performanceStats.performanceHistory.length > 0 ? (
@@ -571,10 +571,10 @@ export default function DashboardPage() {
         {/* Desempenho por Disciplina */}
         <Card className="lg:col-span-3">
           <CardHeader>
-            <Cardtitulo>Desempenho por Disciplina</Cardtitulo>
-            <Carddescricao>
+            <CardTitle>Desempenho por Disciplina</CardTitle>
+            <CardDescription>
               Identifique seus pontos fortes e fracos
-            </Carddescricao>
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {performanceStats.disciplinaStats.length > 0 ? (
@@ -623,10 +623,10 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <Cardtitulo>Visão Geral do Desempenho</Cardtitulo>
-              <Carddescricao>
+              <CardTitle>Visão Geral do Desempenho</CardTitle>
+              <CardDescription>
                 Acompanhe seu progresso e desempenho nos simulados
-              </Carddescricao>
+              </CardDescription>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -662,10 +662,10 @@ export default function DashboardPage() {
         {/* Atividade Recente */}
         <Card>
           <CardHeader>
-            <Cardtitulo>Atividades Recentes</Cardtitulo>
-            <Carddescricao>
+            <CardTitle>Atividades Recentes</CardTitle>
+            <CardDescription>
               Suas últimas atividades na plataforma
-            </Carddescricao>
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {recentActivities.length > 0 ? (

@@ -6,7 +6,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
-import { Alert, Alertdescricao } from '../ui/alert';
+import { Alert, AlertDescription } from '../ui/alert';
 import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface AlertNotificationConfigProps {
@@ -108,14 +108,14 @@ export function AlertNotificationConfig({ channel }: AlertNotificationConfigProp
       {error && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <Alertdescricao>{error}</Alertdescricao>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
       
       {success && (
         <Alert variant="default" className="bg-primary/10 border-primary">
           <CheckCircle2 className="h-4 w-4 text-primary" />
-          <Alertdescricao>Configuração salva com sucesso</Alertdescricao>
+          <AlertDescription>Configuração salva com sucesso</AlertDescription>
         </Alert>
       )}
       

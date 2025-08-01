@@ -3,12 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Shield, AlertTriangle, CheckCircle, Loader2, Monitor, Smartphone } from 'lucide-react';
-import { Alert, Alertdescricao } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, Carddescricao, CardFooter, CardHeader, Cardtitulo } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface User {
   id: string;
@@ -228,10 +228,10 @@ export default function EnhancedLogin() {
           <div className="flex items-center justify-center mb-4">
             <Shield className="w-8 h-8 text-blue-600" />
           </div>
-          <Cardtitulo className="text-2xl font-bold text-center">AprovaFácil</Cardtitulo>
-          <Carddescricao className="text-center">
+          <CardTitle className="text-2xl font-bold text-center">AprovaFácil</CardTitle>
+          <CardDescription className="text-center">
             Faça login em sua conta para continuar
-          </Carddescricao>
+          </CardDescription>
         </CardHeader>
 
         <form onSubmit={handleSubmit}>
@@ -248,21 +248,21 @@ export default function EnhancedLogin() {
             {error && (
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
-                <Alertdescricao>{error}</Alertdescricao>
+                <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
 
             {securityWarning && (
               <Alert>
                 <Shield className="h-4 w-4" />
-                <Alertdescricao>{securityWarning}</Alertdescricao>
+                <AlertDescription>{securityWarning}</AlertDescription>
               </Alert>
             )}
 
             {success && (
               <Alert className="border-green-200 bg-green-50">
                 <CheckCircle className="h-4 w-4 text-green-600" />
-                <Alertdescricao className="text-green-700">{success}</Alertdescricao>
+                <AlertDescription className="text-green-700">{success}</AlertDescription>
               </Alert>
             )}
 

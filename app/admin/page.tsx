@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, Carddescricao, CardHeader, Cardtitulo } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ExportJsonButton } from '@/components/ui/export-json-button';
@@ -282,7 +282,7 @@ export default function AdminPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <Cardtitulo className="text-sm font-medium">Total de Usuários</Cardtitulo>
+            <CardTitle className="text-sm font-medium">Total de Usuários</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -295,7 +295,7 @@ export default function AdminPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <Cardtitulo className="text-sm font-medium">Simulados</Cardtitulo>
+            <CardTitle className="text-sm font-medium">Simulados</CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -308,7 +308,7 @@ export default function AdminPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <Cardtitulo className="text-sm font-medium">Questões</Cardtitulo>
+            <CardTitle className="text-sm font-medium">Questões</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -321,7 +321,7 @@ export default function AdminPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <Cardtitulo className="text-sm font-medium">Usuários Ativos</Cardtitulo>
+            <CardTitle className="text-sm font-medium">Usuários Ativos</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -377,8 +377,8 @@ export default function AdminPage() {
                   </div>
                   {getStatusBadge(feature.status)}
                 </div>
-                <Cardtitulo className="text-lg">{feature.title}</Cardtitulo>
-                <Carddescricao>{feature.descricao}</Carddescricao>
+                <CardTitle className="text-lg">{feature.title}</CardTitle>
+              <CardDescription>{feature.descricao}</CardDescription>
               </CardHeader>
               <CardContent>
                 {feature.status === 'active' ? (
@@ -404,10 +404,10 @@ export default function AdminPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card>
             <CardHeader>
-              <Cardtitulo className="flex items-center space-x-2">
+              <CardTitle className="flex items-center space-x-2">
                 <Database className="h-5 w-5" />
                 <span>Banco de Dados</span>
-              </Cardtitulo>
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center space-x-2">
@@ -424,10 +424,10 @@ export default function AdminPage() {
 
           <Card>
             <CardHeader>
-              <Cardtitulo className="flex items-center space-x-2">
+              <CardTitle className="flex items-center space-x-2">
                 <Activity className="h-5 w-5" />
                 <span>Performance</span>
-              </Cardtitulo>
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
@@ -479,9 +479,7 @@ export default function AdminPage() {
       <div className="flex justify-end pt-6 border-t">
         <ExportJsonButton
           data={getAdminData()}
-          filenome="admin-dashboard-report"
-          variant="default"
-          className="bg-purple-600 hover:bg-purple-700"
+          filename="admin-dashboard-report"
         />
       </div>
     </div>

@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, Carddescricao, CardHeader, Cardtitulo } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Alert, Alertdescricao } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ExportJsonButton } from '@/components/ui/export-json-button';
 import { 
@@ -135,7 +135,7 @@ export default function DatabaseUsagePage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Cardtitulo className="text-sm font-medium">Total de Tabelas</Cardtitulo>
+                <CardTitle className="text-sm font-medium">Total de Tabelas</CardTitle>
                 <Database className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -145,7 +145,7 @@ export default function DatabaseUsagePage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Cardtitulo className="text-sm font-medium">Tabelas Usadas</Cardtitulo>
+                <CardTitle className="text-sm font-medium">Tabelas Usadas</CardTitle>
                 <CheckCircle className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
@@ -158,7 +158,7 @@ export default function DatabaseUsagePage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Cardtitulo className="text-sm font-medium">Tabelas Não Usadas</Cardtitulo>
+                <CardTitle className="text-sm font-medium">Tabelas Não Usadas</CardTitle>
                 <AlertTriangle className="h-4 w-4 text-yellow-600" />
               </CardHeader>
               <CardContent>
@@ -168,7 +168,7 @@ export default function DatabaseUsagePage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Cardtitulo className="text-sm font-medium">Alto Risco</Cardtitulo>
+                <CardTitle className="text-sm font-medium">Alto Risco</CardTitle>
                 <XCircle className="h-4 w-4 text-red-600" />
               </CardHeader>
               <CardContent>
@@ -192,7 +192,7 @@ export default function DatabaseUsagePage() {
               {usageReport.summary.recommendations.length > 0 && (
                 <Alert>
                   <Info className="h-4 w-4" />
-                  <Alertdescricao>
+                  <AlertDescription>
                     <div className="space-y-2">
                       <p className="font-semibold">Recomendações Gerais:</p>
                       <ul className="list-disc list-inside space-y-1">
@@ -201,17 +201,17 @@ export default function DatabaseUsagePage() {
                         ))}
                       </ul>
                     </div>
-                  </Alertdescricao>
+                  </AlertDescription>
                 </Alert>
               )}
 
               {/* Estatísticas de Uso */}
               <Card>
                 <CardHeader>
-                  <Cardtitulo>Estatísticas de Uso</Cardtitulo>
-                  <Carddescricao>
+                  <CardTitle>Estatísticas de Uso</CardTitle>
+                  <CardDescription>
                     Resumo do uso das tabelas no sistema
-                  </Carddescricao>
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -272,10 +272,10 @@ export default function DatabaseUsagePage() {
             <TabsContent value="tables" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <Cardtitulo>Análise Detalhada por Tabela</Cardtitulo>
-                  <Carddescricao>
+                  <CardTitle>Análise Detalhada por Tabela</CardTitle>
+                  <CardDescription>
                     Uso, localização e recomendações para cada tabela
-                  </Carddescricao>
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -344,17 +344,17 @@ export default function DatabaseUsagePage() {
             <TabsContent value="recommendations" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <Cardtitulo>Recomendações de Otimização</Cardtitulo>
-                  <Carddescricao>
+                  <CardTitle>Recomendações de Otimização</CardTitle>
+                  <CardDescription>
                     Sugestões para melhorar o uso e performance do banco de dados
-                  </Carddescricao>
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Tabelas não utilizadas */}
                   {usageReport.summary.unusedTables > 0 && (
                     <Alert>
                       <AlertTriangle className="h-4 w-4" />
-                      <Alertdescricao>
+                      <AlertDescription>
                         <div className="space-y-2">
                           <p className="font-semibold">Tabelas Não Utilizadas ({usageReport.summary.unusedTables})</p>
                           <p className="text-sm">
@@ -367,7 +367,7 @@ export default function DatabaseUsagePage() {
                               .join(', ')}
                           </div>
                         </div>
-                      </Alertdescricao>
+                      </AlertDescription>
                     </Alert>
                   )}
 
@@ -375,14 +375,14 @@ export default function DatabaseUsagePage() {
                   {usageReport.summary.highRiskOperations > 0 && (
                     <Alert variant="destructive">
                       <XCircle className="h-4 w-4" />
-                      <Alertdescricao>
+                      <AlertDescription>
                         <div className="space-y-2">
                           <p className="font-semibold">Operações de Alto Risco ({usageReport.summary.highRiskOperations})</p>
                           <p className="text-sm">
                             Revise operações que podem causar problemas de performance ou integridade de dados.
                           </p>
                         </div>
-                      </Alertdescricao>
+                      </AlertDescription>
                     </Alert>
                   )}
 
@@ -406,9 +406,7 @@ export default function DatabaseUsagePage() {
           <div className="flex justify-end pt-4 border-t">
             <ExportJsonButton
               data={getUsageData()}
-              filenome="database-usage-report"
-              variant="default"
-              className="bg-green-600 hover:bg-green-700"
+              filename="database-usage-report"
             />
           </div>
         </>
@@ -424,7 +422,4 @@ export default function DatabaseUsagePage() {
       )}
     </div>
   );
-} 
-
-
-
+}

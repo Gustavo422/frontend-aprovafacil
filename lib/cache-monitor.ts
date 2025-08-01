@@ -353,7 +353,7 @@ export class CacheMonitor {
     options: {
       error?: string;
       size?: number;
-      userId?: string;
+      usuarioId?: string;
     } = {}
   ): void {
     if (!this.initialized || !this.config.enabled || !this.metricsCollector || !operationId) {
@@ -375,7 +375,7 @@ export class CacheMonitor {
       key?: string;
       error?: string;
       size?: number;
-      userId?: string;
+      usuarioId?: string;
     } = {}
   ): void {
     if (!this.initialized || !this.config.enabled || !this.metricsCollector) {
@@ -455,13 +455,13 @@ export class CacheMonitor {
   public async getCacheEntryMetadata(
     key: string,
     cacheType: CacheType,
-    userId?: string
+    usuarioId?: string
   ): Promise<CacheEntryMetadata | null> {
     if (!this.initialized || !this.config.enabled || !this.cacheInspector) {
       return null;
     }
     
-    return this.cacheInspector.getEntryMetadata(key, cacheType, userId);
+    return this.cacheInspector.getEntryMetadata(key, cacheType, usuarioId);
   }
   
   /**
@@ -470,13 +470,13 @@ export class CacheMonitor {
   public async getCacheEntryData<T>(
     key: string,
     cacheType: CacheType,
-    userId?: string
+    usuarioId?: string
   ): Promise<T | null> {
     if (!this.initialized || !this.config.enabled || !this.cacheInspector) {
       return null;
     }
     
-    return this.cacheInspector.getEntryData<T>(key, cacheType, userId);
+    return this.cacheInspector.getEntryData<T>(key, cacheType, usuarioId);
   }
   
   /**
@@ -631,7 +631,7 @@ export class CacheMonitor {
     options: {
       includeExpired?: boolean;
       pattern?: string;
-      userId?: string;
+      usuarioId?: string;
     } = {}
   ): Promise<CacheSizeInfo> {
     if (!this.initialized || !this.config.enabled || !this.cacheInspector) {
@@ -648,7 +648,7 @@ export class CacheMonitor {
     cacheType: CacheType,
     options: {
       pattern?: string;
-      userId?: string;
+      usuarioId?: string;
     } = {}
   ): Promise<CacheStatusCounts> {
     if (!this.initialized || !this.config.enabled || !this.cacheInspector) {
@@ -665,7 +665,7 @@ export class CacheMonitor {
     options: {
       cacheType?: CacheType;
       pattern?: string;
-      userId?: string;
+      usuarioId?: string;
     } = {}
   ): Promise<ExpirationStatistics> {
     if (!this.initialized || !this.config.enabled || !this.cacheInspector) {
@@ -690,7 +690,7 @@ export class CacheMonitor {
     options: {
       includeExpired?: boolean;
       pattern?: string;
-      userId?: string;
+      usuarioId?: string;
       maxLargestEntries?: number;
     } = {}
   ): Promise<CacheTypeStatistics> {

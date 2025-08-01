@@ -9,7 +9,7 @@ export interface Apostila {
   ativo: boolean;
   criado_em: string;
   atualizado_em: string;
-  user_id: string;
+  usuario_id: string;
 }
 
 export interface ApostilaInsert {
@@ -18,7 +18,7 @@ export interface ApostilaInsert {
   concurso_id: string;
   categoria_id: string;
   ativo?: boolean;
-  user_id: string;
+  usuario_id: string;
 }
 
 export interface ApostilaUpdate {
@@ -60,7 +60,7 @@ export interface ApostilaContentUpdate {
 
 export interface UserApostilaProgress {
   id: string;
-  user_id: string;
+  usuario_id: string;
   apostila_id: string;
   module_id: string;
   percentual_progresso: number;
@@ -70,7 +70,7 @@ export interface UserApostilaProgress {
 }
 
 export interface UserApostilaProgressInsert {
-  user_id: string;
+  usuario_id: string;
   apostila_id: string;
   module_id: string;
   percentual_progresso: number;

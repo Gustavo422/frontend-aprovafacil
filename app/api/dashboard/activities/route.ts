@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { extractAuthToken } from '@/lib/auth-utils';
+import { extractAuthToken, sanitizeToken } from '@/lib/auth-utils';
 
 export async function GET(request: Request) {
   try {
@@ -14,6 +14,8 @@ export async function GET(request: Request) {
       console.log('[DEBUG] Token não encontrado');
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
+
+    console.log('[DEBUG] Com token:', sanitizeToken(token));
 
     const response = await fetch(`${process.env.BACKEND_API_URL}/api/dashboard/activities`, {
       method: 'GET',

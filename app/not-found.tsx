@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
-  Carddescricao,
-  Cardtitulo,
+  CardTitle,
 } from '@/components/ui/card';
 import { FileX, Home, ArrowLeft } from 'lucide-react';
 
@@ -23,10 +23,10 @@ export default function NotFound() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/20">
             <FileX className="h-8 w-8 text-orange-600" />
           </div>
-          <Cardtitulo className="text-xl">Página não encontrada</Cardtitulo>
-          <Carddescricao className="text-sm">
+          <CardTitle className="text-xl">Página não encontrada</CardTitle>
+          <CardDescription className="text-sm">
             A página que você está procurando não existe ou foi movida.
-          </Carddescricao>
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="text-center">

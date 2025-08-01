@@ -36,7 +36,7 @@ export interface CacheOperationContext {
   duration?: number;
   size?: number;
   error?: string;
-  userId?: string;
+  usuarioId?: string;
   correlationId?: string;
 }
 
@@ -306,12 +306,12 @@ export class CacheLogger {
       result?: CacheOperationResult;
       duration?: number;
       error?: Error | string;
-      userId?: string;
+      usuarioId?: string;
       correlationId?: string;
       size?: number;
     } = {}
   ): CacheOperationContext {
-    const { key, result, duration, error, userId, correlationId, size } = options;
+    const { key, result, duration, error, usuarioId, correlationId, size } = options;
     
     return {
       operation,
@@ -320,7 +320,7 @@ export class CacheLogger {
       result,
       duration,
       error: error instanceof Error ? error.message : error,
-      userId,
+      usuarioId,
       correlationId: correlationId || this.generateCorrelationId(),
       size,
     };

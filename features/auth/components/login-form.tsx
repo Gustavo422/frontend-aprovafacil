@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Alert, Alertdescricao } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import Link from 'next/link';
 
 // Form validation schema
@@ -174,9 +174,9 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       {isBlocked && (
         <Alert className="border-destructive/50 bg-destructive/10">
           <Lock className="h-4 w-4" />
-          <Alertdescricao>
+          <AlertDescription>
             Conta temporariamente bloqueada. Tempo restante: {formatTime(timeUntilReset)}
-          </Alertdescricao>
+          </AlertDescription>
         </Alert>
       )}
 
@@ -278,9 +278,9 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           {loginAttempts > 0 && loginAttempts < 3 && (
             <Alert className="border-warning/50 bg-warning/10">
               <AlertCircle className="h-4 w-4" />
-              <Alertdescricao className="text-sm">
+              <AlertDescription className="text-sm">
                 Tentativa {loginAttempts} de 3. Após 3 tentativas, sua conta será temporariamente bloqueada.
-              </Alertdescricao>
+              </AlertDescription>
             </Alert>
           )}
         </form>

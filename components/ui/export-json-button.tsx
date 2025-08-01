@@ -1,89 +1,38 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Download, FileJson } from 'lucide-react';
-import { useToast } from '@/features/shared/hooks/use-toast';
-import { logger } from '@/lib/logger';
+import React from 'react';
+import { Button } from './button';
+import { Download } from 'lucide-react';
 
 interface ExportJsonButtonProps {
-  data: Record<string, unknown> | Array<Record<string, unknown>>;
-  filenome: string;
-  disabled?: boolean;
-  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
-  size?: 'default' | 'sm' | 'lg' | 'icon';
-  className?: string;
+  data: unknown;
+  filename?: string;
+  children?: React.ReactNode;
 }
 
-export function ExportJsonButton({
-  data,
-  filenome,
-  disabled = false,
-  variant = 'outline',
-  size = 'default',
-  className = ''
+export function ExportJsonButton({ 
+  data, 
+  filename = 'export.json', 
+  children 
 }: ExportJsonButtonProps) {
-  const { toast } = useToast();
-
-  const exportToJson = () => {
-    try {
-      // Criar o objeto de dados para exportação
-      const exportData = {
-        exportInfo: {
-          timestamp: new Date().toISOString(),
-          filenome: filenome,
-          version: '1.0',
-          source: 'Concentrify Admin System'
-        },
-        data: data
-      };
-
-      // Converter para JSON com formatação
-      const jsonString = JSON.stringify(exportData, null, 2);
-      
-      // Criar blob e download
-      const blob = new Blob([jsonString], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${filenome}_${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // Limpar URL
-      URL.revokeObjectURL(url);
-
-      toast({
-        titulo: 'Exportação realizada',
-        descricao: `Arquivo ${filenome} exportado com sucesso!`,
-      });
-    } catch (error) {
-      logger.error('Erro ao exportar JSON:', { 
-        error: error instanceof Error ? error.message : String(error)
-      });
-      toast({
-        variant: 'destructive',
-        titulo: 'Erro na exportação',
-        descricao: 'Não foi possível exportar os dados como JSON.',
-      });
-    }
+  const handleExport = () => {
+    const jsonString = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
-    <Button
-      onClick={exportToJson}
-      disabled={disabled}
-      variant={variant}
-      size={size}
-      className={className}
-    >
-      <FileJson className="mr-2 h-4 w-4" />
-      <Download className="mr-2 h-4 w-4" />
-      Exportar JSON
+    <Button onClick={handleExport} variant="outline" size="sm">
+      <Download className="h-4 w-4 mr-2" />
+      {children || 'Export JSON'}
     </Button>
   );
-} 
-
-
-
+}

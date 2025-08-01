@@ -25,7 +25,7 @@ export function useEnhancedQuery<TData = unknown, TError = Error>(
   options: UseEnhancedQueryOptions<TData, TError> = {}
 ) {
   const { user } = useAuth();
-  const userId = user?.id;
+  const usuarioId = user?.id;
   
   const {
     cacheOptions = {},
@@ -56,7 +56,7 @@ export function useEnhancedQuery<TData = unknown, TError = Error>(
       if (useLocalCache) {
         const cachedData = await cacheManager.get<TData>(cacheKey, {
           type,
-          userId: persistInSupabase ? userId : undefined
+          usuarioId: persistInSupabase ? usuarioId : undefined
         });
         
         if (cachedData !== null) {
@@ -74,7 +74,7 @@ export function useEnhancedQuery<TData = unknown, TError = Error>(
           type,
           ttlMinutes,
           relatedKeys,
-          userId: persistInSupabase ? userId : undefined
+          usuarioId: persistInSupabase ? usuarioId : undefined
         });
       }
       
@@ -86,7 +86,7 @@ export function useEnhancedQuery<TData = unknown, TError = Error>(
       });
       throw error;
     }
-  }, [cacheKey, queryFn, useLocalCache, type, ttlMinutes, relatedKeys, persistInSupabase, userId]);
+  }, [cacheKey, queryFn, useLocalCache, type, ttlMinutes, relatedKeys, persistInSupabase, usuarioId]);
   
   // Usar React Query
   const query = useTanstackQuery<TData, TError>({
@@ -107,12 +107,12 @@ export function useEnhancedQuery<TData = unknown, TError = Error>(
   const invalidateCache = useCallback(async () => {
     await cacheManager.invalidate(cacheKey, {
       type,
-      userId: persistInSupabase ? userId : undefined
+      usuarioId: persistInSupabase ? usuarioId : undefined
     });
     
     // Forçar refetch
     query.refetch();
-  }, [cacheKey, type, persistInSupabase, userId, query]);
+  }, [cacheKey, type, persistInSupabase, usuarioId, query]);
   
   // Função para atualizar o cache manualmente
   const updateCache = useCallback(async (newData: TData) => {
@@ -120,12 +120,12 @@ export function useEnhancedQuery<TData = unknown, TError = Error>(
       type,
       ttlMinutes,
       relatedKeys,
-      userId: persistInSupabase ? userId : undefined
+      usuarioId: persistInSupabase ? usuarioId : undefined
     });
     
     // Atualizar dados no React Query
     query.refetch();
-  }, [cacheKey, type, ttlMinutes, relatedKeys, persistInSupabase, userId, query]);
+  }, [cacheKey, type, ttlMinutes, relatedKeys, persistInSupabase, usuarioId, query]);
   
   // Função para atualização otimista
   const optimisticUpdate = useCallback(async (updateFn: (oldData: TData | null) => TData) => {
@@ -133,9 +133,9 @@ export function useEnhancedQuery<TData = unknown, TError = Error>(
       type,
       ttlMinutes,
       relatedKeys,
-      userId: persistInSupabase ? userId : undefined
+      usuarioId: persistInSupabase ? usuarioId : undefined
     });
-  }, [cacheKey, type, ttlMinutes, relatedKeys, persistInSupabase, userId]);
+  }, [cacheKey, type, ttlMinutes, relatedKeys, persistInSupabase, usuarioId]);
   
   return {
     ...query,

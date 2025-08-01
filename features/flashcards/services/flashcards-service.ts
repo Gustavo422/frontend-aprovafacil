@@ -1,9 +1,35 @@
 import type { Database } from '@/src/types/supabase.types';
 
-// Tipos específicos do serviço para clareza
-export type Flashcard = Database['public']['Tables']['cartoes_memorizacao']['Row'];
-export type FlashcardProgressInsert = Database['public']['Tables']['progresso_usuario_flashcard']['Insert'];
-export type FlashcardProgressData = Database['public']['Tables']['progresso_usuario_flashcard']['Row'];
+// Tipos temporários para evitar erro de compilação
+export type Flashcard = {
+  id: string;
+  front: string;
+  back: string;
+  disciplina: string;
+  tema: string;
+  subtema: string | null;
+  criado_em: string;
+  concurso_id: string | null;
+  categoria_id: string | null;
+  peso_disciplina: number | null;
+};
+export type FlashcardProgressInsert = {
+  usuario_id: string;
+  flashcard_id: string;
+  status: string;
+  next_review?: string | null;
+  review_count?: number;
+  atualizado_em?: string;
+};
+export type FlashcardProgressData = {
+  id: string;
+  usuario_id: string;
+  flashcard_id: string;
+  status: string;
+  next_review: string | null;
+  review_count: number;
+  atualizado_em: string;
+};
 
 // Tipos adicionais para compatibilidade
 export interface FlashcardFilters {
@@ -21,7 +47,7 @@ export interface FlashcardInsert {
   categoria_id?: string;
   disciplina_id?: string;
   ativo?: boolean;
-  user_id: string;
+  usuario_id: string;
 }
 
 export interface FlashcardUpdate {
@@ -104,13 +130,13 @@ export class FlashcardsService {
     });
   }
 
-  async getusuariostats(userId: string): Promise<ServiceResult<unknown>> {
-    return this.handleRequest<unknown>(`/api/flashcards/stats?user_id=${userId}`);
+  async getusuariostats(usuarioId: string): Promise<ServiceResult<unknown>> {
+    return this.handleRequest<unknown>(`/api/flashcards/stats?usuario_id=${usuarioId}`);
   }
 
-  async getFlashcardsForReview(userId: string, limit: number = 20): Promise<ServiceResult<Flashcard[]>> {
+  async getFlashcardsForReview(usuarioId: string, limit: number = 20): Promise<ServiceResult<Flashcard[]>> {
     const params = new URLSearchParams({
-      user_id: userId,
+      usuario_id: usuarioId,
       limit: limit.toString(),
       review: 'true'
     });

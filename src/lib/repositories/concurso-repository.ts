@@ -14,21 +14,21 @@ export type Concurso = Tables<'concursos'>;
 /**
  * Concurso input type
  */
-export type ConcursoInput = {
+export interface ConcursoInput {
   nome: string;
-  slug?: string;
-  descricao?: string | null;
-  ano?: number | null;
-  banca?: string | null;
-  categoria_id?: string | null;
-  url_edital?: string | null;
-  data_prova?: string | null;
-  vagas?: number | null;
-  salario?: number | null;
+  slug: string;
+  descricao?: string;
+  ano?: number;
+  banca?: string;
+  categoria_id?: string;
+  url_edital?: string; // CORRETO conforme schema
+  data_prova?: string;
+  vagas?: number;
+  salario?: number;
   nivel_dificuldade?: 'facil' | 'medio' | 'dificil';
   multiplicador_questoes?: number;
   ativo?: boolean;
-};
+}
 
 /**
  * Concurso filters type
@@ -41,51 +41,31 @@ export type ConcursoFiltros = {
   banca?: string | null;
 };
 
+
+
 /**
- * Map API concurso to Supabase concurso
- * @param concurso API concurso
- * @returns Supabase concurso
+ * Map database concurso to API format
+ * @param concurso Database concurso
+ * @returns API concurso
  */
-function mapConcursoApiToSupabase(concurso: Record<string, unknown> | null): Concurso {
-  if (!concurso) {
-    return {
-      id: '',
-      nome: '',
-      descricao: null,
-      ano: null,
-      banca: null,
-      ativo: false,
-      criado_em: '',
-      atualizado_em: '',
-      categoria_id: null,
-      url_edital: null,
-      data_prova: null,
-      vagas: null,
-      salario: null,
-      multiplicador_questoes: 1,
-      nivel_dificuldade: 'medio',
-      slug: ''
-    };
-  }
+function mapDatabaseToApi(concurso: Record<string, unknown>): Concurso {
   return {
-    id: String(concurso.id ?? ''),
-    nome: String(concurso.nome ?? ''),
-    descricao: (concurso.descricao as string | null) ?? null,
-    ano: concurso.ano === undefined ? null : (concurso.ano as number | null),
-    banca: concurso.banca === undefined ? null : (concurso.banca as string | null),
-    ativo: Boolean(concurso.ativo),
-    criado_em: String(concurso.criado_em ?? ''),
-    atualizado_em: String(concurso.atualizado_em ?? ''),
-    categoria_id: concurso.categoria_id === undefined ? null : (concurso.categoria_id as string | null),
-    url_edital: typeof (concurso as Record<string, unknown>).url_edital === 'string'
-      ? String((concurso as Record<string, unknown>).url_edital)
-      : null,
-    data_prova: concurso.data_prova === undefined ? null : (concurso.data_prova as string | null),
-    vagas: concurso.vagas === undefined ? null : (concurso.vagas as number | null),
-    salario: concurso.salario === undefined ? null : (concurso.salario as number | null),
-    multiplicador_questoes: (concurso.multiplicador_questoes as number) ?? 1,
-    nivel_dificuldade: (concurso.nivel_dificuldade as 'facil' | 'medio' | 'dificil') ?? 'medio',
-    slug: (concurso.slug as string) ?? ''
+    id: concurso.id as string,
+    nome: concurso.nome as string,
+    slug: concurso.slug as string,
+    descricao: concurso.descricao as string,
+    ano: concurso.ano as number,
+    banca: concurso.banca as string,
+    categoria_id: concurso.categoria_id as string,
+    edital_url: concurso.url_edital as string, // Mapear url_edital do DB para edital_url do tipo
+    data_prova: concurso.data_prova as string,
+    vagas: concurso.vagas as number,
+    salario: concurso.salario as number,
+    nivel_dificuldade: concurso.nivel_dificuldade as 'facil' | 'medio' | 'dificil',
+    multiplicador_questoes: concurso.multiplicador_questoes as number,
+    ativo: concurso.ativo as boolean,
+    criado_em: concurso.criado_em as string,
+    atualizado_em: concurso.atualizado_em as string
   };
 }
 
@@ -111,7 +91,7 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
   async findAtivos(): Promise<Concurso[]> {
     try {
       const result = await this.findAll({ ativo: true });
-      return result.map(mapConcursoApiToSupabase);
+      return result.map(mapDatabaseToApi);
     } catch (error) {
       logger.error('Error in findAtivos', { error });
       
@@ -141,7 +121,7 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
         throw new DatabaseError('Failed to find concurso by slug: ' + error.message);
       }
       
-      return mapConcursoApiToSupabase(data);
+      return mapDatabaseToApi(data);
     } catch (error) {
       logger.error('Error in findBySlug', { error, slug });
       
@@ -171,7 +151,7 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
         throw new DatabaseError('Failed to find concurso by ID with category: ' + error.message);
       }
       
-      return mapConcursoApiToSupabase(data);
+      return mapDatabaseToApi(data);
     } catch (error) {
       logger.error('Error in findByIdWithCategory', { error, id });
       
@@ -202,7 +182,7 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
       
       // Set default values
       const now = new Date().toISOString();
-      const concursoData: Omit<Concurso, "id"> = {
+      const concursoData = {
         nome: dados.nome,
         descricao: dados.descricao ?? null,
         ano: dados.ano ?? null,
@@ -211,7 +191,7 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
         criado_em: now,
         atualizado_em: now,
         categoria_id: dados.categoria_id ?? null,
-        url_edital: dados.url_edital ?? null,
+        edital_url: dados.url_edital ?? null,
         data_prova: dados.data_prova ?? null,
         vagas: dados.vagas ?? null,
         salario: dados.salario ?? null,
@@ -221,7 +201,7 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
       };
       
       const result = await this.create(concursoData);
-      return mapConcursoApiToSupabase(result);
+      return mapDatabaseToApi(result);
     } catch (error) {
       logger.error('Error in criarConcurso', { error, dados });
       
@@ -254,13 +234,13 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
         atualizado_em: new Date().toISOString()
       };
       
-      const result = await this.update(id, concursoData as Partial<Omit<Concurso, "id">>);
+      const result = await this.update(id, concursoData);
       
       if (!result) {
         throw new NotFoundError(`Concurso with ID ${id} not found`);
       }
       
-      return mapConcursoApiToSupabase(result);
+      return mapDatabaseToApi(result);
     } catch (error) {
       logger.error('Error in atualizarConcurso', { error, id, dados });
       
@@ -296,7 +276,7 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
         throw new NotFoundError(`Concurso with ID ${id} not found`);
       }
       
-      return mapConcursoApiToSupabase(result);
+      return mapDatabaseToApi(result);
     } catch (error) {
       logger.error('Error in desativarConcurso', { error, id });
       
@@ -332,7 +312,7 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
         throw new NotFoundError(`Concurso with ID ${id} not found`);
       }
       
-      return mapConcursoApiToSupabase(result);
+      return mapDatabaseToApi(result);
     } catch (error) {
       logger.error('Error in ativarConcurso', { error, id });
       
@@ -370,7 +350,7 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
           throw new DatabaseError('Failed to search concursos: ' + error.message);
         }
         
-        return (data || []).map(mapConcursoApiToSupabase);
+        return (data || []).map(mapDatabaseToApi);
       }
       
       // Handle regular filters
@@ -382,7 +362,7 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
       
       // Get concursos with filters
       const result = await this.findAll(filters);
-      return result.map(mapConcursoApiToSupabase);
+      return result.map(mapDatabaseToApi);
     } catch (error) {
       logger.error('Error in buscarComFiltros', { error, filtros });
       
@@ -402,7 +382,7 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
   async findByCategoria(categoriaId: string): Promise<Concurso[]> {
     try {
       const result = await this.findAll({ categoria_id: categoriaId });
-      return result.map(mapConcursoApiToSupabase);
+      return result.map(mapDatabaseToApi);
     } catch (error) {
       logger.error('Error in findByCategoria', { error, categoriaId });
       
@@ -422,7 +402,7 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
   async findByBanca(banca: string): Promise<Concurso[]> {
     try {
       const result = await this.findAll({ banca });
-      return result.map(mapConcursoApiToSupabase);
+      return result.map(mapDatabaseToApi);
     } catch (error) {
       logger.error('Error in findByBanca', { error, banca });
       

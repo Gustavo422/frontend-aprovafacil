@@ -1,4 +1,4 @@
-import type { User as SupabaseUser } from '@supabase/supabase-js';
+
 import type { Database } from '@/src/types/supabase.types';
 
 type UserRow = Database['public']['Tables']['usuarios']['Row'];
@@ -9,7 +9,7 @@ type UserRow = Database['public']['Tables']['usuarios']['Row'];
  */
 export type usuariostatsUpdate = {
   total_questoes_respondidas?: number;
-  total_resposta_corretas?: number;
+  total_acertos?: number; // CORRETO conforme schema
   tempo_estudo_minutos?: number;
   pontuacao_media?: number;
 };
@@ -18,71 +18,52 @@ export type usuariostatsUpdate = {
  * Tipo completo do usuário com todos os campos necessários para a aplicação
  * Baseado no schema real do banco de dados
  */
-export interface AppUser extends Omit<SupabaseUser, 'user_metadata' | 'app_metadata'> {
-  // Campos obrigatórios do Supabase Auth
+export interface AppUser {
   id: string;
+  nome: string;
   email: string;
+  ultimo_login?: string;
   criado_em: string;
   atualizado_em: string;
-  
-  // Campos do banco de dados
-  nome: string;
-  ativo: boolean;
-  role: string;
-  total_questoes_respondidas: number;
-  total_resposta_corretas: number;
   tempo_estudo_minutos: number;
+  total_questoes_respondidas: number;
+  total_acertos: number; // CORRETO conforme schema
   pontuacao_media: number;
-  ultimo_login?: string;
-  
-  // Campos calculados para compatibilidade
-  total_questions?: number;
-  total_correct?: number;
-  total_time_minutes?: number;
-  score?: number;
-  created_at: string;
+  ativo: boolean;
+  role?: string;
+  created_at?: string;
+  aud?: string;
 }
 
 /**
  * Converte um UserRow do banco de dados para o tipo AppUser
  */
-export function mapUserRowToAppUser(userRow: UserRow | null): AppUser | null {
-  if (!userRow) return null;
-
-  // Calcular valores derivados
-  const totalQuestions = userRow.total_questoes_respondidas || 0;
-  const correctAnswers = userRow.total_acertos || 0;
-  const studyTime = userRow.tempo_estudo_minutos || 0;
-  const avgScore = userRow.pontuacao_media || 0;
-  
-  // Mapear campos do banco para o formato esperado pelo frontend
-  const appUser: AppUser = {
-    // Campos obrigatórios do Supabase
-    id: userRow.id ?? '',
-    email: userRow.email ?? '',
-    criado_em: userRow.criado_em ?? '',
-    atualizado_em: userRow.atualizado_em ?? '',
-    aud: 'authenticated', // Campo obrigatório do Supabase
-    
-    // Campos do banco de dados
-    nome: userRow.nome || userRow.email.split('@')[0],
-    // ativo e role não existem no banco, definir valores padrão
-    ativo: true,
-    role: 'user',
-    total_questoes_respondidas: totalQuestions,
-    total_resposta_corretas: correctAnswers,
-    tempo_estudo_minutos: studyTime,
-    pontuacao_media: avgScore,
-    
-    // Campos calculados
-    total_questions: totalQuestions,
-    total_correct: correctAnswers,
-    total_time_minutes: studyTime,
-    score: avgScore,
-    created_at: userRow.criado_em ?? '',
+export function mapUserRowToAppUser(userRow: {
+  id: string;
+  nome: string;
+  email: string;
+  ultimo_login?: Date | string | null;
+  criado_em: string;
+  atualizado_em: string;
+  tempo_estudo_minutos?: number;
+  total_questoes_respondidas?: number;
+  total_acertos?: number; // CORRETO conforme schema
+  pontuacao_media?: number;
+  ativo?: boolean;
+}): AppUser {
+  return {
+    id: userRow.id,
+    nome: userRow.nome,
+    email: userRow.email,
+    ultimo_login: userRow.ultimo_login ? String(userRow.ultimo_login) : undefined,
+    criado_em: userRow.criado_em,
+    atualizado_em: userRow.atualizado_em,
+    tempo_estudo_minutos: userRow.tempo_estudo_minutos || 0,
+    total_questoes_respondidas: userRow.total_questoes_respondidas || 0,
+    total_acertos: userRow.total_acertos || 0, // CORRETO conforme schema
+    pontuacao_media: userRow.pontuacao_media || 0,
+    ativo: userRow.ativo ?? true
   };
-
-  return appUser;
 }
 
 /**

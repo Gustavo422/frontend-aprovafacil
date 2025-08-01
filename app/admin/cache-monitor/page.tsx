@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, Carddescricao, CardHeader, Cardtitulo } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, Alertdescricao } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ExportJsonButton } from '@/components/ui/export-json-button';
 import {
   RefreshCw,
@@ -230,7 +230,7 @@ export default function CacheMonitorPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Cardtitulo className="text-sm font-medium">Total Entries</Cardtitulo>
+                <CardTitle className="text-sm font-medium">Total Entries</CardTitle>
                 <Database className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -243,7 +243,7 @@ export default function CacheMonitorPage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Cardtitulo className="text-sm font-medium">Hit Rate</Cardtitulo>
+                <CardTitle className="text-sm font-medium">Hit Rate</CardTitle>
                 <BarChart3 className="h-4 w-4 text-blue-600" />
               </CardHeader>
               <CardContent>
@@ -256,7 +256,7 @@ export default function CacheMonitorPage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Cardtitulo className="text-sm font-medium">Avg. Duration</Cardtitulo>
+                <CardTitle className="text-sm font-medium">Avg. Duration</CardTitle>
                 <Clock className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
@@ -269,7 +269,7 @@ export default function CacheMonitorPage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Cardtitulo className="text-sm font-medium">Total Size</Cardtitulo>
+                <CardTitle className="text-sm font-medium">Total Size</CardTitle>
                 <Database className="h-4 w-4 text-purple-600" />
               </CardHeader>
               <CardContent>
@@ -285,10 +285,10 @@ export default function CacheMonitorPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
-                <Cardtitulo>Cache Hit/Miss Rate</Cardtitulo>
-                <Carddescricao>
+                <CardTitle>Cache Hit/Miss Rate</CardTitle>
+                <CardDescription>
                   Performance of cache retrieval operations
-                </Carddescricao>
+                </CardDescription>
               </CardHeader>
               <CardContent className="h-80">
                 <CacheMetricsChart
@@ -301,10 +301,10 @@ export default function CacheMonitorPage() {
             {/* Operations Chart */}
             <Card>
               <CardHeader>
-                <Cardtitulo>Cache Operations</Cardtitulo>
-                <Carddescricao>
-                  Distribution of operation types
-                </Carddescricao>
+                <CardTitle>Cache Operations</CardTitle>
+                <CardDescription>
+                   Distribution of operation types
+                 </CardDescription>
               </CardHeader>
               <CardContent className="h-80">
                 <CacheOperationsChart
@@ -358,10 +358,10 @@ export default function CacheMonitorPage() {
 
           <Card>
             <CardHeader>
-              <Cardtitulo>Cache Performance Over Time</Cardtitulo>
-              <Carddescricao>
-                Hit rate and operation duration trends
-              </Carddescricao>
+              <CardTitle>Cache Performance Over Time</CardTitle>
+              <CardDescription>
+                 Hit rate and operation duration trends
+               </CardDescription>
             </CardHeader>
             <CardContent className="h-96">
               {/* This would be a time-series chart in a real implementation */}
@@ -379,10 +379,10 @@ export default function CacheMonitorPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
-                <Cardtitulo>Cache Size Over Time</Cardtitulo>
-                <Carddescricao>
-                  Memory usage trends
-                </Carddescricao>
+                <CardTitle>Cache Size Over Time</CardTitle>
+                <CardDescription>
+                   Memory usage trends
+                 </CardDescription>
               </CardHeader>
               <CardContent className="h-80">
                 <CacheSizeChart
@@ -394,10 +394,10 @@ export default function CacheMonitorPage() {
 
             <Card>
               <CardHeader>
-                <Cardtitulo>Error Rate</Cardtitulo>
-                <Carddescricao>
-                  Cache operation failures
-                </Carddescricao>
+                <CardTitle>Error Rate</CardTitle>
+                <CardDescription>
+                   Cache operation failures
+                 </CardDescription>
               </CardHeader>
               <CardContent className="h-80">
                 <div className="flex flex-col items-center justify-center h-full">
@@ -449,10 +449,10 @@ export default function CacheMonitorPage() {
         <TabsContent value="distribution" className="space-y-4">
           <Card>
             <CardHeader>
-              <Cardtitulo>Cache Type Distribution</Cardtitulo>
-              <Carddescricao>
-                Distribution of cache entries by type
-              </Carddescricao>
+              <CardTitle>Cache Type Distribution</CardTitle>
+              <CardDescription>
+                 Distribution of cache entries by type
+               </CardDescription>
             </CardHeader>
             <CardContent className="h-96">
               <CacheTypeDistribution
@@ -469,10 +469,10 @@ export default function CacheMonitorPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
-                <Cardtitulo>Expiration Timeline</Cardtitulo>
-                <Carddescricao>
-                  When cache entries will expire
-                </Carddescricao>
+                <CardTitle>Expiration Timeline</CardTitle>
+                <CardDescription>
+                   When cache entries will expire
+                 </CardDescription>
               </CardHeader>
               <CardContent className="h-80">
                 {completeStats && (
@@ -544,10 +544,10 @@ export default function CacheMonitorPage() {
 
             <Card>
               <CardHeader>
-                <Cardtitulo>Active vs Expired</Cardtitulo>
-                <Carddescricao>
-                  Current status of cache entries
-                </Carddescricao>
+                <CardTitle>Active vs Expired</CardTitle>
+                <CardDescription>
+                   Current status of cache entries
+                 </CardDescription>
               </CardHeader>
               <CardContent className="h-80">
                 {completeStats && (
@@ -612,7 +612,7 @@ export default function CacheMonitorPage() {
       {/* Information Alert */}
       <Alert>
         <Info className="h-4 w-4" />
-        <Alertdescricao>
+        <AlertDescription>
           <div className="space-y-2">
             <p className="font-semibold">About Cache Monitoring</p>
             <p className="text-sm">
@@ -621,17 +621,17 @@ export default function CacheMonitorPage() {
               Data is automatically refreshed every 30 seconds.
             </p>
           </div>
-        </Alertdescricao>
+        </AlertDescription>
       </Alert>
 
       {/* Warning for High Error Rate */}
       {statistics && typeof statistics.errorRate === 'number' && statistics.errorRate > 0.05 && (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
-          <Alertdescricao>
+          <AlertDescription>
             <strong>Warning:</strong> High cache error rate detected ({(statistics.errorRate * 100).toFixed(1)}%).
             This may indicate issues with the cache system or underlying storage.
-          </Alertdescricao>
+          </AlertDescription>
         </Alert>
       )}
 
@@ -639,9 +639,7 @@ export default function CacheMonitorPage() {
       <div className="flex justify-end pt-4 border-t">
         <ExportJsonButton
           data={getExportData()}
-          filenome="cache-monitoring-report"
-          variant="default"
-          className="bg-blue-600 hover:bg-blue-700"
+          filename="cache-monitoring-report"
         />
       </div>
     </div>

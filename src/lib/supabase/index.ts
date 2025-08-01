@@ -34,4 +34,25 @@ export { useConnectionStatus } from './use-connection-status';
 export { ConnectionStatusIndicator } from './connection-status-indicator';
 
 // Default export
-export { default as supabase } from './client';
+import { createClient } from '@supabase/supabase-js';
+
+// Função para criar cliente Supabase com configurações adequadas
+export function createSupabaseClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      auth: {
+        persistSession: true,
+        detectSessionInUrl: true,
+        autoRefreshToken: true
+      }
+    }
+  );
+}
+
+// Cliente padrão para uso no cliente (browser)
+const supabase = createSupabaseClient();
+
+export { supabase };
+export { supabase as default };

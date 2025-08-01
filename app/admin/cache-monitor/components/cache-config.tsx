@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, Cardtitulo } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Alert, Alertdescricao } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
@@ -191,7 +191,7 @@ export function CacheConfig() {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <Cardtitulo className="flex items-center justify-between">
+          <CardTitle className="flex items-center justify-between">
             <div className="flex items-center">
               <Settings className="h-5 w-5 mr-2" />
               <span>Monitor Configuration</span>
@@ -210,7 +210,7 @@ export function CacheConfig() {
                 )}
               </Button>
             </div>
-          </Cardtitulo>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="general" value={activeTab} onValueChange={setActiveTab}>
@@ -462,12 +462,12 @@ export function CacheConfig() {
               
               <Alert>
                 <Gauge className="h-4 w-4" />
-                <Alertdescricao>
+                <AlertDescription>
                   <p className="text-sm">
                     Lower sampling rates reduce monitoring overhead but provide less accurate metrics.
                     For production, a sampling rate of 10-20% is recommended.
                   </p>
-                </Alertdescricao>
+                </AlertDescription>
               </Alert>
             </TabsContent>
             
@@ -560,13 +560,13 @@ export function CacheConfig() {
                 
                 <Alert variant="destructive">
                   <AlertTriangle className="h-4 w-4" />
-                  <Alertdescricao>
+                  <AlertDescription>
                     <p className="font-semibold">Warning</p>
                     <p className="text-sm">
                       These settings can significantly impact application performance.
                       Only modify if you understand the implications.
                     </p>
-                  </Alertdescricao>
+                  </AlertDescription>
                 </Alert>
                 
                 <div className="space-y-4 mt-4">
@@ -638,7 +638,7 @@ export function CacheConfig() {
       
       <Alert>
         <Info className="h-4 w-4" />
-        <Alertdescricao>
+        <AlertDescription>
           <div className="space-y-2">
             <p className="font-semibold">Configuration Tips</p>
             <p className="text-sm">
@@ -646,7 +646,7 @@ export function CacheConfig() {
               The memory usage of the monitoring system is directly proportional to the max metrics history setting.
             </p>
           </div>
-        </Alertdescricao>
+        </AlertDescription>
       </Alert>
     </div>
   );

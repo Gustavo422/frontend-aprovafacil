@@ -59,7 +59,7 @@ export interface CacheLogEntry {
   /**
    * User ID (if applicable)
    */
-  userId?: string;
+  usuarioId?: string;
   
   /**
    * Correlation ID for related operations
@@ -124,7 +124,7 @@ export interface CacheLogFilterOptions {
   /**
    * Filter by user ID
    */
-  userId?: string;
+  usuarioId?: string;
   
   /**
    * Filter by correlation ID
@@ -223,8 +223,8 @@ export class CacheLogFilter {
     }
     
     // Filter by user ID
-    if (options.userId) {
-      filteredLogs = filteredLogs.filter(log => log.userId === options.userId);
+    if (options.usuarioId) {
+      filteredLogs = filteredLogs.filter(log => log.usuarioId === options.usuarioId);
     }
     
     // Filter by correlation ID

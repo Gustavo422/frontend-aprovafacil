@@ -42,26 +42,18 @@ export default function SelecionarConcursoPage() {
           const preference = await response.json();
           console.log('[DEBUG] Preferência encontrada:', preference);
           
-          // Se há uma preferência válida, redirecionar para dashboard
-          if (preference && preference.data && preference.data.concurso_id) {
-            console.log('[DEBUG] Preferência válida encontrada, redirecionando para dashboard');
-            setCheckStatus('Preferência encontrada, redirecionando...');
-            window.location.href = '/dashboard';
+          if (preference.preferences && preference.preferences.length > 0) {
+            console.log('[DEBUG] Usuário já tem concurso selecionado, redirecionando para página inicial');
+            setCheckStatus('Concurso já selecionado, redirecionando...');
+            window.location.href = '/';
             return;
           }
-        } else if (response.status === 404) {
-          console.log('[DEBUG] Nenhuma preferência encontrada (404)');
-          setCheckStatus('Nenhuma preferência encontrada, mostrando seletor...');
-        } else {
-          console.log('[DEBUG] Erro na API:', response.status);
-          setCheckStatus('Erro ao verificar preferência, mostrando seletor...');
         }
 
-        console.log('[DEBUG] Nenhuma preferência válida, mostrando seletor');
+        console.log('[DEBUG] Nenhuma preferência encontrada, mostrando seletor');
         setIsChecking(false);
       } catch (error) {
         console.error('[DEBUG] Erro ao verificar preferência:', error);
-        setCheckStatus('Erro na verificação, mostrando seletor...');
         setIsChecking(false);
       }
     };
@@ -71,10 +63,10 @@ export default function SelecionarConcursoPage() {
 
   if (isChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">{checkStatus}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">{checkStatus}</p>
         </div>
       </div>
     );
@@ -82,14 +74,14 @@ export default function SelecionarConcursoPage() {
 
   return (
     <ConcursoProvider>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">
+              <h1 className="text-3xl font-bold text-foreground mb-4">
                 Selecione seu Concurso
               </h1>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Escolha o concurso para o qual você está estudando para personalizar sua experiência.
               </p>
             </div>

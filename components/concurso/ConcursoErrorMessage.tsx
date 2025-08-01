@@ -1,42 +1,23 @@
 import React from 'react';
-import { useConcurso } from '@/contexts/ConcursoContext';
 import { ApiErrorDisplay } from '@/components/ui/api-error-display';
-import { getStatusCodeFromError } from '@/utils/error-handler';
+import { cn } from '@/lib/utils';
 
 interface ConcursoErrorMessageProps {
+  error: string;
   className?: string;
   onRetry?: () => void;
-  compact?: boolean;
 }
 
-export const ConcursoErrorMessage: React.FC<ConcursoErrorMessageProps> = ({
-  className,
-  onRetry,
-  compact = true
-}) => {
-  const { state, loadUserPreference } = useConcurso();
-  const { error } = state;
-  
-  if (!error) return null;
-  
-  // Extract status code from error message if present
-  const statusCode = getStatusCodeFromError(error);
-  
-  const handleRetry = () => {
-    if (onRetry) {
-      onRetry();
-    } else {
-      loadUserPreference();
-    }
-  };
-  
+export function ConcursoErrorMessage({ 
+  error, 
+  className
+}: ConcursoErrorMessageProps) {
   return (
-    <ApiErrorDisplay
-      error={error}
-      statusCode={statusCode}
-      compact={compact}
-      className={className}
-      onRetry={handleRetry}
-    />
+    <div className={cn("w-full", className)}>
+      <ApiErrorDisplay
+        error={error}
+        className={className}
+      />
+    </div>
   );
-};
+}

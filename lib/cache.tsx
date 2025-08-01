@@ -4,365 +4,332 @@ import { logger } from '@/lib/logger';
 type CacheData = unknown;
 type CacheKey = string;
 
-export class CacheManager {
-  private static instance: CacheManager;
+/**
+ * Define o nome da tabela de cache para ser usado em toda a aplicação.
+ */
+const CACHE_TABLE = 'cache_performance_usuario';
 
-  private constructor() {}
+/**
+ * Obtém dados do cache para um usuário específico.
+ *
+ * @param usuarioId - O ID do usuário.
+ * @param key - A chave única para o item de cache.
+ * @returns Os dados do cache ou nulo se não encontrado ou expirado.
+ */
+export async function getCache<T = CacheData>(
+  usuarioId: string,
+  key: CacheKey
+): Promise<T | null> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data, error } = await supabase
+      .from(CACHE_TABLE)
+      .select('dados_cache, expira_em')
+      .eq('usuario_id', usuarioId)
+      .eq('chave_cache', key)
+      .single();
 
-  public static getInstance(): CacheManager {
-    if (!CacheManager.instance) {
-      CacheManager.instance = new CacheManager();
-    }
-    return CacheManager.instance;
-  }
-
-  /**
-   * Obtém dados do cache
-   */
-  async get<T = CacheData>(userId: string, key: CacheKey): Promise<T | null> {
-    try {
-      const supabase = await createServerSupabaseClient();
-      const { data, error } = await supabase
-        .from('user_performance_cache')
-        .select('cache_data, expires_at')
-        .eq('user_id', userId)
-        .eq('cache_key', key)
-        .single();
-
-      if (error || !data) {
-        return null;
-      }
-
-      // Verificar se o cache expirou
-      if (new Date(data.expires_at) < new Date()) {
-        await this.delete(userId, key);
-        return null;
-      }
-
-      return data.cache_data as T;
-    } catch (error) {
-      logger.error('Erro ao buscar cache:', {
-        error: error instanceof Error ? error.message : String(error),
-      });
+    if (error || !data) {
       return null;
     }
-  }
 
-  /**
-   * Armazena dados no cache
-   */
-  async set(
-    userId: string,
-    key: CacheKey,
-    data: CacheData,
-    ttlMinutes: number = 30
-  ): Promise<void> {
-    try {
-      const supabase = await createServerSupabaseClient();
-      const expiresAt = new Date(
-        Date.now() + ttlMinutes * 60 * 1000
-      ).toISOString();
-
-      const { error } = await supabase
-        .from('user_performance_cache')
-        .upsert({
-          user_id: userId,
-          cache_key: key,
-          cache_data: data,
-          expires_at: expiresAt,
-          atualizado_em: new Date().toISOString(),
-        });
-
-      if (error) {
-        logger.error('Erro ao salvar cache:', {
-          error: error.message,
-          details: error,
-        });
-      }
-    } catch (error) {
-      logger.error('Erro ao salvar cache:', {
-        error: error instanceof Error ? error.message : String(error),
-      });
+    if (new Date(data.expira_em) < new Date()) {
+      await deleteCache(usuarioId, key);
+      return null;
     }
-  }
 
-  /**
-   * Remove dados do cache
-   */
-  async delete(userId: string, key: CacheKey): Promise<void> {
-    try {
-      const supabase = await createServerSupabaseClient();
-      const { error } = await supabase
-        .from('user_performance_cache')
-        .delete()
-        .eq('user_id', userId)
-        .eq('cache_key', key);
-
-      if (error) {
-        logger.error('Erro ao deletar cache:', {
-          error: error.message,
-          details: error,
-        });
-      }
-    } catch (error) {
-      logger.error('Erro ao deletar cache:', {
-        error: error instanceof Error ? error.message : String(error),
-      });
-    }
-  }
-
-  /**
-   * Limpa todo o cache de um usuário
-   */
-  async clearUserCache(userId: string): Promise<void> {
-    try {
-      const supabase = await createServerSupabaseClient();
-      const { error } = await supabase
-        .from('user_performance_cache')
-        .delete()
-        .eq('user_id', userId);
-
-      if (error) {
-        logger.error('Erro ao limpar cache do usuário:', {
-          error: error.message,
-          details: error,
-        });
-      }
-    } catch (error) {
-      logger.error('Erro ao limpar cache do usuário:', {
-        error: error instanceof Error ? error.message : String(error),
-      });
-    }
-  }
-
-  /**
-   * Limpa cache expirado
-   */
-  async clearExpiredCache(): Promise<void> {
-    try {
-      const supabase = await createServerSupabaseClient();
-      const { error } = await supabase
-        .from('user_performance_cache')
-        .delete()
-        .lt('expires_at', new Date().toISOString());
-
-      if (error) {
-        logger.error('Erro ao limpar cache expirado:', {
-          error: error.message,
-          details: error,
-        });
-      }
-    } catch (error) {
-      logger.error('Erro ao limpar cache expirado:', {
-        error: error instanceof Error ? error.message : String(error),
-      });
-    }
-  }
-
-  /**
-   * Gera chave de cache para dados de desempenho
-   */
-  static generatePerformanceKey(
-    userId: string,
-    type: string,
-    period?: string
-  ): string {
-    return `performance_${userId}_${type}${period ? `_${period}` : ''}`;
-  }
-
-  /**
-   * Gera chave de cache para estatísticas por disciplina
-   */
-  static generatedisciplinaStatsKey(
-    userId: string,
-    disciplina?: string
-  ): string {
-    return `disciplina_stats_${userId}${disciplina ? `_${disciplina}` : ''}`;
-  }
-
-  /**
-   * Gera chave de cache para atividades recentes
-   */
-  static generateRecentActivityKey(userId: string): string {
-    return `recent_activity_${userId}`;
+    return data.dados_cache as T;
+  } catch (error) {
+    logger.error('Erro ao buscar do cache:', { error });
+    return null;
   }
 }
 
-// Funções utilitárias para cache
+/**
+ * Armazena dados no cache.
+ *
+ * @param usuarioId - O ID do usuário.
+ * @param key - A chave única para o item de cache.
+ * @param data - Os dados a serem armazenados.
+ * @param ttlMinutes - O tempo de vida do cache em minutos.
+ */
+export async function setCache(
+  usuarioId: string,
+  key: CacheKey,
+  data: CacheData,
+  ttlMinutes: number = 30
+): Promise<void> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const expira_em = new Date(
+      Date.now() + ttlMinutes * 60 * 1000
+    ).toISOString();
+
+    const { error } = await supabase.from(CACHE_TABLE).upsert({
+      usuario_id: usuarioId,
+      chave_cache: key,
+      dados_cache: data,
+      expira_em,
+      atualizado_em: new Date().toISOString(),
+    });
+
+    if (error) {
+      logger.error('Erro ao salvar no cache:', { error });
+    }
+  } catch (error) {
+    logger.error('Erro ao salvar no cache:', { error });
+  }
+}
+
+/**
+ * Remove um item específico do cache.
+ *
+ * @param usuarioId - O ID do usuário.
+ * @param key - A chave do item a ser removido.
+ */
+export async function deleteCache(
+  usuarioId: string,
+  key: CacheKey
+): Promise<void> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { error } = await supabase
+      .from(CACHE_TABLE)
+      .delete()
+      .eq('usuario_id', usuarioId)
+      .eq('chave_cache', key);
+
+    if (error) {
+      logger.error('Erro ao deletar do cache:', { error });
+    }
+  } catch (error) {
+    logger.error('Erro ao deletar do cache:', { error });
+  }
+}
+
+/**
+ * Limpa todo o cache de um usuário.
+ *
+ * @param usuarioId - O ID do usuário cujo cache será limpo.
+ */
+export async function clearUserCache(usuarioId: string): Promise<void> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { error } = await supabase
+      .from(CACHE_TABLE)
+      .delete()
+      .eq('usuario_id', usuarioId);
+
+    if (error) {
+      logger.error('Erro ao limpar cache do usuário:', { error });
+    }
+  } catch (error) {
+    logger.error('Erro ao limpar cache do usuário:', { error });
+  }
+}
+
+/**
+ * Limpa todos os itens de cache expirados.
+ */
+export async function clearExpiredCache(): Promise<void> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { error } = await supabase
+      .from(CACHE_TABLE)
+      .delete()
+      .lt('expira_em', new Date().toISOString());
+
+    if (error) {
+      logger.error('Erro ao limpar cache expirado:', { error });
+    }
+  } catch (error) {
+    logger.error('Erro ao limpar cache expirado:', { error });
+  }
+}
+
+/**
+ * Gera uma chave de cache padronizada.
+ *
+ * @param parts - As partes que compõem a chave.
+ * @returns A chave de cache formatada.
+ */
+export function generateCacheKey(...parts: (string | undefined)[]): string {
+  return parts.filter(Boolean).join('_');
+}
+
+/**
+ * Busca dados de desempenho diretamente do banco de dados.
+ */
+async function fetchPerformanceData(usuarioId: string, type: string, period?: string) {
+  const supabase = await createServerSupabaseClient();
+
+  // A lógica de busca permanece a mesma, mas agora com 'usuario_id'
+  switch (type) {
+    case 'simulados':
+      return await fetchSimuladosData(supabase, usuarioId, period);
+    case 'questoes':
+      return await fetchQuestoesData(supabase, usuarioId, period);
+    case 'disciplinas':
+      return await fetchDisciplinasData(supabase, usuarioId);
+    default:
+      return null;
+  }
+}
+
+/**
+ * Busca dados de simulados do banco de dados.
+ */
+async function fetchSimuladosData(
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
+  usuarioId: string,
+  period?: string
+) {
+  let query = supabase
+    .from('progresso_usuario_simulado')
+    .select(
+      `
+      *,
+      simulados!inner(*)
+    `
+    )
+    .eq('usuario_id', usuarioId) // CORRIGIDO
+    .is('deleted_at', null);
+
+  if (period === 'week') {
+    const weekAgo = new Date(
+      Date.now() - 7 * 24 * 60 * 60 * 1000
+    ).toISOString();
+    query = query.gte('concluido_em', weekAgo);
+  } else if (period === 'month') {
+    const monthAgo = new Date(
+      Date.now() - 30 * 24 * 60 * 60 * 1000
+    ).toISOString();
+    query = query.gte('concluido_em', monthAgo);
+  }
+
+  const { data, error } = await query;
+  
+  if (error) {
+    logger.error('Erro ao buscar dados de simulados:', { error });
+    return null;
+  }
+
+  return {
+    total: data.length,
+    averageScore:
+      data.length > 0
+        ? data.reduce(
+            (acc: number, item: unknown) => acc + ((item as Record<string, unknown>).pontuacao as number),
+            0
+          ) / data.length
+        : 0,
+    totalTime: data.reduce(
+      (acc: number, item: unknown) => acc + ((item as Record<string, unknown>).tempo_gasto_minutos as number),
+      0
+    ),
+  };
+}
+
+/**
+ * Busca dados de questões do banco de dados.
+ */
+async function fetchQuestoesData(
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
+  usuarioId: string,
+  period?: string
+) {
+  let query = supabase
+    .from('progresso_usuario_questoes_semanais')
+    .select(
+      `
+      *,
+      questoes_semanais!inner(*)
+    `
+    )
+    .eq('usuario_id', usuarioId) // CORRIGIDO
+    .is('deleted_at', null);
+
+  if (period === 'week') {
+    const weekAgo = new Date(
+      Date.now() - 7 * 24 * 60 * 60 * 1000
+    ).toISOString();
+    query = query.gte('concluido_em', weekAgo);
+  } else if (period === 'month') {
+    const monthAgo = new Date(
+      Date.now() - 30 * 24 * 60 * 60 * 1000
+    ).toISOString();
+    query = query.gte('concluido_em', monthAgo);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    logger.error('Erro ao buscar dados de questões:', { error });
+    return null;
+  }
+
+  return {
+    total: data.length,
+    averageScore:
+      data.length > 0
+        ? data.reduce(
+            (acc: number, item: unknown) => acc + ((item as Record<string, unknown>).pontuacao as number),
+            0
+          ) / data.length
+        : 0,
+  };
+}
+
+/**
+ * Busca dados de disciplinas do banco de dados.
+ */
+async function fetchDisciplinasData(
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
+  usuarioId: string
+) {
+  const { data, error } = await supabase
+    .from('estatisticas_usuario_disciplina') // Tabela corrigida
+    .select(
+      `
+      *,
+      disciplinas!inner(*)
+    `
+    )
+    .eq('usuario_id', usuarioId); // CORRIGIDO
+
+  if (error) {
+    logger.error('Erro ao buscar dados de disciplinas:', { error });
+    return null;
+  }
+
+  return data;
+}
+
+// Funções utilitárias para cache expostas
 export const cacheUtils = {
   /**
    * Obtém dados de desempenho com cache
    */
-  async getCachedPerformance(userId: string, type: string, period?: string) {
-    const cache = CacheManager.getInstance();
-    const key = CacheManager.generatePerformanceKey(userId, type, period);
+  async getCachedPerformance(usuarioId: string, type: string, period?: string) {
+    const key = generateCacheKey('performance', usuarioId, type, period);
 
-    let data = await cache.get(userId, key);
+    let data = await getCache(usuarioId, key);
 
     if (!data) {
       // Se não há cache, buscar dados e salvar
-      data = await this.fetchPerformanceData(userId, type, period);
+      data = await fetchPerformanceData(usuarioId, type, period);
       if (data) {
-        await cache.set(userId, key, data, 15); // Cache por 15 minutos
+        await setCache(usuarioId, key, data, 15); // Cache por 15 minutos
       }
     }
 
     return data;
   },
-
-  /**
-   * Busca dados de desempenho do banco
-   */
-  async fetchPerformanceData(userId: string, type: string, period?: string) {
-    const supabase = await createServerSupabaseClient();
-
-    // Implementar lógica específica para cada tipo de dados
-    switch (type) {
-      case 'simulados':
-        return await this.fetchSimuladosData(supabase, userId, period);
-      case 'questoes':
-        return await this.fetchQuestoesData(supabase, userId, period);
-      case 'disciplinas':
-        return await this.fetchDisciplinasData(supabase, userId); // Removido o argumento period
-      default:
-        return null;
-    }
-  },
-
-  async fetchSimuladosData(
-    supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
-    userId: string,
-    period?: string
-  ) {
-    let query = supabase
-      .from('progresso_usuario_simulado')
-      .select(
-        `
-        *,
-        simulados!inner(*)
-      `
-      )
-      .eq('user_id', userId)
-      .is('deleted_at', null);
-
-    if (period === 'week') {
-      const weekAgo = new Date(
-        Date.now() - 7 * 24 * 60 * 60 * 1000
-      ).toISOString();
-      query = query.gte('concluido_at', weekAgo);
-    } else if (period === 'month') {
-      const monthAgo = new Date(
-        Date.now() - 30 * 24 * 60 * 60 * 1000
-      ).toISOString();
-      query = query.gte('concluido_at', monthAgo);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      logger.error('Erro ao buscar dados de simulados:', {
-        error: error.message,
-        details: error,
-      });
-      return null;
-    }
-
-    return {
-      total: data.length,
-      averageScore:
-        data.length > 0
-          ? data.reduce(
-              (acc: number, item: Record<string, unknown>) =>
-                acc + (item.score as number),
-              0
-            ) / data.length
-          : 0,
-      totalTime: data.reduce(
-        (acc: number, item: Record<string, unknown>) =>
-          acc + (item.time_taken_minutes as number),
-        0
-      ),
-    };
-  },
-
-  async fetchQuestoesData(
-    supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
-    userId: string,
-    period?: string
-  ) {
-    let query = supabase
-      .from('progresso_usuario_questoes_semanais')
-      .select(
-        `
-        *,
-        questoes_semanais!inner(*)
-      `
-      )
-      .eq('user_id', userId)
-      .is('deleted_at', null);
-
-    if (period === 'week') {
-      const weekAgo = new Date(
-        Date.now() - 7 * 24 * 60 * 60 * 1000
-      ).toISOString();
-      query = query.gte('concluido_at', weekAgo);
-    } else if (period === 'month') {
-      const monthAgo = new Date(
-        Date.now() - 30 * 24 * 60 * 60 * 1000
-      ).toISOString();
-      query = query.gte('concluido_at', monthAgo);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      logger.error('Erro ao buscar dados de questões:', {
-        error: error.message,
-        details: error,
-      });
-      return null;
-    }
-
-    return {
-      total: data.length,
-      averageScore:
-        data.length > 0
-          ? data.reduce(
-              (acc: number, item: Record<string, unknown>) =>
-                acc + (item.score as number),
-              0
-            ) / data.length
-          : 0,
-    };
-  },
-
-  async fetchDisciplinasData(
-    supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
-    userId: string,
-    // _period?: string // Removido - não usado
-  ) {
-    const query = supabase
-      .from('user_disciplina_progress')
-      .select(
-        `
-        *,
-        disciplinas!inner(*)
-      `
-      )
-      .eq('user_id', userId);
-
-    const { data, error } = await query;
-
-    if (error) {
-      logger.error('Erro ao buscar dados de disciplinas:', {
-        error: error.message,
-        details: error,
-      });
-      return null;
-    }
-
-    return data;
-  },
+  fetchPerformanceData,
+  fetchSimuladosData,
+  fetchQuestoesData,
+  fetchDisciplinasData,
+  generateCacheKey,
 };
 
 

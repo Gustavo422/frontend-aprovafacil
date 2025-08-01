@@ -21,10 +21,10 @@ export function Providers({ children, locale = 'pt-BR', messages = {} }: Props) 
       <QueryClientProvider client={queryClient}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
+          defaultTheme="dark"
           forcedTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange
         >
           {children}
           <Toaster />

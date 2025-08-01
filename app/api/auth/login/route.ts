@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getBackendUrl, withErrorHandling } from '@/lib/api-utils';
+import { sanitizeToken } from '@/lib/auth-utils';
 
 export async function POST(request: Request) {
   return withErrorHandling(async () => {
@@ -36,7 +37,7 @@ export async function POST(request: Request) {
 
     // Se o login for bem-sucedido, armazenar o token em cookies
     if (res.status === 200 && data.success && data.data?.token) {
-      console.log('[DEBUG] Login bem-sucedido, armazenando token em cookies');
+      console.log('[DEBUG] Login bem-sucedido, armazenando token em cookies:', sanitizeToken(data.data.token));
 
       // Definir cookie HTTP-only para segurança (não acessível via JavaScript)
       response.cookies.set('auth_token_secure', data.data.token, {

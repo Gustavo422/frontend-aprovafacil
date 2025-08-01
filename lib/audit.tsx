@@ -16,7 +16,7 @@ export type AuditAction =
   | 'UPDATE_PROGRESS';
 
 export interface AuditLogData {
-  userId?: string | null;
+  usuarioId?: string | null;
   action: AuditAction;
   tablenome: string;
   recordId?: string | null;
@@ -59,7 +59,7 @@ export class AuditLogger {
       await this.makeRequest('/audit/logs', {
         method: 'POST',
         body: JSON.stringify({
-          user_id: data.userId,
+          usuario_id: data.usuarioId,
           action: data.action,
           table_nome: data.tablenome,
           record_id: data.recordId,
@@ -77,33 +77,33 @@ export class AuditLogger {
     }
   }
 
-  async logLogin(userId: string): Promise<void> {
+  async logLogin(usuarioId: string): Promise<void> {
     await this.log({
-      userId,
+      usuarioId,
       action: 'LOGIN',
       tablenome: 'usuarios',
-      recordId: userId,
+      recordId: usuarioId,
       newValues: { login_at: new Date().toISOString() },
     });
   }
 
-  async logLogout(userId: string): Promise<void> {
+  async logLogout(usuarioId: string): Promise<void> {
     await this.log({
-      userId,
+      usuarioId,
       action: 'LOGOUT',
       tablenome: 'usuarios',
-      recordId: userId,
+      recordId: usuarioId,
     });
   }
 
   async logCreate(
-    userId: string,
+    usuarioId: string,
     tablenome: string,
     recordId: string,
     newValues: Record<string, unknown>
   ): Promise<void> {
     await this.log({
-      userId,
+      usuarioId,
       action: 'CREATE',
       tablenome,
       recordId,
@@ -112,14 +112,14 @@ export class AuditLogger {
   }
 
   async logUpdate(
-    userId: string,
+    usuarioId: string,
     tablenome: string,
     recordId: string,
     oldValues: Record<string, unknown> | null,
     newValues: Record<string, unknown>
   ): Promise<void> {
     await this.log({
-      userId,
+      usuarioId,
       action: 'UPDATE',
       tablenome,
       recordId,
@@ -129,13 +129,13 @@ export class AuditLogger {
   }
 
   async logDelete(
-    userId: string,
+    usuarioId: string,
     tablenome: string,
     recordId: string,
     oldValues: Record<string, unknown> | null
   ): Promise<void> {
     await this.log({
-      userId,
+      usuarioId,
       action: 'DELETE',
       tablenome,
       recordId,
@@ -144,12 +144,12 @@ export class AuditLogger {
   }
 
   async logAccess(
-    userId: string,
+    usuarioId: string,
     tablenome: string,
     recordId: string
   ): Promise<void> {
     await this.log({
-      userId,
+      usuarioId,
       action: 'ACCESS',
       tablenome,
       recordId,
@@ -157,13 +157,13 @@ export class AuditLogger {
   }
 
   async logSimuladoComplete(
-    userId: string,
+    usuarioId: string,
     simuladoId: string,
     score: number,
     timeTaken: number
   ): Promise<void> {
     await this.log({
-      userId,
+      usuarioId,
       action: 'COMPLETE_SIMULADO',
       tablenome: 'progresso_usuario_simulado',
       recordId: simuladoId,
@@ -176,12 +176,12 @@ export class AuditLogger {
   }
 
   async logQuestaoComplete(
-    userId: string,
+    usuarioId: string,
     questaoId: string,
     score: number
   ): Promise<void> {
     await this.log({
-      userId,
+      usuarioId,
       action: 'COMPLETE_QUESTAO',
       tablenome: 'progresso_usuario_questoes_semanais',
       recordId: questaoId,
@@ -193,14 +193,14 @@ export class AuditLogger {
   }
 
   async logProgressUpdate(
-    userId: string,
+    usuarioId: string,
     tablenome: string,
     recordId: string,
     oldProgress: Record<string, unknown> | null,
     newProgress: Record<string, unknown>
   ): Promise<void> {
     await this.log({
-      userId,
+      usuarioId,
       action: 'UPDATE_PROGRESS',
       tablenome,
       recordId,
@@ -209,10 +209,10 @@ export class AuditLogger {
     });
   }
 
-  async getUserLogs(userId: string, limit: number = 50): Promise<AuditLogData[]> {
+  async getUserLogs(usuarioId: string, limit: number = 50): Promise<AuditLogData[]> {
     try {
       const params = new URLSearchParams({
-        user_id: userId,
+        usuario_id: usuarioId,
         limit: limit.toString(),
       });
 
@@ -242,12 +242,12 @@ export class AuditLogger {
     }
   }
 
-  async getLogsByPeriod(startDate: string, endDate: string, userId?: string): Promise<AuditLogData[]> {
+  async getLogsByPeriod(startDate: string, endDate: string, usuarioId?: string): Promise<AuditLogData[]> {
     try {
       const params = new URLSearchParams({
         start_date: startDate,
         end_date: endDate,
-        ...(userId && { user_id: userId }),
+        ...(usuarioId && { usuario_id: usuarioId }),
       });
 
       return await this.makeRequest<AuditLogData[]>(`/audit/logs?${params}`);

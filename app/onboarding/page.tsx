@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/features/auth/hooks/use-auth';
-import { Card, CardContent, CardHeader, Cardtitulo, Carddescricao } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -149,12 +149,12 @@ export default function OnboardingPage() {
               <GraduationCap className="h-8 w-8 text-primary" />
             </div>
             <div className="space-y-2">
-              <Cardtitulo className="text-2xl font-bold">
+              <CardTitle className="text-2xl font-bold">
                 Bem-vindo ao AprovaFácil!
-              </Cardtitulo>
-              <Carddescricao>
+              </CardTitle>
+              <CardDescription>
                 Vamos configurar seu perfil para personalizar sua experiência de estudos
-              </Carddescricao>
+              </CardDescription>
             </div>
           </CardHeader>
           

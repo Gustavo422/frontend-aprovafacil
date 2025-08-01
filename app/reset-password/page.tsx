@@ -8,10 +8,10 @@ import { z } from 'zod';
 import {
   Card,
   CardContent,
-  Carddescricao,
+  CardDescription,
   CardFooter,
   CardHeader,
-  Cardtitulo,
+  CardTitle,
 } from '@/components/ui/card';
 import {
   Form,
@@ -26,7 +26,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/features/shared/hooks/use-toast';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Alert, Alertdescricao } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { logger } from '@/lib/logger';
 
@@ -180,20 +180,20 @@ export default function ResetPasswordPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Cardtitulo className="text-2xl">Link inválido</Cardtitulo>
-                <Carddescricao>
+                <CardTitle className="text-2xl">Link inválido</CardTitle>
+                <CardDescription>
                   O link de redefinição de senha é inválido ou expirou
-                </Carddescricao>
+                </CardDescription>
               </div>
             </CardHeader>
 
             <CardContent>
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <Alertdescricao>
+                <AlertDescription>
                   Este link de redefinição de senha é inválido ou já expirou. 
                   Solicite um novo link para redefinir sua senha.
-                </Alertdescricao>
+                </AlertDescription>
               </Alert>
             </CardContent>
 
@@ -236,10 +236,10 @@ export default function ResetPasswordPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <Cardtitulo className="text-2xl">Redefinir senha</Cardtitulo>
-              <Carddescricao>
+              <CardTitle className="text-2xl">Redefinir senha</CardTitle>
+              <CardDescription>
                 Digite sua nova senha
-              </Carddescricao>
+              </CardDescription>
             </div>
           </CardHeader>
 

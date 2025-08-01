@@ -3,6 +3,7 @@
  */
 
 // Removido import de js-cookie - usando localStorage em vez disso
+import { sanitizeToken } from '@/lib/auth-utils';
 
 // Constants
 const ACCESS_TOKEN_STORAGE = 'access_token';
@@ -164,7 +165,7 @@ export function createAuthFetch(): (url: string, options?: RequestInit) => Promi
     
     // Check if token is expiring soon and refresh if needed
     if (accessToken && isTokenExpiringSoon(accessToken)) {
-      console.log('Access token is expiring soon, refreshing...');
+      console.log('Access token is expiring soon, refreshing...', sanitizeToken(accessToken));
       const newToken = await refreshAccessToken();
       if (newToken) {
         accessToken = newToken;
@@ -197,7 +198,7 @@ export function createAuthFetch(): (url: string, options?: RequestInit) => Promi
       
       // If token expired, try to refresh and retry the request
       if (responseData.code === 'TOKEN_EXPIRED') {
-        console.log('Token expired during request, refreshing...');
+        console.log('Token expired during request, refreshing...', sanitizeToken(accessToken));
         const newToken = await refreshAccessToken();
         
         if (newToken) {

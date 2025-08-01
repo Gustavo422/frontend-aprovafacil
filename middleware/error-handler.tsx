@@ -79,7 +79,7 @@ export function withAuthValidation<T extends unknown[]>(
       }
 
       // Aqui você pode adicionar validação adicional do token
-      // Por exemplo, verificar se o token é válido no Supabase
+      // Por exemplo, verificar se o token JWT é válido
 
       return await handler(request, ...args);
     } catch (error: unknown) {

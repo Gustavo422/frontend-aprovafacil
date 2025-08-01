@@ -47,7 +47,7 @@ interface SimuladoQuestion {
 
 interface UserProgress {
   id: string;
-  user_id: string;
+  usuario_id: string;
   simulado_id: string;
   score: number;
   completed_at: string;
@@ -55,14 +55,21 @@ interface UserProgress {
   answers: Record<number, string>;
 }
 
-export default function ResultadoPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function ResultadoPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const [simulado, setSimulado] = useState<Simulado | null>(null);
   const [questoes, setQuestoes] = useState<SimuladoQuestion[]>([]);
   const [progress, setProgress] = useState<UserProgress | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [id, setId] = useState<string>('');
+
+  // Extract the id from params Promise
+  useEffect(() => {
+    params.then((resolvedParams) => {
+      setId(resolvedParams.id);
+    });
+  }, [params]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -196,10 +203,10 @@ export default function ResultadoPage({ params }: { params: { id: string } }) {
           </div>
         </div>
         <div className="flex items-center p-6 pt-0 justify-between">
-          <Link href="/dashboard/simulados">
+          <Link href="/simulados">
             <Button variant="outline">Voltar para Simulados</Button>
           </Link>
-          <Link href={`/dashboard/simulados/${id}`}>
+          <Link href={`/simulados/${id}`}>
             <Button>Refazer Simulado</Button>
           </Link>
         </div>

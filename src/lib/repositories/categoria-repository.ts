@@ -2,7 +2,7 @@ import { getLogger } from '@/src/lib/logging';
 import { CachedRepository } from '@/src/lib/repositories/base';
 import { DatabaseError, NotFoundError } from '@/src/lib/errors';
 import { supabase } from '@/src/lib/supabase';
-import type { Database } from '@/types/supabase.types';
+// import type { Database } from '@/types/supabase.types';
 
 const logger = getLogger('CategoriaRepository');
 
@@ -68,12 +68,40 @@ export type CategoriaInput = {
   disciplinas?: Partial<Disciplina>[];
 };
 
-// Tipos para as linhas das tabelas
-// (pode ser ajustado conforme a estrutura do Database)
-type CategoriaRow = Database['public']['Tables']['categorias_concursos']['Row'];
-type CategoriaInsert = Database['public']['Tables']['categorias_concursos']['Insert'];
-type CategoriaUpdate = Database['public']['Tables']['categorias_concursos']['Update'];
-type DisciplinaInsert = Database['public']['Tables']['disciplinas_categoria']['Insert'];
+// Tipos temporários para evitar erro de compilação
+type CategoriaRow = {
+  id: string;
+  nome: string;
+  descricao?: string | null;
+  criado_em: string;
+  atualizado_em: string;
+  concurso_id?: string | null;
+};
+
+type CategoriaInsert = {
+  nome: string;
+  descricao?: string | null;
+  concurso_id?: string | null;
+  slug?: string;
+  cor_primaria?: string | null;
+  cor_secundaria?: string | null;
+  ativo?: boolean;
+  criado_em?: string;
+  atualizado_em?: string;
+};
+
+type CategoriaUpdate = {
+  nome?: string;
+  descricao?: string | null;
+  concurso_id?: string | null;
+  atualizado_em?: string;
+};
+
+type DisciplinaInsert = {
+  nome: string;
+  categoria_id: string;
+  descricao?: string | null;
+};
 
 /**
  * Repository for managing categorias

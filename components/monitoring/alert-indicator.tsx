@@ -2,13 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Bell, AlertTriangle, AlertCircle, X } from 'lucide-react';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { 
-  Popover, 
-  PopoverContent, 
-  PopoverTrigger 
-} from '../ui/popover';
-import { Separator } from '../ui/separator';
-import { ScrollArea } from '../ui/scroll-area';
 
 interface Alert {
   id: string;
@@ -102,105 +95,106 @@ export function AlertIndicator() {
   const warningCount = alerts.filter(alert => alert.type === 'warning').length;
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="relative"
-          onClick={() => setOpen(!open)}
-        >
-          <Bell className="h-5 w-5" />
-          {alerts.length > 0 && (
-            <Badge 
-              variant={criticalCount > 0 ? "destructive" : "warning"}
-              className="absolute -top-1 -right-1 min-w-[1.2rem] h-5 flex items-center justify-center"
-            >
-              {alerts.length}
-            </Badge>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end">
-        <div className="flex items-center justify-between p-4 pb-2">
-          <h3 className="font-medium">Alertas do Sistema</h3>
-          <div className="flex gap-1">
-            {criticalCount > 0 && (
-              <Badge variant="destructive">{criticalCount} Críticos</Badge>
-            )}
-            {warningCount > 0 && (
-              <Badge variant="warning">{warningCount} Avisos</Badge>
+    <div className="relative">
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        className="relative"
+        onClick={() => setOpen(!open)}
+      >
+        <Bell className="h-5 w-5" />
+        {alerts.length > 0 && (
+          <Badge 
+            variant={criticalCount > 0 ? "destructive" : "secondary"}
+            className="absolute -top-1 -right-1 min-w-[1.2rem] h-5 flex items-center justify-center"
+          >
+            {alerts.length}
+          </Badge>
+        )}
+      </Button>
+      
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-80 bg-background border rounded-lg shadow-lg z-50">
+          <div className="flex items-center justify-between p-4 pb-2">
+            <h3 className="font-medium">Alertas do Sistema</h3>
+            <div className="flex gap-1">
+              {criticalCount > 0 && (
+                <Badge variant="destructive">{criticalCount} Críticos</Badge>
+              )}
+              {warningCount > 0 && (
+                <Badge variant="secondary">{warningCount} Avisos</Badge>
+              )}
+            </div>
+          </div>
+          
+          <div className="border-t" />
+          
+          <div className="max-h-80 overflow-y-auto">
+            {alerts.length === 0 ? (
+              <div className="p-4 text-center text-sm text-muted-foreground">
+                Nenhum alerta ativo
+              </div>
+            ) : (
+              <div className="space-y-1 p-2">
+                {alerts.map(alert => (
+                  <div 
+                    key={alert.id} 
+                    className={`flex items-start justify-between p-2 rounded-md ${
+                      alert.type === 'critical' ? 'bg-destructive/10' : 'bg-secondary/10'
+                    }`}
+                  >
+                    <div className="flex gap-2">
+                      {alert.type === 'critical' ? (
+                        <AlertCircle className="h-4 w-4 text-destructive mt-0.5" />
+                      ) : (
+                        <AlertTriangle className="h-4 w-4 text-secondary mt-0.5" />
+                      )}
+                      <div>
+                        <p className="text-sm font-medium">
+                          {alert.category.charAt(0).toUpperCase() + alert.category.slice(1)}
+                        </p>
+                        <p className="text-xs">{alert.message}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {formatTimeAgo(alert.timestamp)}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => acknowledgeAlert(alert.id)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
+          
+          <div className="border-t" />
+          
+          <div className="p-2 flex justify-between">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-xs"
+              onClick={() => setOpen(false)}
+            >
+              Fechar
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-xs"
+              onClick={() => window.location.href = '/dashboard/monitoring'}
+            >
+              Ver Todos
+            </Button>
+          </div>
         </div>
-        
-        <Separator />
-        
-        <ScrollArea className="h-80">
-          {alerts.length === 0 ? (
-            <div className="p-4 text-center text-sm text-muted-foreground">
-              Nenhum alerta ativo
-            </div>
-          ) : (
-            <div className="space-y-1 p-2">
-              {alerts.map(alert => (
-                <div 
-                  key={alert.id} 
-                  className={`flex items-start justify-between p-2 rounded-md ${
-                    alert.type === 'critical' ? 'bg-destructive/10' : 'bg-warning/10'
-                  }`}
-                >
-                  <div className="flex gap-2">
-                    {alert.type === 'critical' ? (
-                      <AlertCircle className="h-4 w-4 text-destructive mt-0.5" />
-                    ) : (
-                      <AlertTriangle className="h-4 w-4 text-warning mt-0.5" />
-                    )}
-                    <div>
-                      <p className="text-sm font-medium">
-                        {alert.category.charAt(0).toUpperCase() + alert.category.slice(1)}
-                      </p>
-                      <p className="text-xs">{alert.message}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {formatTimeAgo(alert.timestamp)}
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6"
-                    onClick={() => acknowledgeAlert(alert.id)}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
-        </ScrollArea>
-        
-        <Separator />
-        
-        <div className="p-2 flex justify-between">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="text-xs"
-            onClick={() => setOpen(false)}
-          >
-            Fechar
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="text-xs"
-            onClick={() => window.location.href = '/dashboard/monitoring'}
-          >
-            Ver Todos
-          </Button>
-        </div>
-      </PopoverContent>
-    </Popover>
+      )}
+    </div>
   );
 }

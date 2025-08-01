@@ -49,7 +49,7 @@ export interface InvalidationOptions {
   /**
    * ID do usuário (para cache no Supabase)
    */
-  userId?: string;
+  usuarioId?: string;
 }
 
 // Armazenar timeouts de invalidação
@@ -74,25 +74,25 @@ export const cacheInvalidation = {
       strategy = InvalidationStrategy.IMMEDIATE,
       delay = 5000,
       event,
-      userId
+      usuarioId
     } = options;
     // invalidateRelated é sempre true por padrão nos métodos chamados
     switch (strategy) {
       case InvalidationStrategy.IMMEDIATE:
-        this.invalidateImmediate(key, true, userId);
+        this.invalidateImmediate(key, true, usuarioId);
         break;
       case InvalidationStrategy.BATCH:
         this.invalidateBatch(key);
         break;
       case InvalidationStrategy.DELAYED:
-        this.invalidateDelayed(key, delay, true, userId);
+        this.invalidateDelayed(key, delay, true, usuarioId);
         break;
       case InvalidationStrategy.EVENT_BASED:
         if (event) {
           this.registerEventInvalidation(key, event);
         } else {
           logger.warn('Evento não especificado para invalidação baseada em eventos');
-          this.invalidateImmediate(key, true, userId);
+          this.invalidateImmediate(key, true, usuarioId);
         }
         break;
     }
@@ -101,10 +101,10 @@ export const cacheInvalidation = {
   /**
    * Invalidar cache imediatamente
    */
-  async invalidateImmediate(key: string, _invalidateRelated?: boolean, userId?: string): Promise<void> {
+  async invalidateImmediate(key: string, _invalidateRelated?: boolean, usuarioId?: string): Promise<void> {
     try {
       // Invalidar no gerenciador de cache
-      await cacheManager.invalidate(key, { userId });
+      await cacheManager.invalidate(key, { usuarioId });
       
       // Invalidar no React Query
       const queryKey = key.includes(':') ? key.split(':') : key;
@@ -170,7 +170,7 @@ export const cacheInvalidation = {
   /**
    * Invalidar cache após um delay
    */
-  invalidateDelayed(key: string, delay = 5000, _invalidateRelated?: boolean, userId?: string): void {
+  invalidateDelayed(key: string, delay = 5000, _invalidateRelated?: boolean, usuarioId?: string): void {
     // Cancelar timeout anterior se existir
     if (invalidationTimeouts.has(key)) {
       clearTimeout(invalidationTimeouts.get(key)!);
@@ -178,7 +178,7 @@ export const cacheInvalidation = {
     
     // Configurar novo timeout
     const timeout = setTimeout(() => {
-      this.invalidateImmediate(key, true, userId);
+      this.invalidateImmediate(key, true, usuarioId);
       invalidationTimeouts.delete(key);
     }, delay);
     
@@ -203,14 +203,14 @@ export const cacheInvalidation = {
   /**
    * Disparar evento de invalidação
    */
-  triggerEvent(event: string, userId?: string): void {
+  triggerEvent(event: string, usuarioId?: string): void {
     if (!eventListeners.has(event)) return;
     
     const keys = Array.from(eventListeners.get(event)!);
     
     // Invalidar cada chave
     keys.forEach(key => {
-      this.invalidateImmediate(key, true, userId);
+      this.invalidateImmediate(key, true, usuarioId);
     });
     
     logger.debug('Evento de invalidação disparado', { event, keys });

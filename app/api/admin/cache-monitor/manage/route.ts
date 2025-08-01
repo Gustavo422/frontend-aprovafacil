@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
 
     // Get request body
     const body = await request.json();
-    const { action, keys, cacheType, userId, pattern } = body;
+    const { action, keys, cacheType, usuarioId, pattern } = body;
     
     if (!action) {
       return NextResponse.json(
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
         if (typeof cacheManagerMonitor.invalidateMultiple === 'function') {
           result = await cacheManagerMonitor.invalidateMultiple(
             keys,
-            { type: cacheType as CacheType, userId }
+            { type: cacheType as CacheType, usuarioId }
           );
         } else {
           throw new Error('Método invalidateMultiple não implementado');
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
         if (typeof cacheManagerMonitor.clearByType === 'function') {
           await cacheManagerMonitor.clearByType(
             cacheType as CacheType,
-            userId
+            usuarioId
           );
         } else {
           throw new Error('Método clearByType não implementado');
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
         if (typeof cacheManagerMonitor.invalidateMultiple === 'function') {
           result = await cacheManagerMonitor.invalidateMultiple(
             keysToInvalidate,
-            { type: cacheType as CacheType, userId }
+            { type: cacheType as CacheType, usuarioId }
           );
         } else {
           throw new Error('Método invalidateMultiple não implementado');

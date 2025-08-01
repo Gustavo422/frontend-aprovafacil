@@ -4,9 +4,7 @@ import { Providers } from '@/src/providers';
 import { ErrorBoundaryWrapper } from '@/components/error-boundary-wrapper';
 import { ConcursoProvider } from '@/contexts/ConcursoContext';
 import { AuthProvider } from '@/features/auth/contexts/auth-context';
-import { DebugProvider } from '@/components/debug/DebugProvider';
 import './globals.css';
-import '@/styles/globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,7 +21,6 @@ export const viewport = {
 };
 
 export const themeColor = [
-  { media: '(prefers-color-scheme: light)', color: 'white' },
   { media: '(prefers-color-scheme: dark)', color: 'black' },
 ];
 
@@ -33,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
+    <html lang="pt-BR" className="dark" suppressHydrationWarning>
       <head>
         {/* Removido script de env-config.js, não é mais necessário */}
         <script
@@ -72,9 +69,7 @@ export default function RootLayout({
           <ErrorBoundaryWrapper>
             <AuthProvider>
               <ConcursoProvider>
-                <DebugProvider>
                   {children}
-                </DebugProvider>
               </ConcursoProvider>
             </AuthProvider>
           </ErrorBoundaryWrapper>

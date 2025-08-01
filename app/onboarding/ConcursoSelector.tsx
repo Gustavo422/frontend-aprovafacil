@@ -4,9 +4,9 @@ import React, { useState } from 'react';
 import { 
   Card, 
   CardContent, 
-  Carddescricao, 
+  CardDescription, 
   CardHeader, 
-  Cardtitulo 
+  CardTitle 
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -178,10 +178,10 @@ export function ConcursoSelector() {
       {/* Filtros */}
       <Card>
         <CardHeader>
-          <Cardtitulo className="flex items-center space-x-2">
+          <CardTitle className="flex items-center space-x-2">
             <Search className="h-5 w-5" />
             <span>Filtrar Concursos</span>
-          </Cardtitulo>
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Busca */}
@@ -279,7 +279,7 @@ export function ConcursoSelector() {
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="space-y-2">
-                        <Cardtitulo className="text-lg">{concurso.nome}</Cardtitulo>
+                        <CardTitle className="text-lg">{concurso.nome}</CardTitle>
                         <div className="flex flex-wrap gap-2">
                           <Badge variant="secondary">
                             {categoria?.nome || 'Sem categoria'}
@@ -296,9 +296,9 @@ export function ConcursoSelector() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {concurso.descricao && (
-                      <Carddescricao className="text-sm">
+                      <CardDescription className="text-sm">
                         {concurso.descricao}
-                      </Carddescricao>
+                      </CardDescription>
                     )}
                     <div className="flex items-center justify-between text-sm text-muted-foreground">
                       <div className="flex items-center space-x-1">

@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, Cardtitulo } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Alert, Alertdescricao } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Clock, Shield, AlertTriangle, RefreshCw } from 'lucide-react';
 import { useToast } from '@/features/shared/hooks/use-toast';
 
@@ -85,17 +85,17 @@ export function SessionMonitor() {
     return (
       <Card className="w-full max-w-md">
         <CardHeader>
-          <Cardtitulo className="flex items-center space-x-2">
+          <CardTitle className="flex items-center space-x-2">
             <Shield className="h-5 w-5" />
             <span>Status da Sessão</span>
-          </Cardtitulo>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Alert>
             <AlertTriangle className="h-4 w-4" />
-            <Alertdescricao>
+            <AlertDescription>
               Nenhuma sessão ativa
-            </Alertdescricao>
+            </AlertDescription>
           </Alert>
         </CardContent>
       </Card>
@@ -105,10 +105,10 @@ export function SessionMonitor() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <Cardtitulo className="flex items-center space-x-2">
+        <CardTitle className="flex items-center space-x-2">
           <Shield className="h-5 w-5" />
           <span>Status da Sessão</span>
-        </Cardtitulo>
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
@@ -141,18 +141,18 @@ export function SessionMonitor() {
             {sessionInfo.isExpiringSoon && !sessionInfo.isExpired && (
               <Alert>
                 <AlertTriangle className="h-4 w-4" />
-                <Alertdescricao>
+                <AlertDescription>
                   Sua sessão expira em breve. Renove para continuar.
-                </Alertdescricao>
+                </AlertDescription>
               </Alert>
             )}
 
             {sessionInfo.isExpired && (
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
-                <Alertdescricao>
+                <AlertDescription>
                   Sua sessão expirou. Renove para continuar.
-                </Alertdescricao>
+                </AlertDescription>
               </Alert>
             )}
 

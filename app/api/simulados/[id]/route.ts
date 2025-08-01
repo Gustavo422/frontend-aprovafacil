@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
   const backendUrl = `${process.env.BACKEND_API_URL}/api/simulados/${id}${new URL(request.url).search}`;
   const res = await fetch(backendUrl, {
     method: 'GET',
@@ -16,9 +16,9 @@ export async function GET(
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
   const backendUrl = `${process.env.BACKEND_API_URL}/api/simulados/${id}`;
   const res = await fetch(backendUrl, {
     method: 'POST',

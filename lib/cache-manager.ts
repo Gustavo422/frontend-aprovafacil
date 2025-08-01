@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from './supabase';
+import { createClient } from './supabase';
 import { logger } from './logger';
 import { queryClient } from '@/src/providers/query-client';
 
@@ -73,8 +73,10 @@ export class CacheManager {
   private invalidationTimeout: ReturnType<typeof setTimeout> | null = null;
   
   private constructor() {
-    // Inicializar limpeza periódica de cache expirado
-    setInterval(() => this.cleanExpiredCache(), 5 * 60 * 1000); // A cada 5 minutos
+    // Inicializar limpeza periódica de cache expirado apenas no cliente
+    if (typeof window !== 'undefined') {
+      setInterval(() => this.cleanExpiredCache(), 5 * 60 * 1000); // A cada 5 minutos
+    }
   }
   
   /**
@@ -177,12 +179,14 @@ export class CacheManager {
       logger.debug(`Limpeza de cache: ${expiredCount} itens expirados removidos`);
     }
     
-    // Limpar cache no Supabase (assíncrono)
-    this.clearExpiredSupabaseCache().catch(error => {
-      logger.error('Erro ao limpar cache expirado no Supabase', {
-        error: error instanceof Error ? error.message : String(error),
+    // Limpar cache no Supabase apenas se estivermos no cliente
+    if (typeof window !== 'undefined') {
+      this.clearExpiredSupabaseCache().catch(error => {
+        logger.error('Erro ao limpar cache expirado no Supabase', {
+          error: error instanceof Error ? error.message : String(error),
+        });
       });
-    });
+    }
   }
   
   /**
@@ -340,13 +344,18 @@ export class CacheManager {
   /**
    * Obtém dados do cache no Supabase
    */
-  async getFromSupabase<T>(userId: string, key: string): Promise<T | null> {
+  async getFromSupabase<T>(usuarioId: string, key: string): Promise<T | null> {
     try {
-      const supabase = await createServerSupabaseClient();
+      // Só executar no lado do cliente
+      if (typeof window === 'undefined') {
+        return null;
+      }
+      
+      const supabase = createClient();
       const { data, error } = await supabase
         .from('user_performance_cache')
         .select('cache_data, expires_at, related_keys')
-        .eq('user_id', userId)
+        .eq('usuario_id', usuarioId)
         .eq('cache_key', key)
         .single();
 
@@ -356,7 +365,7 @@ export class CacheManager {
 
       // Verificar se o cache expirou
       if (new Date(data.expires_at) < new Date()) {
-        await this.deleteFromSupabase(userId, key);
+        await this.deleteFromSupabase(usuarioId, key);
         return null;
       }
       
@@ -378,14 +387,19 @@ export class CacheManager {
    * Armazena dados no cache no Supabase
    */
   async setInSupabase<T>(
-    userId: string,
+    usuarioId: string,
     key: string,
     data: T,
     ttlMinutes: number = 30,
     relatedKeys?: string[]
   ): Promise<void> {
     try {
-      const supabase = await createServerSupabaseClient();
+      // Só executar no lado do cliente
+      if (typeof window === 'undefined') {
+        return;
+      }
+      
+      const supabase = createClient();
       const expiresAt = new Date(
         Date.now() + ttlMinutes * 60 * 1000
       ).toISOString();
@@ -393,7 +407,7 @@ export class CacheManager {
       const { error } = await supabase
         .from('user_performance_cache')
         .upsert({
-          user_id: userId,
+          usuario_id: usuarioId,
           cache_key: key,
           cache_data: data,
           expires_at: expiresAt,
@@ -419,13 +433,18 @@ export class CacheManager {
   /**
    * Remove dados do cache no Supabase
    */
-  async deleteFromSupabase(userId: string, key: string): Promise<void> {
+  async deleteFromSupabase(usuarioId: string, key: string): Promise<void> {
     try {
-      const supabase = await createServerSupabaseClient();
+      // Só executar no lado do cliente
+      if (typeof window === 'undefined') {
+        return;
+      }
+      
+      const supabase = createClient();
       const { error } = await supabase
         .from('user_performance_cache')
         .delete()
-        .eq('user_id', userId)
+        .eq('usuario_id', usuarioId)
         .eq('cache_key', key);
 
       if (error) {
@@ -444,13 +463,18 @@ export class CacheManager {
   /**
    * Limpa todo o cache de um usuário no Supabase
    */
-  async clearUserSupabaseCache(userId: string): Promise<void> {
+  async clearUserSupabaseCache(usuarioId: string): Promise<void> {
     try {
-      const supabase = await createServerSupabaseClient();
+      // Só executar no lado do cliente
+      if (typeof window === 'undefined') {
+        return;
+      }
+      
+      const supabase = createClient();
       const { error } = await supabase
         .from('user_performance_cache')
         .delete()
-        .eq('user_id', userId);
+        .eq('usuario_id', usuarioId);
 
       if (error) {
         logger.error('Erro ao limpar cache do usuário no Supabase:', {
@@ -470,7 +494,12 @@ export class CacheManager {
    */
   async clearExpiredSupabaseCache(): Promise<void> {
     try {
-      const supabase = await createServerSupabaseClient();
+      // Só executar no lado do cliente
+      if (typeof window === 'undefined') {
+        return;
+      }
+      
+      const supabase = createClient();
       const { error } = await supabase
         .from('user_performance_cache')
         .delete()
@@ -492,8 +521,8 @@ export class CacheManager {
   /**
    * Obtém dados do cache
    */
-  async get<T>(key: string, options: CacheOptions & { userId?: string } = {}): Promise<T | null> {
-    const { type = CacheType.MEMORY, userId } = options;
+  async get<T>(key: string, options: CacheOptions & { usuarioId?: string } = {}): Promise<T | null> {
+    const { type = CacheType.MEMORY, usuarioId } = options;
     
     switch (type) {
       case CacheType.MEMORY:
@@ -506,11 +535,11 @@ export class CacheManager {
         return this.getFromSessionStorage<T>(key);
       
       case CacheType.SUPABASE:
-        if (!userId) {
-          logger.error('userId é obrigatório para cache no Supabase');
+        if (!usuarioId) {
+          logger.error('usuarioId é obrigatório para cache no Supabase');
           return null;
         }
-        return this.getFromSupabase<T>(userId, key);
+        return this.getFromSupabase<T>(usuarioId, key);
       
       default:
         return null;
@@ -520,12 +549,12 @@ export class CacheManager {
   /**
    * Armazena dados no cache
    */
-  async set<T>(key: string, data: T, options: CacheOptions & { userId?: string } = {}): Promise<void> {
+  async set<T>(key: string, data: T, options: CacheOptions & { usuarioId?: string } = {}): Promise<void> {
     const {
       type = CacheType.MEMORY,
       ttlMinutes = 5,
       relatedKeys,
-      userId
+      usuarioId
     } = options;
     
     switch (type) {
@@ -542,11 +571,11 @@ export class CacheManager {
         break;
       
       case CacheType.SUPABASE:
-        if (!userId) {
-          logger.error('userId é obrigatório para cache no Supabase');
+        if (!usuarioId) {
+          logger.error('usuarioId é obrigatório para cache no Supabase');
           return;
         }
-        await this.setInSupabase<T>(userId, key, data, ttlMinutes, relatedKeys);
+        await this.setInSupabase<T>(usuarioId, key, data, ttlMinutes, relatedKeys);
         break;
     }
     
@@ -557,8 +586,8 @@ export class CacheManager {
   /**
    * Remove dados do cache
    */
-  async delete(key: string, options: CacheOptions & { userId?: string } = {}): Promise<void> {
-    const { type = CacheType.MEMORY, userId } = options;
+  async delete(key: string, options: CacheOptions & { usuarioId?: string } = {}): Promise<void> {
+    const { type = CacheType.MEMORY, usuarioId } = options;
     
     switch (type) {
       case CacheType.MEMORY:
@@ -578,11 +607,11 @@ export class CacheManager {
         break;
       
       case CacheType.SUPABASE:
-        if (!userId) {
-          logger.error('userId é obrigatório para cache no Supabase');
+        if (!usuarioId) {
+          logger.error('usuarioId é obrigatório para cache no Supabase');
           return;
         }
-        await this.deleteFromSupabase(userId, key);
+        await this.deleteFromSupabase(usuarioId, key);
         break;
     }
     
@@ -593,8 +622,8 @@ export class CacheManager {
   /**
    * Invalida uma chave de cache e suas relacionadas
    */
-  async invalidate(key: string, options: CacheOptions & { userId?: string } = {}): Promise<void> {
-    const { type = CacheType.MEMORY, userId } = options;
+  async invalidate(key: string, options: CacheOptions & { usuarioId?: string } = {}): Promise<void> {
+    const { type = CacheType.MEMORY, usuarioId } = options;
     
     // Obter todas as chaves relacionadas
     const allRelatedKeys = Array.from(this.getAllRelatedKeys(key));
@@ -619,11 +648,11 @@ export class CacheManager {
           break;
         
         case CacheType.SUPABASE:
-          if (!userId) {
-            logger.error('userId é obrigatório para cache no Supabase');
+          if (!usuarioId) {
+            logger.error('usuarioId é obrigatório para cache no Supabase');
             continue;
           }
-          await this.deleteFromSupabase(userId, relatedKey);
+          await this.deleteFromSupabase(usuarioId, relatedKey);
           break;
       }
       
@@ -638,8 +667,8 @@ export class CacheManager {
   /**
    * Limpa todo o cache
    */
-  async clear(options: { type?: CacheType; userId?: string } = {}): Promise<void> {
-    const { type = CacheType.MEMORY, userId } = options;
+  async clear(options: { type?: CacheType; usuarioId?: string } = {}): Promise<void> {
+    const { type = CacheType.MEMORY, usuarioId } = options;
     
     switch (type) {
       case CacheType.MEMORY:
@@ -667,11 +696,11 @@ export class CacheManager {
         break;
       
       case CacheType.SUPABASE:
-        if (!userId) {
-          logger.error('userId é obrigatório para limpar cache no Supabase');
+        if (!usuarioId) {
+          logger.error('usuarioId é obrigatório para limpar cache no Supabase');
           return;
         }
-        await this.clearUserSupabaseCache(userId);
+        await this.clearUserSupabaseCache(usuarioId);
         break;
     }
     
@@ -685,7 +714,7 @@ export class CacheManager {
   async optimisticUpdate<T>(
     key: string,
     updateFn: (oldData: T | null) => T,
-    options: CacheOptions & { userId?: string } = {}
+    options: CacheOptions & { usuarioId?: string } = {}
   ): Promise<T> {
     
     // Obter dados atuais
@@ -712,28 +741,28 @@ export const cacheUtils = {
    * Gera chave de cache para dados de desempenho
    */
   generatePerformanceKey(
-    userId: string,
+    usuarioId: string,
     type: string,
     period?: string
   ): string {
-    return `performance:${userId}:${type}${period ? `:${period}` : ''}`;
+    return `performance:${usuarioId}:${type}${period ? `:${period}` : ''}`;
   },
 
   /**
    * Gera chave de cache para estatísticas por disciplina
    */
   generateDisciplinaStatsKey(
-    userId: string,
+    usuarioId: string,
     disciplina?: string
   ): string {
-    return `disciplina:stats:${userId}${disciplina ? `:${disciplina}` : ''}`;
+    return `disciplina:stats:${usuarioId}${disciplina ? `:${disciplina}` : ''}`;
   },
 
   /**
    * Gera chave de cache para atividades recentes
    */
-  generateRecentActivityKey(userId: string): string {
-    return `activity:recent:${userId}`;
+  generateRecentActivityKey(usuarioId: string): string {
+    return `activity:recent:${usuarioId}`;
   },
   
   /**

@@ -1,7 +1,8 @@
 import axios from 'axios'
+import { setupDebugInterceptors } from './debug-interceptor.js'
 
 // Configuração do Axios
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
 
 class ApiClient {
   private client: ReturnType<typeof axios.create>
@@ -16,6 +17,13 @@ class ApiClient {
     })
 
     this.setupInterceptors()
+    
+    // Configurar interceptors de debug se estiver em modo debug
+    if (process.env.NODE_ENV === 'development' && 
+        (process.env.NEXT_PUBLIC_DEBUG === 'true' || 
+         typeof window !== 'undefined' && window.location.search.includes('debug=true'))) {
+      setupDebugInterceptors(this.client)
+    }
   }
 
   private setupInterceptors() {
@@ -25,16 +33,37 @@ class ApiClient {
       async (config: any) => {
         // Adicionar token de autenticação se disponível
         try {
-          const session = await this.getSession()
+          const token = this.getAuthToken()
           
-          if (session?.access_token) {
+          if (token) {
             config.headers = {
               ...config.headers,
-              Authorization: `Bearer ${session.access_token}`,
+              Authorization: `Bearer ${token}`,
+            }
+            
+            // Log de debug para autenticação
+            if (process.env.NODE_ENV === 'development' && 
+                (process.env.NEXT_PUBLIC_DEBUG === 'true' || 
+                 typeof window !== 'undefined' && window.location.search.includes('debug=true'))) {
+              console.log('[DEBUG] 🔐 Token de autenticação adicionado:', {
+                token: token.substring(0, 20) + '...',
+                url: config.url,
+                method: config.method
+              });
+            }
+          } else {
+            // Log de debug quando não há token
+            if (process.env.NODE_ENV === 'development' && 
+                (process.env.NEXT_PUBLIC_DEBUG === 'true' || 
+                 typeof window !== 'undefined' && window.location.search.includes('debug=true'))) {
+              console.warn('[DEBUG] ⚠️ Nenhum token de autenticação encontrado para:', {
+                url: config.url,
+                method: config.method
+              });
             }
           }
         } catch (error) {
-          // Se não conseguir obter a sessão, continua sem token
+          // Se não conseguir obter o token, continua sem token
           console.warn('Não foi possível obter token de autenticação:', error)
         }
 
@@ -56,6 +85,12 @@ class ApiClient {
       async (error: any) => {
         // Handle 401 errors (unauthorized)
         if (error.response?.status === 401) {
+          console.error('[DEBUG] ❌ Erro 401 - Token inválido ou expirado:', {
+            url: error.config?.url,
+            method: error.config?.method,
+            response: error.response?.data
+          });
+          
           // Tentar renovar o token via API
           try {
             const refreshResponse = await fetch('/api/auth/refresh', {
@@ -82,86 +117,91 @@ class ApiClient {
   // Métodos de autenticação via API
   private async getSession() {
     try {
-      const res = await fetch('/api/auth/session')
-      if (res.ok) {
-        return await res.json()
+      const response = await fetch('/api/auth/session')
+      if (response.ok) {
+        return await response.json()
       }
-      return null
-    } catch {
-      return null
+    } catch (error) {
+      console.error('Erro ao obter sessão:', error)
     }
+    return null
+  }
+
+  private getAuthToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    
+    // Tentar múltiplas fontes de token
+    const tokenSources = [
+      () => localStorage.getItem('auth_token'),
+      () => localStorage.getItem('authToken'),
+      () => sessionStorage.getItem('auth_token'),
+      () => sessionStorage.getItem('authToken')
+    ];
+    
+    for (const getToken of tokenSources) {
+      const token = getToken();
+      if (token) {
+        return token;
+      }
+    }
+    
+    return null;
   }
 
   private async signOut() {
+    if (typeof window === 'undefined') return;
+    
+    // Limpar todos os tokens
+    const tokenKeys = ['auth_token', 'authToken'];
+    tokenKeys.forEach(key => {
+      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
+    });
+    
+    // Fazer logout no backend
     try {
-      await fetch('/api/auth/signout', { method: 'POST' })
-    } catch {
-      // Ignora erros no logout
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('Erro ao fazer logout no backend:', error);
     }
   }
 
-  // Métodos HTTP
-  async get<T = unknown>(url: string, config?: Record<string, unknown>): Promise<T> {
-    const response = await this.client.get(url, config)
-    return response.data
+  // Métodos públicos da API
+  async get(endpoint: string, config = {}) {
+    return this.client.get(endpoint, config)
   }
 
-  async post<T = unknown>(url: string, data?: Record<string, unknown>, config?: Record<string, unknown>): Promise<T> {
-    const response = await this.client.post(url, data, config)
-    return response.data
+  async post(endpoint: string, data = {}, config = {}) {
+    return this.client.post(endpoint, data, config)
   }
 
-  async put<T = unknown>(url: string, data?: Record<string, unknown>, config?: Record<string, unknown>): Promise<T> {
-    const response = await this.client.put(url, data, config)
-    return response.data
+  async put(endpoint: string, data = {}, config = {}) {
+    return this.client.put(endpoint, data, config)
   }
 
-  async patch<T = unknown>(url: string, data?: Record<string, unknown>, config?: Record<string, unknown>): Promise<T> {
-    const response = await this.client.patch(url, data, config)
-    return response.data
+  async delete(endpoint: string, config = {}) {
+    return this.client.delete(endpoint, config)
   }
 
-  async delete<T = unknown>(url: string, config?: Record<string, unknown>): Promise<T> {
-    const response = await this.client.delete(url, config)
-    return response.data
-  }
-
-  // Método para upload de arquivos
-  async upload<T = unknown>(url: string, file: File, onProgress?: (progress: number) => void): Promise<T> {
-    const formData = new FormData()
-    formData.append('file', file)
-
-    const config: Record<string, unknown> = {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      onUploadProgress: (progressEvent: { loaded: number; total: number }) => {
-        if (onProgress && progressEvent.total) {
-          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-          onProgress(progress)
-        }
-      },
-    }
-
-    const response = await this.client.post(url, formData, config)
-    return response.data
+  async patch(endpoint: string, data = {}, config = {}) {
+    return this.client.patch(endpoint, data, config)
   }
 }
 
-// Instância singleton do cliente API
+// Exportar instância única
 export const apiClient = new ApiClient()
 
-// Funções de conveniência para uso direto
+// Exportar métodos diretos para conveniência
 export const api = {
-  get: apiClient.get.bind(apiClient),
-  post: apiClient.post.bind(apiClient),
-  put: apiClient.put.bind(apiClient),
-  patch: apiClient.patch.bind(apiClient),
-  delete: apiClient.delete.bind(apiClient),
-  upload: apiClient.upload.bind(apiClient),
+  get: (endpoint: string, config = {}) => apiClient.get(endpoint, config),
+  post: (endpoint: string, data = {}, config = {}) => apiClient.post(endpoint, data, config),
+  put: (endpoint: string, data = {}, config = {}) => apiClient.put(endpoint, data, config),
+  delete: (endpoint: string, config = {}) => apiClient.delete(endpoint, config),
+  patch: (endpoint: string, data = {}, config = {}) => apiClient.patch(endpoint, data, config),
 }
 
-export default api
+export default apiClient
+
 
 
 

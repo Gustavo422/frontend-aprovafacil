@@ -4,10 +4,10 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   Card,
   CardContent,
-  Carddescricao,
-  CardFooter,
+  CardDescription,
   CardHeader,
-  Cardtitulo,
+  CardFooter,
+  CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { QuestionPlayer } from '@/components/question-player';
@@ -176,10 +176,10 @@ export default function QuestoesSemanaisPage() {
           {!questaoSemanal ? (
             <Card>
               <CardHeader>
-                <Cardtitulo>Nenhuma questão semanal disponível</Cardtitulo>
-                <Carddescricao>
+                <CardTitle>Nenhuma questão semanal disponível</CardTitle>
+                <CardDescription>
                   Não há questões semanais disponíveis no momento.
-                </Carddescricao>
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
@@ -190,10 +190,10 @@ export default function QuestoesSemanaisPage() {
           ) : !isStarted ? (
             <Card>
               <CardHeader>
-                <Cardtitulo>{questaoSemanal.titulo}</Cardtitulo>
-                <Carddescricao>
+                <CardTitle>{questaoSemanal.titulo}</CardTitle>
+                <CardDescription>
                   {questaoSemanal.descricao}
-                </Carddescricao>
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -228,12 +228,12 @@ export default function QuestoesSemanaisPage() {
           ) : isconcluido ? (
             <Card>
               <CardHeader>
-                <Cardtitulo>
+                <CardTitle>
                   Resultado - {questaoSemanal.titulo}
-                </Cardtitulo>
-                <Carddescricao>
+                </CardTitle>
+                <CardDescription>
                   {questaoSemanal.descricao}
-                </Carddescricao>
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -308,10 +308,10 @@ export default function QuestoesSemanaisPage() {
           {historico.length === 0 ? (
             <Card>
               <CardHeader>
-                <Cardtitulo>Nenhum histórico disponível</Cardtitulo>
-                <Carddescricao>
+                <CardTitle>Nenhum histórico disponível</CardTitle>
+                <CardDescription>
                   Complete algumas questões semanais para ver seu histórico.
-                </Carddescricao>
+                </CardDescription>
               </CardHeader>
             </Card>
           ) : (
@@ -319,8 +319,8 @@ export default function QuestoesSemanaisPage() {
               {historico.map(item => (
                 <Card key={item.id}>
                   <CardHeader>
-                    <Cardtitulo>{item.titulo}</Cardtitulo>
-                    <Carddescricao>{item.descricao}</Carddescricao>
+                    <CardTitle>{item.titulo}</CardTitle>
+                    <CardDescription>{item.descricao}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center justify-between">

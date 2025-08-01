@@ -4,9 +4,9 @@ import { logger } from '@/lib/logger';
 import {
   Card,
   CardContent,
-  Carddescricao,
+  CardDescription,
   CardHeader,
-  Cardtitulo,
+  CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -136,11 +136,11 @@ export default function MapaAssuntosPage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <Cardtitulo>{disciplina}</Cardtitulo>
-                    <Carddescricao>
+                    <CardTitle>{disciplina}</CardTitle>
+                    <CardDescription>
                       {estudados} de {totalAssuntos} assuntos estudados (
                       {Math.round(progresso)}%)
-                    </Carddescricao>
+                    </CardDescription>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">

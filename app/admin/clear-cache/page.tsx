@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, Carddescricao, CardHeader, Cardtitulo } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Alert, Alertdescricao } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ExportJsonButton } from '@/components/ui/export-json-button';
 import { 
   Trash2, 
@@ -159,7 +159,7 @@ export default function ClearCachePage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <Cardtitulo className="text-sm font-medium">Total de Itens</Cardtitulo>
+            <CardTitle className="text-sm font-medium">Total de Itens</CardTitle>
             <Database className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -172,7 +172,7 @@ export default function ClearCachePage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <Cardtitulo className="text-sm font-medium">Cache de Performance</Cardtitulo>
+            <CardTitle className="text-sm font-medium">Cache de Performance</CardTitle>
             <BarChart3 className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
@@ -185,7 +185,7 @@ export default function ClearCachePage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <Cardtitulo className="text-sm font-medium">Cache de Configuração</Cardtitulo>
+            <CardTitle className="text-sm font-medium">Cache de Configuração</CardTitle>
             <Settings className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
@@ -198,7 +198,7 @@ export default function ClearCachePage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <Cardtitulo className="text-sm font-medium">Estatísticas de Disciplina</Cardtitulo>
+            <CardTitle className="text-sm font-medium">Estatísticas de Disciplina</CardTitle>
             <BarChart3 className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
@@ -214,7 +214,7 @@ export default function ClearCachePage() {
       {clearResult && (
         <Alert>
           <CheckCircle className="h-4 w-4" />
-          <Alertdescricao>
+          <AlertDescription>
             <div className="space-y-2">
               <p className="font-semibold">Última limpeza realizada com sucesso!</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
@@ -235,20 +235,20 @@ export default function ClearCachePage() {
                 </div>
               </div>
             </div>
-          </Alertdescricao>
+          </AlertDescription>
         </Alert>
       )}
 
       {/* Informações sobre Cache */}
       <Card>
         <CardHeader>
-          <Cardtitulo className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2">
             <Info className="h-5 w-5" />
             Sobre o Cache do Sistema
-          </Cardtitulo>
-          <Carddescricao>
+          </CardTitle>
+          <CardDescription>
             Entenda como funciona o sistema de cache e quando limpá-lo
-          </Carddescricao>
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -275,10 +275,10 @@ export default function ClearCachePage() {
           
           <Alert>
             <AlertTriangle className="h-4 w-4" />
-            <Alertdescricao>
+            <AlertDescription>
               <strong>Atenção:</strong> A limpeza do cache pode afetar temporariamente a performance 
               do sistema até que os dados sejam recalculados. Execute apenas quando necessário.
-            </Alertdescricao>
+            </AlertDescription>
           </Alert>
         </CardContent>
       </Card>
@@ -287,9 +287,7 @@ export default function ClearCachePage() {
       <div className="flex justify-end pt-4 border-t">
         <ExportJsonButton
           data={getCacheData()}
-          filenome="cache-management-report"
-          variant="default"
-          className="bg-red-600 hover:bg-red-700"
+          filename="cache-management-report"
         />
       </div>
     </div>

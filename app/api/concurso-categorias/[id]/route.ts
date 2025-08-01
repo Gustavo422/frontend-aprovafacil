@@ -1,4 +1,4 @@
-import { createRouteHandlerClient } from '@/lib/supabase';
+import { createSupabaseClient } from '@/src/lib/supabase';
 import { logger } from '@/lib/logger';
 import { NextResponse } from 'next/server';
 
@@ -8,10 +8,10 @@ import { NextResponse } from 'next/server';
 
 export async function GET(
   _request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createRouteHandlerClient();
+    const supabase = createSupabaseClient();
 
     // Verificar se o usuário está autenticado
     const {
@@ -22,7 +22,7 @@ export async function GET(
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // Repassar a requisição para o backend
     const response = await fetch(`${process.env.BACKEND_API_URL}/api/concurso-categorias/${id}`, {

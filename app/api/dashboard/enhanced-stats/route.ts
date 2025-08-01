@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { extractAuthToken } from '@/lib/auth-utils';
+import { extractAuthToken, sanitizeToken } from '@/lib/auth-utils';
 
 export async function GET(request: Request) {
   try {
@@ -17,6 +17,7 @@ export async function GET(request: Request) {
 
     const backendUrl = `${process.env.BACKEND_API_URL}/api/dashboard/enhanced-stats${new URL(request.url).search}`;
     console.log('[DEBUG] Fazendo requisição para:', backendUrl);
+    console.log('[DEBUG] Com token:', sanitizeToken(token));
     
     const response = await fetch(backendUrl, {
       method: 'GET',

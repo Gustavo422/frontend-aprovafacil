@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Card, CardHeader, Cardtitulo } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   Compass,
@@ -224,9 +224,9 @@ export default function HomePage() {
                               <IconComponent className="h-6 w-6 text-primary" />
                             </div>
                             <div className="space-y-2">
-                              <Cardtitulo className="text-lg">
+                              <CardTitle className="text-lg">
                                 {item.titulo}
-                              </Cardtitulo>
+                              </CardTitle>
                               <p className="text-sm text-muted-foreground leading-relaxed">
                                 {item.descricao}
                               </p>

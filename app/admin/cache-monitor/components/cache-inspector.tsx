@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, Cardtitulo } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -134,7 +134,10 @@ export function CacheInspector() {
   }, [selectedCacheType, searchQuery, includeExpired, toast]);
 
   useEffect(() => {
-    fetchCacheEntries();
+    // Só carregar dados se estivermos no cliente e a página estiver ativa
+    if (typeof window !== 'undefined') {
+      fetchCacheEntries();
+    }
   }, [fetchCacheEntries]);
 
   const handleViewEntry = async (entry: CacheEntryInfo) => {
@@ -344,12 +347,12 @@ export function CacheInspector() {
       {/* Cache Entries Table */}
       <Card>
         <CardHeader>
-          <Cardtitulo className="flex items-center justify-between">
+          <CardTitle className="flex items-center justify-between">
             <span>Cache Entries</span>
             <Badge variant="outline">
               {filteredEntries.length} entries
             </Badge>
-          </Cardtitulo>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (

@@ -1,12 +1,6 @@
 import React from 'react';
 
-export interface DocsPageProps {
-  // Add actual props here
-  content: string;
-  metadata?: Record<string, unknown>;
-}
-
-export default function DocsPage({}: DocsPageProps) {
+export default function DocsPage() {
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Documentação da API (Swagger)</h1>

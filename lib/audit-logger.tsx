@@ -2,7 +2,7 @@ import { createServerSupabaseClient } from '@/lib/supabase';
 import { logger } from '@/lib/logger';
 
 export interface AuditLogEntry {
-  userId: string;
+  usuarioId: string;
   action: string;
   details: Record<string, unknown>;
   ipAddress?: string;
@@ -23,7 +23,7 @@ export class AuditLogger {
       const { error } = await supabase
         .from('logs_auditoria')
         .insert({
-          user_id: entry.userId,
+          usuario_id: entry.usuarioId,
           action: entry.action,
           table_nome: 'auth_events',
           record_id: null,
@@ -36,16 +36,16 @@ export class AuditLogger {
       if (error) {
         logger.error('Erro ao salvar log de auditoria', { error, entry });
       } else {
-        logger.info('Log de auditoria salvo', { action: entry.action, userId: entry.userId });
+        logger.info('Log de auditoria salvo', { action: entry.action, usuarioId: entry.usuarioId });
       }
     } catch (error) {
       logger.error('Erro inesperado ao salvar log de auditoria', { error, entry });
     }
   }
 
-  async logLogin(userId: string, success: boolean, details: Record<string, unknown> = {}) {
+  async logLogin(usuarioId: string, success: boolean, details: Record<string, unknown> = {}) {
     await this.logAuthEvent({
-      userId,
+      usuarioId,
       action: 'LOGIN',
       details: {
         ...details,
@@ -56,9 +56,9 @@ export class AuditLogger {
     });
   }
 
-  async logLogout(userId: string, details: Record<string, unknown> = {}) {
+  async logLogout(usuarioId: string, details: Record<string, unknown> = {}) {
     await this.logAuthEvent({
-      userId,
+      usuarioId,
       action: 'LOGOUT',
       details: {
         ...details,
@@ -71,7 +71,7 @@ export class AuditLogger {
 
   async logFailedLogin(email: string, reason: string, details: Record<string, unknown> = {}) {
     await this.logAuthEvent({
-      userId: 'anonymous',
+      usuarioId: 'anonymous',
       action: 'LOGIN_FAILED',
       details: {
         ...details,
@@ -85,9 +85,9 @@ export class AuditLogger {
     });
   }
 
-  async logPasswordReset(userId: string, success: boolean, details: Record<string, unknown> = {}) {
+  async logPasswordReset(usuarioId: string, success: boolean, details: Record<string, unknown> = {}) {
     await this.logAuthEvent({
-      userId,
+      usuarioId,
       action: 'PASSWORD_RESET',
       details: {
         ...details,
@@ -98,9 +98,9 @@ export class AuditLogger {
     });
   }
 
-  async logAccountLocked(userId: string, reason: string, details: Record<string, unknown> = {}) {
+  async logAccountLocked(usuarioId: string, reason: string, details: Record<string, unknown> = {}) {
     await this.logAuthEvent({
-      userId,
+      usuarioId,
       action: 'ACCOUNT_LOCKED',
       details: {
         ...details,
@@ -113,9 +113,9 @@ export class AuditLogger {
     });
   }
 
-  async logSuspiciousActivity(userId: string, activity: string, details: Record<string, unknown> = {}) {
+  async logSuspiciousActivity(usuarioId: string, activity: string, details: Record<string, unknown> = {}) {
     await this.logAuthEvent({
-      userId,
+      usuarioId,
       action: 'SUSPICIOUS_ACTIVITY',
       details: {
         ...details,
@@ -128,9 +128,9 @@ export class AuditLogger {
     });
   }
 
-  async logSessionRefresh(userId: string, success: boolean, details: Record<string, unknown> = {}) {
+  async logSessionRefresh(usuarioId: string, success: boolean, details: Record<string, unknown> = {}) {
     await this.logAuthEvent({
-      userId,
+      usuarioId,
       action: 'SESSION_REFRESH',
       details: {
         ...details,
@@ -141,9 +141,9 @@ export class AuditLogger {
     });
   }
 
-  async logAccessDenied(userId: string, resource: string, reason: string, details: Record<string, unknown> = {}) {
+  async logAccessDenied(usuarioId: string, resource: string, reason: string, details: Record<string, unknown> = {}) {
     await this.logAuthEvent({
-      userId,
+      usuarioId,
       action: 'ACCESS_DENIED',
       details: {
         ...details,
@@ -158,24 +158,24 @@ export class AuditLogger {
   }
 
   // Método para buscar logs de um usuário específico
-  async getUserLogs(userId: string, limit: number = 50, offset: number = 0) {
+  async getUserLogs(usuarioId: string, limit: number = 50, offset: number = 0) {
     try {
       const supabase = await createServerSupabaseClient();
       const { data, error } = await supabase
         .from('logs_auditoria')
         .select('*')
-        .eq('user_id', userId)
+        .eq('usuario_id', usuarioId)
         .order('criado_em', { ascending: false })
         .range(offset, offset + limit - 1);
 
       if (error) {
-        logger.error('Erro ao buscar logs do usuário', { error, userId });
+        logger.error('Erro ao buscar logs do usuário', { error, usuarioId });
         return [];
       }
 
       return data || [];
     } catch (error) {
-      logger.error('Erro inesperado ao buscar logs do usuário', { error, userId });
+      logger.error('Erro inesperado ao buscar logs do usuário', { error, usuarioId });
       return [];
     }
   }

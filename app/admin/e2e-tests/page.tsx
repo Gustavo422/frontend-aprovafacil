@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, Cardtitulo, Carddescricao } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Alert, Alertdescricao } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Play, 
@@ -270,7 +270,7 @@ export default function E2ETestsPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card data-testid="metric-total-tests">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Cardtitulo className="text-sm font-medium">Total de Testes</Cardtitulo>
+                <CardTitle className="text-sm font-medium">Total de Testes</CardTitle>
                 <FileText className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -283,7 +283,7 @@ export default function E2ETestsPage() {
 
             <Card data-testid="metric-passed-tests">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Cardtitulo className="text-sm font-medium">Testes Passando</Cardtitulo>
+                <CardTitle className="text-sm font-medium">Testes Passando</CardTitle>
                 <CheckCircle className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
@@ -296,7 +296,7 @@ export default function E2ETestsPage() {
 
             <Card data-testid="metric-failed-tests">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Cardtitulo className="text-sm font-medium">Testes Falhando</Cardtitulo>
+                <CardTitle className="text-sm font-medium">Testes Falhando</CardTitle>
                 <XCircle className="h-4 w-4 text-red-600" />
               </CardHeader>
               <CardContent>
@@ -309,7 +309,7 @@ export default function E2ETestsPage() {
 
             <Card data-testid="metric-duration">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Cardtitulo className="text-sm font-medium">Tempo Total</Cardtitulo>
+                <CardTitle className="text-sm font-medium">Tempo Total</CardTitle>
                 <RefreshCw className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -324,10 +324,10 @@ export default function E2ETestsPage() {
           {/* Últimos Resultados */}
           <Card data-testid="recent-activity">
             <CardHeader>
-              <Cardtitulo>Últimos Resultados</Cardtitulo>
-              <Carddescricao>
+              <CardTitle>Últimos Resultados</CardTitle>
+              <CardDescription>
                 Resultados da última execução dos testes end-to-end
-              </Carddescricao>
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {testSuites.length === 0 ? (
@@ -390,9 +390,9 @@ export default function E2ETestsPage() {
         <TabsContent value="suites" className="space-y-4">
           {testSuites.length === 0 ? (
             <Alert>
-              <Alertdescricao>
+              <AlertDescription>
                 Nenhuma suite de teste disponível. Execute os testes para ver os resultados.
-              </Alertdescricao>
+              </AlertDescription>
             </Alert>
           ) : (
             <div className="space-y-4">
@@ -402,14 +402,14 @@ export default function E2ETestsPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         {getStatusIcon(suite.status)}
-                        <Cardtitulo>{suite.name}</Cardtitulo>
+                        <CardTitle>{suite.name}</CardTitle>
                       </div>
                       {getStatusBadge(suite.status)}
                     </div>
-                    <Carddescricao>
+                    <CardDescription>
                       {suite.tests.length} testes • {formatDuration(suite.duration)} • 
                       {new Date(suite.timestamp).toLocaleString()}
-                    </Carddescricao>
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="p-0">
                     <div className="divide-y">
@@ -457,9 +457,9 @@ export default function E2ETestsPage() {
 
           {testSuites.length === 0 ? (
             <Alert>
-              <Alertdescricao>
+              <AlertDescription>
                 Nenhum resultado de teste disponível. Execute os testes para ver os detalhes.
-              </Alertdescricao>
+              </AlertDescription>
             </Alert>
           ) : (
             <Card>
@@ -506,7 +506,7 @@ export default function E2ETestsPage() {
       {/* Documentação */}
       <Card className="mt-6">
         <CardHeader>
-          <Cardtitulo>Sobre os Testes End-to-End</Cardtitulo>
+          <CardTitle>Sobre os Testes End-to-End</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="prose max-w-none">

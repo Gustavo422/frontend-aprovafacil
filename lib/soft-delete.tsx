@@ -4,7 +4,7 @@ import { logger } from '@/lib/logger';
 export interface SoftDeleteOptions {
   tablenome: string;
   recordId: string;
-  userId: string;
+  usuarioId: string;
   reason?: string;
   metadata?: Record<string, unknown>;
 }
@@ -46,7 +46,7 @@ export class SoftDeleteManager {
         .from(options.tablenome)
         .update({
           deleted_at: new Date().toISOString(),
-          deleted_by: options.userId,
+          deleted_by: options.usuarioId,
           delete_reason: options.reason,
           delete_metadata: options.metadata,
         })
@@ -77,7 +77,7 @@ export class SoftDeleteManager {
       logger.info('Soft delete realizado com sucesso:', {
         tablenome: options.tablenome,
         recordId: options.recordId,
-        userId: options.userId,
+        usuarioId: options.usuarioId,
       });
 
       return {
@@ -137,7 +137,7 @@ export class SoftDeleteManager {
       logger.info('Registro restaurado com sucesso:', {
         tablenome: options.tablenome,
         recordId: options.recordId,
-        userId: options.userId,
+        usuarioId: options.usuarioId,
       });
 
       return {
@@ -182,7 +182,7 @@ export class SoftDeleteManager {
       logger.info('Hard delete realizado com sucesso:', {
         tablenome: options.tablenome,
         recordId: options.recordId,
-        userId: options.userId,
+        usuarioId: options.usuarioId,
       });
 
       return {
@@ -362,7 +362,7 @@ export class SoftDeleteManager {
    */
   async getSoftDeletedRecords(
     tablenome: string,
-    userId?: string,
+    usuarioId?: string,
     limit: number = 50
   ): Promise<unknown[]> {
     try {
@@ -374,8 +374,8 @@ export class SoftDeleteManager {
         .order('deleted_at', { ascending: false })
         .limit(limit);
 
-      if (userId) {
-        query = query.eq('user_id', userId);
+      if (usuarioId) {
+        query = query.eq('usuario_id', usuarioId);
       }
 
       const { data, error } = await query;

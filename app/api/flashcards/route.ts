@@ -1,25 +1,18 @@
-import { createRouteHandlerClient } from '@/lib/supabase';
+import { extractAuthToken } from '@/lib/auth-utils';
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 
 export async function GET(request: Request) {
   try {
-    const supabase = await createRouteHandlerClient();
-
-    // Verificar se o usuário está autenticado
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
+    const token = extractAuthToken(request);
+    if (!token) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
-
     const backendUrl = `${process.env.BACKEND_API_URL}/api/flashcards${new URL(request.url).search}`;
     const res = await fetch(backendUrl, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });
@@ -38,22 +31,15 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createRouteHandlerClient();
-
-    // Verificar se o usuário está autenticado
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
+    const token = extractAuthToken(request);
+    if (!token) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
-
     const backendUrl = `${process.env.BACKEND_API_URL}/api/flashcards`;
     const res = await fetch(backendUrl, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
       body: await request.text(),

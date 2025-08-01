@@ -24,8 +24,11 @@ export function UserNav() {
 
   const handleSignOut = useCallback(async () => {
     try {
-      // Assuming signOut is no longer available, but keeping the structure
-      // For now, we'll just show a toast and redirect to login
+      // Logout via JWT - remover token do localStorage
+      localStorage.removeItem('auth_token');
+      // Limpar qualquer outro estado de autenticação
+      // TODO: Implementar limpeza do contexto de autenticação JWT
+      
       toast({
         titulo: 'Logout realizado',
         descricao: 'Você foi desconectado com sucesso.',

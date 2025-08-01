@@ -3,7 +3,7 @@
 import React, { memo, useMemo } from "react";
 import { useListarUsuarios } from "@/features/auth/hooks/use-usuarios";
 import { VirtualizedList } from "@/components/ui/virtualized-list";
-import type { AppUser } from '@/src/features/auth/types/user.types';
+
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -61,10 +61,7 @@ UserRow.displayName = 'UserRow';
 export default function UsuariosAdminPage() {
   const { data: usuarios, isLoading, error, refetch } = useListarUsuarios();
 
-  // Generate a stable key for each user row
-  const getItemKey = (index: number, data: AppUser) => {
-    return data.id;
-  };
+
 
   if (isLoading) {
     return (
@@ -93,10 +90,14 @@ export default function UsuariosAdminPage() {
             <VirtualizedList
               items={usuarios}
               height={600}
-              itemSize={40}
-              renderItem={UserRow}
-              itemKey={getItemKey}
-              overscanCount={5}
+              itemHeight={40}
+              renderItem={({ index, style }) => (
+                <UserRow
+                  item={usuarios[index]}
+                  style={style}
+                  index={index}
+                />
+              )}
             />
           </div>
         </div>

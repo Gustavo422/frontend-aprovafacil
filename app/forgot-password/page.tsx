@@ -7,10 +7,10 @@ import { z } from 'zod';
 import {
   Card,
   CardContent,
-  Carddescricao,
+  CardDescription,
   CardFooter,
   CardHeader,
-  Cardtitulo,
+  CardTitle,
 } from '@/components/ui/card';
 import {
   Form,
@@ -25,7 +25,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/features/shared/hooks/use-toast';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Alert, Alertdescricao } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle, ArrowLeft } from 'lucide-react';
 import { logger } from '@/lib/logger';
 
@@ -115,20 +115,20 @@ export default function ForgotPasswordPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Cardtitulo className="text-2xl">E-mail enviado</Cardtitulo>
-                <Carddescricao>
+                <CardTitle className="text-2xl">E-mail enviado</CardTitle>
+                <CardDescription>
                   Verifique sua caixa de entrada
-                </Carddescricao>
+                </CardDescription>
               </div>
             </CardHeader>
 
             <CardContent>
               <Alert>
                 <CheckCircle className="h-4 w-4" />
-                <Alertdescricao>
+                <AlertDescription>
                   Enviamos um link para redefinição de senha para o seu e-mail. 
                   Verifique sua caixa de entrada e spam.
-                </Alertdescricao>
+                </AlertDescription>
               </Alert>
             </CardContent>
 
@@ -179,10 +179,10 @@ export default function ForgotPasswordPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <Cardtitulo className="text-2xl">Esqueceu sua senha?</Cardtitulo>
-              <Carddescricao>
+              <CardTitle className="text-2xl">Esqueceu sua senha?</CardTitle>
+              <CardDescription>
                 Digite seu e-mail para receber um link de redefinição
-              </Carddescricao>
+              </CardDescription>
             </div>
           </CardHeader>
 

@@ -163,9 +163,9 @@ export function useUser() {
 /**
  * Hook para buscar estatísticas do usuário
  */
-export function useUserStats(userId?: string) {
+export function useUserStats(usuarioId?: string) {
   const { user, token, isAuthenticated } = useAuth();
-  const targetUserId = userId || user?.id;
+  const targetUserId = usuarioId || user?.id;
   
   const queryKey = ['user', 'stats', targetUserId ? String(targetUserId) : 'none'].join(':');
   const query = useQuery(

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { memo, useMemo } from 'react';
-import { Card, CardContent, CardHeader, Cardtitulo } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { CheckCircle2, AlertCircle, Clock, Info } from 'lucide-react';
 
@@ -85,7 +85,7 @@ export const RecentActivity = memo(function RecentActivity({
   return (
     <Card className={className}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <Cardtitulo className="text-sm font-medium">Atividades Recentes</Cardtitulo>
+        <CardTitle className="text-sm font-medium">Atividades Recentes</CardTitle>
         <Clock className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>

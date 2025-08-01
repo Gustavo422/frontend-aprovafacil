@@ -8,7 +8,7 @@ export async function GET() {
       environment: process.env.NODE_ENV,
       message: 'Sistema funcionando corretamente'
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { 
         status: 'error', 
@@ -18,4 +18,4 @@ export async function GET() {
       { status: 500 }
     );
   }
-} 
+}

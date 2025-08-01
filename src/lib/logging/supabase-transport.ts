@@ -40,6 +40,7 @@ export class SupabaseLogTransport implements LogTransport {
        * Flush interval in milliseconds
        */
       flushIntervalMs?: number;
+      usuario_id?: string | null; // Novo campo para receber o usuario_id
     } = {}
   ) {
     // Set default options
@@ -109,9 +110,8 @@ export class SupabaseLogTransport implements LogTransport {
     this.buffer = [];
     
     try {
-      // Get user ID if available
-      const { data } = await supabase.auth.getUser();
-      const userId = data.user?.id;
+      // Usar usuario_id do options
+      const usuarioId = this.options.usuario_id;
       
       // Convert entries to Supabase format
       const logs = entries.map(entry => ({
@@ -123,7 +123,7 @@ export class SupabaseLogTransport implements LogTransport {
         nome_tabela: 'logs',
         metadata: {
           ...entry.meta,
-          user_id: userId,
+          usuario_id: usuarioId,
           url: typeof window !== 'undefined' ? window.location.href : undefined,
           user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined
         }

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { extractAuthToken } from '@/lib/auth-utils';
+import { extractAuthToken, sanitizeToken } from '@/lib/auth-utils';
 
 export async function GET(request: Request) {
   try {
@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     // Obter token de autenticação
     const token = extractAuthToken(request);
     
-    console.log('[DEBUG] Token extraído:', token ? `${token.substring(0, 10)}...` : 'Nenhum');
+    console.log('[DEBUG] Token extraído:', token ? `${token.substring(0, 4)}...${token.substring(token.length - 4)}` : 'Nenhum');
     
     if (!token) {
       console.log('[DEBUG] Token não encontrado, retornando 401');
@@ -27,6 +27,7 @@ export async function GET(request: Request) {
       
       // Decodificar payload do token
       const payload = JSON.parse(atob(tokenParts[1]));
+      if (payload.token) payload.token = sanitizeToken(payload.token);
       console.log('[DEBUG] Payload do token:', payload);
     } catch (error) {
       console.log('[DEBUG] Erro ao decodificar token:', error);
@@ -34,7 +35,7 @@ export async function GET(request: Request) {
 
     const backendUrl = `${process.env.BACKEND_API_URL}/api/user/concurso-preference${new URL(request.url).search}`;
     console.log('[DEBUG] Fazendo requisição para:', backendUrl);
-    console.log('[DEBUG] Com token:', `Bearer ${token.substring(0, 15)}...`);
+    console.log('[DEBUG] Com token:', `Bearer ${token.substring(0, 4)}...${token.substring(token.length - 4)}`);
     
     const res = await fetch(backendUrl, {
       method: 'GET',

@@ -100,7 +100,7 @@ export interface Database {
       preferencias_usuario_concurso: {
         Row: {
           id: string;
-          user_id: string;
+          usuario_id: string;
           concurso_id: string;
           selecionado_em: string;
           pode_alterar_ate: string;
@@ -110,7 +110,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          user_id: string;
+          usuario_id: string;
           concurso_id: string;
           selecionado_em?: string;
           pode_alterar_ate: string;
@@ -120,7 +120,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          user_id?: string;
+          usuario_id?: string;
           concurso_id?: string;
           selecionado_em?: string;
           pode_alterar_ate?: string;
@@ -287,7 +287,7 @@ export interface Database {
       progresso_usuario_simulado: {
         Row: {
           id: string;
-          user_id: string;
+          usuario_id: string;
           simulado_id: string;
           score: number;
           concluido_at: string;
@@ -296,7 +296,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          user_id: string;
+          usuario_id: string;
           simulado_id: string;
           score: number;
           concluido_at?: string;
@@ -305,7 +305,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          user_id?: string;
+          usuario_id?: string;
           simulado_id?: string;
           score?: number;
           concluido_at?: string;
@@ -345,7 +345,7 @@ export interface Database {
       progresso_usuario_questoes_semanais: {
         Row: {
           id: string;
-          user_id: string;
+          usuario_id: string;
           questoes_semanais_id: string;
           score: number;
           concluido_at: string;
@@ -353,7 +353,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          user_id: string;
+          usuario_id: string;
           questoes_semanais_id: string;
           score: number;
           concluido_at?: string;
@@ -361,7 +361,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          user_id?: string;
+          usuario_id?: string;
           questoes_semanais_id?: string;
           score?: number;
           concluido_at?: string;
@@ -403,21 +403,21 @@ export interface Database {
       progresso_usuario_mapa_assuntos: {
         Row: {
           id: string;
-          user_id: string;
+          usuario_id: string;
           mapa_assunto_id: string;
           status: string;
           atualizado_em: string;
         };
         Insert: {
           id?: string;
-          user_id: string;
+          usuario_id: string;
           mapa_assunto_id: string;
           status: string;
           atualizado_em?: string;
         };
         Update: {
           id?: string;
-          user_id?: string;
+          usuario_id?: string;
           mapa_assunto_id?: string;
           status?: string;
           atualizado_em?: string;
@@ -426,7 +426,7 @@ export interface Database {
       planos_estudo: {
         Row: {
           id: string;
-          user_id: string;
+          usuario_id: string;
           concurso_id: string | null;
           start_date: string;
           end_date: string;
@@ -435,7 +435,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          user_id: string;
+          usuario_id: string;
           concurso_id?: string | null;
           start_date: string;
           end_date: string;
@@ -444,7 +444,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          user_id?: string;
+          usuario_id?: string;
           concurso_id?: string | null;
           start_date?: string;
           end_date?: string;
@@ -493,7 +493,7 @@ export interface Database {
       progresso_usuario_flashcard: {
         Row: {
           id: string;
-          user_id: string;
+          usuario_id: string;
           flashcard_id: string;
           status: string;
           next_review: string | null;
@@ -502,7 +502,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          user_id: string;
+          usuario_id: string;
           flashcard_id: string;
           status: string;
           next_review?: string | null;
@@ -511,7 +511,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          user_id?: string;
+          usuario_id?: string;
           flashcard_id?: string;
           status?: string;
           next_review?: string | null;
@@ -580,7 +580,7 @@ export interface Database {
       progresso_usuario_apostila: {
         Row: {
           id: string;
-          user_id: string;
+          usuario_id: string;
           conteudo_apostila_id: string;
           concluido: boolean;
           percentual_progresso: number;
@@ -588,7 +588,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          user_id: string;
+          usuario_id: string;
           conteudo_apostila_id: string;
           concluido?: boolean;
           percentual_progresso?: number;
@@ -596,7 +596,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          user_id?: string;
+          usuario_id?: string;
           conteudo_apostila_id?: string;
           concluido?: boolean;
           percentual_progresso?: number;
@@ -606,7 +606,7 @@ export interface Database {
       user_performance_cache: {
         Row: {
           id: string;
-          user_id: string;
+          usuario_id: string;
           cache_key: string;
           cache_data: Json;
           expires_at: string;
@@ -615,7 +615,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          user_id: string;
+          usuario_id: string;
           cache_key: string;
           cache_data: Json;
           expires_at: string;
@@ -624,7 +624,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          user_id?: string;
+          usuario_id?: string;
           cache_key?: string;
           cache_data?: Json;
           expires_at?: string;
@@ -635,7 +635,7 @@ export interface Database {
       logs_auditoria: {
         Row: {
           id: string;
-          user_id: string | null;
+          usuario_id: string | null;
           action: string;
           table_nome: string;
           record_id: string | null;
@@ -647,7 +647,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          user_id?: string | null;
+          usuario_id?: string | null;
           action: string;
           table_nome: string;
           record_id?: string | null;
@@ -659,7 +659,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          user_id?: string | null;
+          usuario_id?: string | null;
           action?: string;
           table_nome?: string;
           record_id?: string | null;
@@ -699,7 +699,7 @@ export interface Database {
       estatisticas_usuario_disciplina: {
         Row: {
           id: string;
-          user_id: string;
+          usuario_id: string;
           disciplina: string;
           total_questions: number;
           resposta_corretas: number;
@@ -711,7 +711,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          user_id: string;
+          usuario_id: string;
           disciplina: string;
           total_questions?: number;
           resposta_corretas?: number;
@@ -723,7 +723,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          user_id?: string;
+          usuario_id?: string;
           disciplina?: string;
           total_questions?: number;
           resposta_corretas?: number;

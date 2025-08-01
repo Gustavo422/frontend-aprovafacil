@@ -7,7 +7,7 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
-  Cardtitulo,
+  CardTitle,
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -198,12 +198,12 @@ const QuestionHeader = memo(({
 }) => {
   return (
     <CardHeader className="pb-4">
-      <Cardtitulo className="flex items-start gap-3 text-base md:text-lg">
+      <CardTitle className="flex items-start gap-3 text-base md:text-lg">
         <span className="mt-0.5 flex h-6 w-6 md:h-8 md:w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-medium flex-shrink-0">
           {currentNumber}
         </span>
         <span className="leading-relaxed">{question.text}</span>
-      </Cardtitulo>
+      </CardTitle>
       {question.disciplina && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span className="font-medium">Disciplina:</span>

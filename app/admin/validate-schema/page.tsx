@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, Carddescricao, CardHeader, Cardtitulo } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Alert, Alertdescricao } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ExportJsonButton } from '@/components/ui/export-json-button';
 import { 
@@ -134,7 +134,7 @@ export default function ValidateSchemaPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Cardtitulo className="text-sm font-medium">Status Geral</Cardtitulo>
+                <CardTitle className="text-sm font-medium">Status Geral</CardTitle>
                 {schemaValidation.isValid ? (
                   <CheckCircle className="h-4 w-4 text-green-600" />
                 ) : (
@@ -150,7 +150,7 @@ export default function ValidateSchemaPage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Cardtitulo className="text-sm font-medium">Tabelas</Cardtitulo>
+                <CardTitle className="text-sm font-medium">Tabelas</CardTitle>
                 <Database className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -165,7 +165,7 @@ export default function ValidateSchemaPage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Cardtitulo className="text-sm font-medium">Colunas</Cardtitulo>
+                <CardTitle className="text-sm font-medium">Colunas</CardTitle>
                 <FileText className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -180,7 +180,7 @@ export default function ValidateSchemaPage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Cardtitulo className="text-sm font-medium">Problemas</Cardtitulo>
+                <CardTitle className="text-sm font-medium">Problemas</CardTitle>
                 <AlertTriangle className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -206,7 +206,7 @@ export default function ValidateSchemaPage() {
               {schemaValidation.errors.length > 0 && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
-                  <Alertdescricao>
+                  <AlertDescription>
                     <div className="space-y-2">
                       <p className="font-semibold">Erros Críticos ({schemaValidation.errors.length}):</p>
                       <ul className="list-disc list-inside space-y-1">
@@ -215,7 +215,7 @@ export default function ValidateSchemaPage() {
                         ))}
                       </ul>
                     </div>
-                  </Alertdescricao>
+                  </AlertDescription>
                 </Alert>
               )}
 
@@ -223,7 +223,7 @@ export default function ValidateSchemaPage() {
               {schemaValidation.warnings.length > 0 && (
                 <Alert>
                   <AlertTriangle className="h-4 w-4" />
-                  <Alertdescricao>
+                  <AlertDescription>
                     <div className="space-y-2">
                       <p className="font-semibold">Avisos ({schemaValidation.warnings.length}):</p>
                       <ul className="list-disc list-inside space-y-1">
@@ -237,17 +237,17 @@ export default function ValidateSchemaPage() {
                         )}
                       </ul>
                     </div>
-                  </Alertdescricao>
+                  </AlertDescription>
                 </Alert>
               )}
 
               {/* Resumo de Problemas */}
               <Card>
                 <CardHeader>
-                  <Cardtitulo>Resumo de Problemas</Cardtitulo>
-                  <Carddescricao>
+                  <CardTitle>Resumo de Problemas</CardTitle>
+                  <CardDescription>
                     Detalhes dos problemas encontrados na validação
-                  </Carddescricao>
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -309,10 +309,10 @@ export default function ValidateSchemaPage() {
             <TabsContent value="details" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <Cardtitulo>Detalhes da Validação</Cardtitulo>
-                  <Carddescricao>
+                  <CardTitle>Detalhes da Validação</CardTitle>
+                  <CardDescription>
                     Informações técnicas sobre a validação realizada
-                  </Carddescricao>
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -367,10 +367,10 @@ export default function ValidateSchemaPage() {
             <TabsContent value="tables" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <Cardtitulo>Detalhes das Tabelas</Cardtitulo>
-                  <Carddescricao>
+                  <CardTitle>Detalhes das Tabelas</CardTitle>
+                  <CardDescription>
                     Status detalhado de cada tabela e suas colunas
-                  </Carddescricao>
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -411,9 +411,7 @@ export default function ValidateSchemaPage() {
           <div className="flex justify-end pt-4 border-t">
             <ExportJsonButton
               data={getSchemaData()}
-              filenome="schema-validation-report"
-              variant="default"
-              className="bg-blue-600 hover:bg-blue-700"
+              filename="schema-validation-report"
             />
           </div>
         </>
@@ -429,7 +427,7 @@ export default function ValidateSchemaPage() {
       )}
     </div>
   );
-} 
+}
 
 
 

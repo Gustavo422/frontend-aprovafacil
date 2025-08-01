@@ -30,16 +30,21 @@ interface Simulado {
   };
 }
 
-export default function SimuladoPage({ params }: { params: { id: string } }) {
+export default function SimuladoPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { toast } = useToast();
   const [simulado, setSimulado] = useState<Simulado | null>(null);
   const [questoes, setQuestoes] = useState<SimuladoQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [id, setId] = useState<string>('');
 
-  // Extract the id directly from params
-  const { id } = params;
+  // Extract the id from params Promise
+  useEffect(() => {
+    params.then((resolvedParams) => {
+      setId(resolvedParams.id);
+    });
+  }, [params]);
 
   const fetchSimulado = useCallback(async () => {
     try {

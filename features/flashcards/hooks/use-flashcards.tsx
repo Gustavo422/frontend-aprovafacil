@@ -49,8 +49,8 @@ interface UseFlashcardsReturn {
   loadByConcurso: (concursoId: string, limit?: number) => Promise<void>;
   loadRandom: (concursoId: string, limit?: number) => Promise<void>;
   saveProgress: (progress: FlashcardProgressInsert) => Promise<FlashcardProgressData | null>;
-  loadusuariostats: (userId: string) => Promise<void>;
-  loadForReview: (userId: string, limit?: number) => Promise<void>;
+  loadusuariostats: (usuarioId: string) => Promise<void>;
+  loadForReview: (usuarioId: string, limit?: number) => Promise<void>;
   reset: () => void;
 }
 
@@ -178,8 +178,8 @@ export function useFlashcards(options: UseFlashcardsOptions = {}): UseFlashcards
         const progressToSave: any = {
           ...progress,
         };
-        if ('user_id' in progress && progress.user_id) {
-          progressToSave.usuario_id = progress.user_id;
+        if ('usuario_id' in progress && progress.usuario_id) {
+          progressToSave.usuario_id = progress.usuario_id;
         }
         if ('next_review' in progress) {
           progressToSave.proxima_revisao = progress.next_review ?? null;
@@ -188,7 +188,7 @@ export function useFlashcards(options: UseFlashcardsOptions = {}): UseFlashcards
           progressToSave.contador_revisoes = progress.review_count;
         }
         // Remover apenas se existir
-        if ('user_id' in progressToSave) delete progressToSave.user_id;
+        if ('usuario_id' in progressToSave) delete progressToSave.usuario_id;
         if ('next_review' in progressToSave) delete progressToSave.next_review;
         if ('review_count' in progressToSave) delete progressToSave.review_count;
         const result = await service.saveProgress(progressToSave);
@@ -197,7 +197,7 @@ export function useFlashcards(options: UseFlashcardsOptions = {}): UseFlashcards
         const data = result.data as any;
         return {
           id: data.id,
-          user_id: data.usuario_id,
+          usuario_id: data.usuario_id,
           flashcard_id: data.flashcard_id,
           status: data.status,
           next_review: data.proxima_revisao,
@@ -215,10 +215,10 @@ export function useFlashcards(options: UseFlashcardsOptions = {}): UseFlashcards
   );
 
   const loadusuariostats = useCallback(
-    async (userId: string) => {
+    async (usuarioId: string) => {
       await handleLoad(
         async () => {
-          const result = await service.getusuariostats(userId);
+          const result = await service.getusuariostats(usuarioId);
           if (!result.success) throw new Error(result.error || 'Erro desconhecido ao buscar estatísticas do usuário.');
           
           // Como getusuariostats retorna unknown, vamos tratar como dados básicos
@@ -255,10 +255,10 @@ export function useFlashcards(options: UseFlashcardsOptions = {}): UseFlashcards
   );
 
   const loadForReview = useCallback(
-    async (userId: string, lim: number = 20) => {
+    async (usuarioId: string, lim: number = 20) => {
       await handleLoad(
         async () => {
-          const result = await service.getFlashcardsForReview(userId, lim);
+          const result = await service.getFlashcardsForReview(usuarioId, lim);
           if (!result.success) throw new Error(result.error || 'Erro desconhecido ao buscar flashcards para revisão.');
           return (result.data || []).map((item: any) => ({
             id: item.id,
@@ -342,7 +342,7 @@ export function useFlashcardStudy(concursoId: string, limit: number = 10) {
     async (flashcardId: string, acertou: boolean) => {
       if (!studySession || !user) return;
       await saveProgress({
-        user_id: user.id,
+        usuario_id: user.id,
         flashcard_id: flashcardId,
         status: acertou ? 'correct' : 'incorrect',
         next_review: null,

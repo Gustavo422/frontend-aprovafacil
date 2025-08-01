@@ -33,7 +33,7 @@ export interface CacheEvent {
   data?: unknown;
   error?: Error;
   timestamp: Date;
-  userId?: string;
+  usuarioId?: string;
   duration?: number;
   result?: CacheOperationResult;
 }
@@ -137,8 +137,8 @@ export class CacheManagerMonitor {
    */
   private applyMonitoringHooks(): void {
     // Override get method
-    cacheManager.get = async <T>(key: string, options: CacheOptions & { userId?: string } = {}): Promise<T | null> => {
-      const { type = CacheType.MEMORY, userId } = options;
+    cacheManager.get = async <T>(key: string, options: CacheOptions & { usuarioId?: string } = {}): Promise<T | null> => {
+      const { type = CacheType.MEMORY, usuarioId } = options;
       let result: CacheOperationResult = 'miss';
       let error: Error | undefined;
       let data: T | null = null;
@@ -150,7 +150,7 @@ export class CacheManagerMonitor {
         cacheType: type,
         key,
         timestamp: new Date(),
-        userId
+        usuarioId
       });
       
       // Start monitoring
@@ -176,7 +176,7 @@ export class CacheManagerMonitor {
         // Record operation end in monitor
         cacheMonitor.recordOperationEnd(operationId, result, {
           error: error?.message,
-          userId
+          usuarioId
         });
         
         // Track operation performance for adaptive logging
@@ -191,7 +191,7 @@ export class CacheManagerMonitor {
           data,
           error,
           timestamp: new Date(),
-          userId,
+          usuarioId,
           duration,
           result
         });
@@ -205,7 +205,7 @@ export class CacheManagerMonitor {
               result: 'error',
               duration,
               error,
-              userId,
+              usuarioId,
               correlationId: operationId
             })
           );
@@ -217,7 +217,7 @@ export class CacheManagerMonitor {
             key,
             error,
             timestamp: new Date(),
-            userId
+            usuarioId
           });
         }
         
@@ -228,7 +228,7 @@ export class CacheManagerMonitor {
               key,
               result,
               duration,
-              userId,
+              usuarioId,
               correlationId: operationId
             })
           );
@@ -237,8 +237,8 @@ export class CacheManagerMonitor {
     };
     
     // Override set method
-    cacheManager.set = async <T>(key: string, data: T, options: CacheOptions & { userId?: string } = {}): Promise<void> => {
-      const { type = CacheType.MEMORY, userId } = options;
+    cacheManager.set = async <T>(key: string, data: T, options: CacheOptions & { usuarioId?: string } = {}): Promise<void> => {
+      const { type = CacheType.MEMORY, usuarioId } = options;
       let result: CacheOperationResult = 'success';
       let error: Error | undefined;
       
@@ -250,7 +250,7 @@ export class CacheManagerMonitor {
         key,
         data,
         timestamp: new Date(),
-        userId
+        usuarioId
       });
       
       // Start monitoring
@@ -285,7 +285,7 @@ export class CacheManagerMonitor {
         cacheMonitor.recordOperationEnd(operationId, result, {
           error: error?.message,
           size,
-          userId
+          usuarioId
         });
         
         // Track operation performance for adaptive logging
@@ -300,7 +300,7 @@ export class CacheManagerMonitor {
           data,
           error,
           timestamp: new Date(),
-          userId,
+          usuarioId,
           duration,
           result
         });
@@ -314,7 +314,7 @@ export class CacheManagerMonitor {
               result: 'error',
               duration,
               error,
-              userId,
+              usuarioId,
               correlationId: operationId,
               size
             })
@@ -327,7 +327,7 @@ export class CacheManagerMonitor {
             key,
             error,
             timestamp: new Date(),
-            userId
+            usuarioId
           });
         }
         
@@ -338,7 +338,7 @@ export class CacheManagerMonitor {
               key,
               result,
               duration,
-              userId,
+              usuarioId,
               correlationId: operationId,
               size
             })
@@ -352,7 +352,7 @@ export class CacheManagerMonitor {
               key,
               result,
               duration,
-              userId,
+              usuarioId,
               correlationId: operationId,
               size
             })
@@ -362,8 +362,8 @@ export class CacheManagerMonitor {
     };
     
     // Override delete method
-    cacheManager.delete = async (key: string, options: CacheOptions & { userId?: string } = {}): Promise<void> => {
-      const { type = CacheType.MEMORY, userId } = options;
+    cacheManager.delete = async (key: string, options: CacheOptions & { usuarioId?: string } = {}): Promise<void> => {
+      const { type = CacheType.MEMORY, usuarioId } = options;
       let result: CacheOperationResult = 'success';
       let error: Error | undefined;
       
@@ -374,7 +374,7 @@ export class CacheManagerMonitor {
         cacheType: type,
         key,
         timestamp: new Date(),
-        userId
+        usuarioId
       });
       
       // Start monitoring
@@ -396,7 +396,7 @@ export class CacheManagerMonitor {
         // Record operation end in monitor
         cacheMonitor.recordOperationEnd(operationId, result, {
           error: error?.message,
-          userId
+          usuarioId
         });
         
         // Track operation performance for adaptive logging
@@ -410,7 +410,7 @@ export class CacheManagerMonitor {
           key,
           error,
           timestamp: new Date(),
-          userId,
+          usuarioId,
           duration,
           result
         });
@@ -424,7 +424,7 @@ export class CacheManagerMonitor {
               result: 'error',
               duration,
               error,
-              userId,
+              usuarioId,
               correlationId: operationId
             })
           );
@@ -436,7 +436,7 @@ export class CacheManagerMonitor {
             key,
             error,
             timestamp: new Date(),
-            userId
+            usuarioId
           });
         }
         
@@ -447,7 +447,7 @@ export class CacheManagerMonitor {
               key,
               result,
               duration,
-              userId,
+              usuarioId,
               correlationId: operationId
             })
           );
@@ -456,8 +456,8 @@ export class CacheManagerMonitor {
     };
     
     // Override invalidate method
-    cacheManager.invalidate = async (key: string, options: CacheOptions & { userId?: string } = {}): Promise<void> => {
-      const { type = CacheType.MEMORY, userId } = options;
+    cacheManager.invalidate = async (key: string, options: CacheOptions & { usuarioId?: string } = {}): Promise<void> => {
+      const { type = CacheType.MEMORY, usuarioId } = options;
       let result: CacheOperationResult = 'success';
       let error: Error | undefined;
       
@@ -468,7 +468,7 @@ export class CacheManagerMonitor {
         cacheType: type,
         key,
         timestamp: new Date(),
-        userId
+        usuarioId
       });
       
       // Start monitoring
@@ -490,7 +490,7 @@ export class CacheManagerMonitor {
         // Record operation end in monitor
         cacheMonitor.recordOperationEnd(operationId, result, {
           error: error?.message,
-          userId
+          usuarioId
         });
         
         // Track operation performance for adaptive logging
@@ -504,7 +504,7 @@ export class CacheManagerMonitor {
           key,
           error,
           timestamp: new Date(),
-          userId,
+          usuarioId,
           duration,
           result
         });
@@ -518,7 +518,7 @@ export class CacheManagerMonitor {
               result: 'error',
               duration,
               error,
-              userId,
+              usuarioId,
               correlationId: operationId
             })
           );
@@ -530,7 +530,7 @@ export class CacheManagerMonitor {
             key,
             error,
             timestamp: new Date(),
-            userId
+            usuarioId
           });
         }
         
@@ -541,7 +541,7 @@ export class CacheManagerMonitor {
               key,
               result,
               duration,
-              userId,
+              usuarioId,
               correlationId: operationId
             })
           );
@@ -550,8 +550,8 @@ export class CacheManagerMonitor {
     };
     
     // Override clear method
-    cacheManager.clear = async (options: { type?: CacheType; userId?: string } = {}): Promise<void> => {
-      const { type = CacheType.MEMORY, userId } = options;
+    cacheManager.clear = async (options: { type?: CacheType; usuarioId?: string } = {}): Promise<void> => {
+      const { type = CacheType.MEMORY, usuarioId } = options;
       let result: CacheOperationResult = 'success';
       let error: Error | undefined;
       
@@ -561,7 +561,7 @@ export class CacheManagerMonitor {
         operation: 'clear',
         cacheType: type,
         timestamp: new Date(),
-        userId
+        usuarioId
       });
       
       // Start monitoring
@@ -583,7 +583,7 @@ export class CacheManagerMonitor {
         // Record operation end in monitor
         cacheMonitor.recordOperationEnd(operationId, result, {
           error: error?.message,
-          userId
+          usuarioId
         });
         
         // Track operation performance for adaptive logging
@@ -596,7 +596,7 @@ export class CacheManagerMonitor {
           cacheType: type,
           error,
           timestamp: new Date(),
-          userId,
+          usuarioId,
           duration,
           result
         });
@@ -609,7 +609,7 @@ export class CacheManagerMonitor {
               result: 'error',
               duration,
               error,
-              userId,
+              usuarioId,
               correlationId: operationId
             })
           );
@@ -620,7 +620,7 @@ export class CacheManagerMonitor {
             cacheType: type,
             error,
             timestamp: new Date(),
-            userId
+            usuarioId
           });
         }
         
@@ -630,7 +630,7 @@ export class CacheManagerMonitor {
             cacheLogger.createOperationLogEntry('clear', type, {
               result,
               duration,
-              userId,
+              usuarioId,
               correlationId: operationId
             })
           );
@@ -734,10 +734,10 @@ export class CacheManagerMonitor {
       operationType: CacheOperation;
       cacheType: CacheType;
       key?: string;
-      userId?: string;
+      usuarioId?: string;
     }
   ): Promise<{ result: T; duration: number }> {
-    const { operationType, cacheType, key, userId } = options;
+    const { operationType, cacheType, key, usuarioId } = options;
     let result: T;
     let error: Error | undefined;
     
@@ -760,7 +760,7 @@ export class CacheManagerMonitor {
       // Record operation end in monitor
       cacheMonitor.recordOperationEnd(operationId, error ? 'error' : 'success', {
         error: error?.message,
-        userId
+        usuarioId
       });
       
       // Log if error
@@ -770,7 +770,7 @@ export class CacheManagerMonitor {
           cacheType,
           key,
           error: error.message,
-          userId,
+          usuarioId,
           duration
         });
       }

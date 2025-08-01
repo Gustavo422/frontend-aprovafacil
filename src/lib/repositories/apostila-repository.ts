@@ -55,22 +55,22 @@ export class ApostilaRepository {
 
   // Atualiza o progresso do usuário em uma apostila
   async atualizarProgresso(
-    userId: string,
+    usuarioId: string,
     apostilaContentId: string,
     progresso: { concluido: boolean; percentualProgresso: number }
   ): Promise<ProgressoApostila> {
     const res = await fetch(`/api/apostilas/${apostilaContentId}/progress`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, ...progresso }),
+      body: JSON.stringify({ usuarioId, ...progresso }),
     });
     if (!res.ok) throw new Error('Erro ao atualizar progresso da apostila');
     return await res.json();
   }
 
   // Busca o progresso do usuário em uma apostila
-  async buscarProgresso(userId: string, apostilaContentId: string): Promise<ProgressoApostila> {
-    const res = await fetch(`/api/apostilas/${apostilaContentId}/progress?userId=${encodeURIComponent(userId)}`);
+  async buscarProgresso(usuarioId: string, apostilaContentId: string): Promise<ProgressoApostila> {
+    const res = await fetch(`/api/apostilas/${apostilaContentId}/progress?usuarioId=${encodeURIComponent(usuarioId)}`);
     if (!res.ok) throw new Error('Erro ao buscar progresso da apostila');
     return await res.json();
   }

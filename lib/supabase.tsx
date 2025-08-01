@@ -47,34 +47,6 @@ export const createServerSupabaseClient = async () => {
   }
 };
 
-export const createRouteHandlerClient = async () => {
-  try {
-    const { cookies } = await import('next/headers');
-    const cookieStore = await cookies();
-    const { url, key } = getSupabaseEnv();
-    return createServerClient<Database>(
-      url,
-      key,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-          set(name: string, value: string, options: CookieOptions) {
-            cookieStore.set({ name, value, ...options });
-          },
-          remove(name: string, options: CookieOptions) {
-            cookieStore.set({ name, value: '', ...options });
-          },
-        },
-      }
-    );
-  } catch (error) {
-    console.error('Erro ao criar cliente Supabase do route handler:', error);
-    throw error;
-  }
-};
-
 // Manter compatibilidade com código existente
 export const supabase = createClient();
 

@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
-  Carddescricao,
-  CardFooter,
+  CardDescription,
   CardHeader,
-  Cardtitulo,
+  CardFooter,
+  CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -297,8 +297,8 @@ export default function FlashcardsPage() {
               {weakPoints.map((pontoFraco, index) => (
                 <Card key={index}>
                   <CardHeader>
-                    <Cardtitulo>{pontoFraco.disciplina}</Cardtitulo>
-                    <Carddescricao>{pontoFraco.tema}</Carddescricao>
+                    <CardTitle>{pontoFraco.disciplina}</CardTitle>
+                    <CardDescription>{pontoFraco.tema}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm">

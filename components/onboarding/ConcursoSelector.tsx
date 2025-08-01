@@ -1,37 +1,37 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  Card, 
-  CardContent, 
-  Carddescricao, 
-  CardHeader, 
-  Cardtitulo 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from '@/components/ui/select';
-import { 
-  Search, 
-  BookOpen, 
-  Target, 
-  Calendar, 
-  Building2, 
+import {
+  Search,
+  BookOpen,
+  Target,
+  Calendar,
+  Building2,
   Loader2,
   CheckCircle,
   AlertCircle
 } from 'lucide-react';
 import { useToast } from '@/features/shared/hooks/use-toast';
 import { useConcursoActions } from '@/contexts/ConcursoContext';
-import { 
-  ConcursoCategoria, 
+import {
+  ConcursoCategoria,
   ConcursoComCategoria
 } from '@/types/concurso';
 import { logger } from '@/lib/logger';
@@ -47,7 +47,7 @@ import { logger } from '@/lib/logger';
 export function ConcursoSelector() {
   const { toast } = useToast();
   const { selectConcurso, loadConcursosByCategory } = useConcursoActions();
-  
+
   const [categorias, setCategorias] = useState<ConcursoCategoria[]>([]);
   const [concursos, setConcursos] = useState<ConcursoComCategoria[]>([]);
   const [loading, setLoading] = useState(true);
@@ -118,22 +118,22 @@ export function ConcursoSelector() {
   // ========================================
 
   const filteredConcursos = concursos.filter(concurso => {
-    const matchesSearch = 
+    const matchesSearch =
       concurso.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (concurso.categoria?.nome && 
+      (concurso.categoria?.nome &&
        concurso.categoria.nome.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (concurso.banca && concurso.banca.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const matchesCategoria = 
-      selectedCategoria === 'todos' || 
+    const matchesCategoria =
+      selectedCategoria === 'todos' ||
       concurso.categoria?.id === selectedCategoria;
 
-    const matchesBanca = 
-      selectedBanca === 'todas' || 
+    const matchesBanca =
+      selectedBanca === 'todas' ||
       concurso.banca === selectedBanca;
 
-    const matchesAno = 
-      selectedAno === 'todos' || 
+    const matchesAno =
+      selectedAno === 'todos' ||
       concurso.ano?.toString() === selectedAno;
 
     return matchesSearch && matchesCategoria && matchesBanca && matchesAno;
@@ -147,20 +147,20 @@ export function ConcursoSelector() {
     try {
       console.log('[DEBUG] Iniciando seleção de concurso:', { concursoId, categoriaId });
       setSelecting(true);
-      
+
       console.log('[DEBUG] Chamando selectConcurso...');
       await selectConcurso(concursoId, categoriaId);
       console.log('[DEBUG] selectConcurso concluído com sucesso');
-      
+
       toast({
         title: "Concurso selecionado!",
         descricao: "Seu painel foi personalizado para o concurso escolhido.",
         duration: 3000,
       });
-      
-      console.log('[DEBUG] Redirecionando para dashboard...');
+
+      console.log('[DEBUG] Redirecionando para página inicial...');
       // Forçar navegação completa para garantir que a página mude
-      window.location.href = '/dashboard';
+      window.location.href = '/';
     } catch (error) {
       console.error('[DEBUG] Erro ao selecionar concurso:', error);
       logger.error('Erro ao selecionar concurso:', { error });
@@ -199,7 +199,7 @@ export function ConcursoSelector() {
           <h1 className="text-3xl font-bold">Selecione seu Concurso</h1>
         </div>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Escolha o concurso que você está estudando. Seu painel será personalizado 
+          Escolha o concurso que você está estudando. Seu painel será personalizado
           exclusivamente para este concurso, incluindo simulados, flashcards e apostilas específicas.
         </p>
         <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">
@@ -211,10 +211,10 @@ export function ConcursoSelector() {
       {/* Filtros */}
       <Card>
         <CardHeader>
-          <Cardtitulo className="flex items-center space-x-2">
+          <CardTitle className="flex items-center space-x-2">
             <Search className="h-5 w-5" />
             <span>Filtrar Concursos</span>
-          </Cardtitulo>
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Busca */}
@@ -306,7 +306,7 @@ export function ConcursoSelector() {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="space-y-2">
-                      <Cardtitulo className="text-lg">{concurso.nome}</Cardtitulo>
+                      <CardTitle className="text-lg">{concurso.nome}</CardTitle>
                       <div className="flex flex-wrap gap-2">
                         <Badge variant="secondary">
                           {concurso.categoria?.nome || 'Sem categoria'}
@@ -323,11 +323,11 @@ export function ConcursoSelector() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {concurso.descricao && (
-                    <Carddescricao className="text-sm">
+                    <CardDescription className="text-sm">
                       {concurso.descricao}
-                    </Carddescricao>
+                    </CardDescription>
                   )}
-                  
+
                   <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <div className="flex items-center space-x-1">
                       <Building2 className="h-4 w-4" />

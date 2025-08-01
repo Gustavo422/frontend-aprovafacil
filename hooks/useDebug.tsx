@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { createDebugger } from '../utils/debugger';
 
 interface DebugData {
   type: 'api' | 'component' | 'state' | 'error' | 'info';
@@ -23,8 +22,6 @@ interface UseDebugOptions {
   autoLogEffects?: boolean;
 }
 
-const debug = createDebugger('useDebug');
-
 export function useDebug(options: UseDebugOptions = {}) {
   const { componentName, autoLogProps, autoLogState, autoLogEffects } = options;
   const [isDebugPanelVisible, setIsDebugPanelVisible] = useState(false);
@@ -42,7 +39,7 @@ export function useDebug(options: UseDebugOptions = {}) {
     }
     
     // Também logar no console para desenvolvimento
-    debug.info(`${data.title}:`, data.data);
+    console.log(`${data.title}:`, data.data);
   }, [componentName]);
 
   // Função para logar props

@@ -30,7 +30,11 @@ export const ConcursoContainer: React.FC<ConcursoContainerProps> = ({
       )}
       
       {error ? (
-        <ConcursoErrorMessage className="my-4" onRetry={() => loadUserPreference()} />
+        <ConcursoErrorMessage 
+          error="Erro ao carregar dados do concurso" 
+          className="my-4" 
+          onRetry={() => loadUserPreference()} 
+        />
       ) : (
         children
       )}

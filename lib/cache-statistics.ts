@@ -159,7 +159,7 @@ export interface StatisticsOptions {
   /**
    * User ID (required for Supabase cache)
    */
-  userId?: string;
+  usuarioId?: string;
   
   /**
    * Maximum number of largest entries to return
@@ -188,11 +188,11 @@ export class CacheStatisticsCalculator {
     options: {
       includeExpired?: boolean;
       pattern?: string;
-      userId?: string;
+      usuarioId?: string;
     } = {}
   ): Promise<CacheSizeInfo> {
     try {
-      const { includeExpired = false, pattern, userId } = options;
+      const { includeExpired = false, pattern, usuarioId } = options;
       
       // Get all entries for the specified cache type
       const entries = await this.cacheInspector.getAllEntries({
@@ -200,7 +200,7 @@ export class CacheStatisticsCalculator {
         pattern,
         includeExpired,
         includeData: false,
-        userId
+        usuarioId
       });
       
       // Calculate total size
@@ -239,11 +239,11 @@ export class CacheStatisticsCalculator {
     cacheType: CacheType,
     options: {
       pattern?: string;
-      userId?: string;
+      usuarioId?: string;
     } = {}
   ): Promise<CacheStatusCounts> {
     try {
-      const { pattern, userId } = options;
+      const { pattern, usuarioId } = options;
       
       // Get all entries including expired ones
       const entries = await this.cacheInspector.getAllEntries({
@@ -251,7 +251,7 @@ export class CacheStatisticsCalculator {
         pattern,
         includeExpired: true,
         includeData: false,
-        userId
+        usuarioId
       });
       
       // Count active and expired entries
@@ -288,11 +288,11 @@ export class CacheStatisticsCalculator {
     options: {
       cacheType?: CacheType;
       pattern?: string;
-      userId?: string;
+      usuarioId?: string;
     } = {}
   ): Promise<ExpirationStatistics> {
     try {
-      const { cacheType, pattern, userId } = options;
+      const { cacheType, pattern, usuarioId } = options;
       
       // Get all entries including expired ones
       const entries = await this.cacheInspector.getAllEntries({
@@ -300,7 +300,7 @@ export class CacheStatisticsCalculator {
         pattern,
         includeExpired: true,
         includeData: false,
-        userId
+        usuarioId
       });
       
       // Initialize counters
@@ -374,7 +374,7 @@ export class CacheStatisticsCalculator {
     options: {
       includeExpired?: boolean;
       pattern?: string;
-      userId?: string;
+      usuarioId?: string;
       maxLargestEntries?: number;
     } = {}
   ): Promise<CacheTypeStatistics> {
@@ -382,7 +382,7 @@ export class CacheStatisticsCalculator {
       const { 
         includeExpired = false, 
         pattern, 
-        userId,
+        usuarioId,
         maxLargestEntries = 5
       } = options;
       
@@ -390,13 +390,13 @@ export class CacheStatisticsCalculator {
       const sizeInfo = await this.calculateCacheSize(cacheType, {
         includeExpired,
         pattern,
-        userId
+        usuarioId
       });
       
       // Get status counts
       const statusCounts = await this.countEntriesByStatus(cacheType, {
         pattern,
-        userId
+        usuarioId
       });
       
       // Calculate average size
@@ -440,7 +440,7 @@ export class CacheStatisticsCalculator {
         includeExpired = false, 
         cacheType, 
         pattern, 
-        userId,
+        usuarioId,
         maxLargestEntries = 5
       } = options;
       
@@ -460,7 +460,7 @@ export class CacheStatisticsCalculator {
         const typeStats = await this.calculateTypeStatistics(type, {
           includeExpired,
           pattern,
-          userId,
+          usuarioId,
           maxLargestEntries
         });
         
@@ -477,7 +477,7 @@ export class CacheStatisticsCalculator {
       const expiration = await this.calculateExpirationStatistics({
         cacheType,
         pattern,
-        userId
+        usuarioId
       });
       
       return {

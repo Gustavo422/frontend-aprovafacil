@@ -1,7 +1,7 @@
 'use client';
 
 import { SessionMonitor } from '@/components/session-monitor';
-import { Card, CardContent, CardHeader, Cardtitulo } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -99,10 +99,10 @@ export default function ConfiguracoesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <Cardtitulo className="flex items-center space-x-2">
+                <CardTitle className="flex items-center space-x-2">
                   <Shield className="h-5 w-5" />
                   <span>Status de Autenticação</span>
-                </Cardtitulo>
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 {/* AuthStatus component was removed, so this section is now empty */}
@@ -111,10 +111,10 @@ export default function ConfiguracoesPage() {
 
             <Card>
               <CardHeader>
-                <Cardtitulo className="flex items-center space-x-2">
+                <CardTitle className="flex items-center space-x-2">
                   <Activity className="h-5 w-5" />
                   <span>Ações de Segurança</span>
-                </Cardtitulo>
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -145,10 +145,10 @@ export default function ConfiguracoesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <Cardtitulo className="flex items-center space-x-2">
+                <CardTitle className="flex items-center space-x-2">
                   <Clock className="h-5 w-5" />
                   <span>Monitor de Sessão</span>
-                </Cardtitulo>
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <SessionMonitor />
@@ -157,10 +157,10 @@ export default function ConfiguracoesPage() {
 
             <Card>
               <CardHeader>
-                <Cardtitulo className="flex items-center space-x-2">
+                <CardTitle className="flex items-center space-x-2">
                   <Activity className="h-5 w-5" />
                   <span>Informações da Sessão</span>
-                </Cardtitulo>
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
@@ -220,10 +220,10 @@ export default function ConfiguracoesPage() {
         <TabsContent value="account" className="space-y-6">
           <Card>
             <CardHeader>
-              <Cardtitulo className="flex items-center space-x-2">
+              <CardTitle className="flex items-center space-x-2">
                 <Settings className="h-5 w-5" />
                 <span>Configurações da Conta</span>
-              </Cardtitulo>
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-4">

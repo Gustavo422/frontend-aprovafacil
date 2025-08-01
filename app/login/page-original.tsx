@@ -8,10 +8,10 @@ import { z } from 'zod';
 import {
   Card,
   CardContent,
-  Carddescricao,
+  CardDescription,
   CardFooter,
   CardHeader,
-  Cardtitulo,
+  CardTitle,
 } from '@/components/ui/card';
 import {
   Form,
@@ -26,7 +26,7 @@ import { useToast } from '@/features/shared/hooks/use-toast';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Alert, Alertdescricao } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Eye, EyeOff, Lock } from 'lucide-react';
 
 const formSchema = z.object({
@@ -197,10 +197,10 @@ export default function LoginPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <Cardtitulo className="text-2xl">Bem-vindo de volta</Cardtitulo>
-              <Carddescricao>
+              <CardTitle className="text-2xl">Bem-vindo de volta</CardTitle>
+              <CardDescription>
                 Entre com suas credenciais para acessar sua conta
-              </Carddescricao>
+              </CardDescription>
             </div>
           </CardHeader>
 
@@ -208,23 +208,23 @@ export default function LoginPage() {
             {getReasonMessage() && (
               <Alert className="mb-4">
                 <AlertCircle className="h-4 w-4" />
-                <Alertdescricao>
+                <AlertDescription>
                   {getReasonMessage()}
-                </Alertdescricao>
+                </AlertDescription>
               </Alert>
             )}
 
             {isBlocked && (
               <Alert variant="destructive" className="mb-4">
                 <Lock className="h-4 w-4" />
-                <Alertdescricao>
+                <AlertDescription>
                   <div className="space-y-2">
                     <p>Muitas tentativas de login. Tente novamente em:</p>
                     <p className="font-mono text-lg">
                       {formatTimeRemaining(timeUntilReset)}
                     </p>
                   </div>
-                </Alertdescricao>
+                </AlertDescription>
               </Alert>
             )}
 

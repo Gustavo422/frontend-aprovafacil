@@ -1,12 +1,17 @@
 import { ConnectionStatus } from './enums/connection-status.enum';
-import { supabase } from './client';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 /**
  * Interface for connection log entry
  */
 export interface ConnectionLogEntry {
   id?: string;
-  user_id?: string | null;
+  usuario_id?: string | null;
   timestamp: Date;
   event_type: string;
   status: string;
@@ -23,7 +28,7 @@ export interface ConnectionLogEntry {
  */
 export class ConnectionLogger {
   private enabled: boolean;
-  private userId: string | null = null;
+  private usuarioId: string | null = null;
   private buffer: ConnectionLogEntry[] = [];
   private flushInterval: NodeJS.Timeout | null = null;
   private maxBufferSize: number;
@@ -34,23 +39,28 @@ export class ConnectionLogger {
    * @param enabled Whether logging is enabled
    * @param maxBufferSize Maximum number of logs to buffer before flushing
    * @param flushIntervalMs Interval in milliseconds to flush logs
+   * @param usuario_id The ID of the user associated with the logs. If null, it will be fetched.
    */
   constructor(
     enabled = true,
     maxBufferSize = 10,
-    flushIntervalMs = 30000
+    flushIntervalMs = 30000,
+    usuario_id: string | null = null
   ) {
     this.enabled = enabled;
     this.maxBufferSize = maxBufferSize;
     this.flushIntervalMs = flushIntervalMs;
+    this.usuarioId = usuario_id;
     
     // Start flush interval
     this.startFlushInterval();
     
-    // Get current user ID
-    this.getCurrentUserId().catch(() => {
-      // Ignore errors
-    });
+    // Get current user ID if not provided
+    if (!this.usuarioId) {
+      this.getCurrentUserId().catch(() => {
+        // Ignore errors
+      });
+    }
   }
   
   /**
@@ -74,8 +84,8 @@ export class ConnectionLogger {
   private async getCurrentUserId(): Promise<string | null> {
     try {
       const { data } = await supabase.auth.getUser();
-      this.userId = data.user?.id || null;
-      return this.userId;
+      this.usuarioId = data.user?.id || null;
+      return this.usuarioId;
     } catch (error) {
       console.error('[ConnectionLogger] Error getting user ID:', error);
       return null;
@@ -87,6 +97,7 @@ export class ConnectionLogger {
    * @param eventType Type of event
    * @param status Connection status
    * @param details Additional details
+   * @param usuario_id The ID of the user associated with the log. If null, it will be fetched.
    */
   async logEvent(
     eventType: string,
@@ -102,20 +113,24 @@ export class ConnectionLogger {
       };
       duration?: number;
       clientInfo?: Record<string, unknown>;
-    }
+    },
+    usuario_id?: string | null
   ): Promise<void> {
     if (!this.enabled) {
       return;
     }
     
+    // Use usuario_id from argument or from this.usuarioId
+    const usuarioId = usuario_id ?? this.usuarioId;
+    
     // Ensure user ID is set
-    if (!this.userId) {
+    if (!usuarioId) {
       await this.getCurrentUserId();
     }
     
     // Create log entry
     const logEntry: ConnectionLogEntry = {
-      user_id: this.userId,
+      usuario_id: usuarioId,
       timestamp: new Date(),
       event_type: eventType,
       status: status.toString(),
@@ -217,15 +232,17 @@ let instance: ConnectionLogger | null = null;
  * @param enabled Whether logging is enabled
  * @param maxBufferSize Maximum number of logs to buffer before flushing
  * @param flushIntervalMs Interval in milliseconds to flush logs
+ * @param usuario_id The ID of the user associated with the logs. If null, it will be fetched.
  * @returns Connection logger instance
  */
 export function getConnectionLogger(
   enabled = true,
   maxBufferSize = 10,
-  flushIntervalMs = 30000
+  flushIntervalMs = 30000,
+  usuario_id: string | null = null
 ): ConnectionLogger {
   if (!instance) {
-    instance = new ConnectionLogger(enabled, maxBufferSize, flushIntervalMs);
+    instance = new ConnectionLogger(enabled, maxBufferSize, flushIntervalMs, usuario_id);
   }
   
   return instance;

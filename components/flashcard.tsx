@@ -6,7 +6,7 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
-  Cardtitulo,
+  CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, XCircle, HelpCircle, CheckCircle } from 'lucide-react';
@@ -74,7 +74,7 @@ export function Flashcard({
         }`}
       >
         <CardHeader className="pb-3">
-          <Cardtitulo className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <span className="text-base md:text-lg">
               {flashcard.disciplina || 'Flashcard'}
             </span>
@@ -84,7 +84,7 @@ export function Flashcard({
                 {flashcard.subtema ? `- ${flashcard.subtema}` : ''}
               </span>
             )}
-          </Cardtitulo>
+          </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center p-4 md:p-6 flex-1">
           <div

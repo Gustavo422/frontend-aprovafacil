@@ -1,6 +1,6 @@
 import { cacheManager, CacheType } from './cache-manager';
 import { logger } from './logger';
-import { createServerSupabaseClient } from './supabase';
+import { createClient } from './supabase';
 import { 
   CacheRelationshipGraph, 
   CacheGraphNode,
@@ -87,7 +87,7 @@ export interface GetKeysOptions {
   /**
    * User ID (required for Supabase cache)
    */
-  userId?: string;
+  usuarioId?: string;
 }
 
 /**
@@ -118,7 +118,7 @@ export class CacheInspector {
    * Get all cache keys
    */
   public async getKeys(options: GetKeysOptions = {}): Promise<string[]> {
-    const { cacheType, pattern, includeExpired = false, userId } = options;
+    const { cacheType, pattern, includeExpired = false, usuarioId } = options;
     const now = new Date();
     const keys: string[] = [];
     
@@ -196,8 +196,8 @@ export class CacheInspector {
       }
       
       // Get keys from Supabase
-      if ((!cacheType || cacheType === CacheType.SUPABASE) && userId) {
-        const supabaseKeys = await this.getSupabaseKeys(userId, includeExpired);
+      if ((!cacheType || cacheType === CacheType.SUPABASE) && usuarioId) {
+        const supabaseKeys = await this.getSupabaseKeys(usuarioId, includeExpired);
         keys.push(...supabaseKeys);
       }
       
@@ -221,13 +221,18 @@ export class CacheInspector {
   /**
    * Get keys from Supabase cache
    */
-  private async getSupabaseKeys(userId: string, includeExpired: boolean): Promise<string[]> {
+  private async getSupabaseKeys(usuarioId: string, includeExpired: boolean): Promise<string[]> {
     try {
-      const supabase = await createServerSupabaseClient();
+      // Só executar no lado do cliente
+      if (typeof window === 'undefined') {
+        return [];
+      }
+      
+      const supabase = createClient();
       let query = supabase
         .from('user_performance_cache')
         .select('cache_key')
-        .eq('user_id', userId);
+        .eq('usuario_id', usuarioId);
       
       // Filter out expired entries if needed
       if (!includeExpired) {
@@ -239,7 +244,7 @@ export class CacheInspector {
       if (error || !data) {
         logger.error('Error fetching Supabase cache keys', {
           error: error?.message || 'No data returned',
-          userId
+          usuarioId
         });
         return [];
       }
@@ -248,7 +253,7 @@ export class CacheInspector {
     } catch (err) {
       logger.error('Error fetching Supabase cache keys', {
         error: err instanceof Error ? err.message : String(err),
-        userId
+        usuarioId
       });
       return [];
     }
@@ -260,7 +265,7 @@ export class CacheInspector {
   public async getEntryMetadata(
     key: string,
     cacheType: CacheType,
-    userId?: string
+    usuarioId?: string
   ): Promise<CacheEntryMetadata | null> {
     try {
       const now = new Date();
@@ -332,16 +337,21 @@ export class CacheInspector {
         }
         
         case CacheType.SUPABASE: {
-          if (!userId) {
-            logger.error('userId is required for Supabase cache');
+          if (!usuarioId) {
+            logger.error('usuarioId is required for Supabase cache');
             return null;
           }
           
-          const supabase = await createServerSupabaseClient();
+          // Só executar no lado do cliente
+          if (typeof window === 'undefined') {
+            return null;
+          }
+          
+          const supabase = createClient();
           const { data, error } = await supabase
             .from('user_performance_cache')
             .select('cache_key, cache_data, expires_at, atualizado_em, related_keys')
-            .eq('user_id', userId)
+            .eq('usuario_id', usuarioId)
             .eq('cache_key', key)
             .single();
           
@@ -383,10 +393,10 @@ export class CacheInspector {
   public async getEntryData<T>(
     key: string,
     cacheType: CacheType,
-    userId?: string
+    usuarioId?: string
   ): Promise<T | null> {
     try {
-      return await cacheManager.get<T>(key, { type: cacheType, userId });
+      return await cacheManager.get<T>(key, { type: cacheType, usuarioId });
     } catch (err) {
       logger.error('Error getting cache entry data', {
         error: err instanceof Error ? err.message : String(err),
@@ -409,12 +419,12 @@ export class CacheInspector {
       includeData = false,
       limit,
       offset = 0,
-      userId
+      usuarioId
     } = options;
     
     try {
       // Get all keys matching the criteria
-      const keys = await this.getKeys({ cacheType, pattern, includeExpired, userId });
+      const keys = await this.getKeys({ cacheType, pattern, includeExpired, usuarioId });
       
       // Apply offset and limit
       const paginatedKeys = keys.slice(offset, limit ? offset + limit : undefined);
@@ -440,14 +450,14 @@ export class CacheInspector {
           }
         }
         
-        const metadata = await this.getEntryMetadata(key, entryType, userId);
+        const metadata = await this.getEntryMetadata(key, entryType, usuarioId);
         
         if (metadata) {
           const entry: CacheEntryInfo = { ...metadata };
           
           // Include data if requested
           if (includeData) {
-            entry.data = await this.getEntryData(key, entryType, userId);
+            entry.data = await this.getEntryData(key, entryType, usuarioId);
           }
           
           entries.push(entry);
@@ -729,11 +739,11 @@ export class CacheInspector {
     options: {
       includeExpired?: boolean;
       pattern?: string;
-      userId?: string;
+      usuarioId?: string;
     } = {}
   ): Promise<CacheSizeInfo> {
     try {
-      const { includeExpired = false, pattern, userId } = options;
+      const { includeExpired = false, pattern, usuarioId } = options;
       
       // Get all entries for the specified cache type
       const entries = await this.getAllEntries({
@@ -741,7 +751,7 @@ export class CacheInspector {
         pattern,
         includeExpired,
         includeData: false,
-        userId
+        usuarioId
       });
       
       // Calculate total size
@@ -780,11 +790,11 @@ export class CacheInspector {
     cacheType: CacheType,
     options: {
       pattern?: string;
-      userId?: string;
+      usuarioId?: string;
     } = {}
   ): Promise<CacheStatusCounts> {
     try {
-      const { pattern, userId } = options;
+      const { pattern, usuarioId } = options;
       
       // Get all entries including expired ones
       const entries = await this.getAllEntries({
@@ -792,7 +802,7 @@ export class CacheInspector {
         pattern,
         includeExpired: true,
         includeData: false,
-        userId
+        usuarioId
       });
       
       // Count active and expired entries
@@ -829,11 +839,11 @@ export class CacheInspector {
     options: {
       cacheType?: CacheType;
       pattern?: string;
-      userId?: string;
+      usuarioId?: string;
     } = {}
   ): Promise<ExpirationStatistics> {
     try {
-      const { cacheType, pattern, userId } = options;
+      const { cacheType, pattern, usuarioId } = options;
       
       // Get all entries including expired ones
       const entries = await this.getAllEntries({
@@ -841,7 +851,7 @@ export class CacheInspector {
         pattern,
         includeExpired: true,
         includeData: false,
-        userId
+        usuarioId
       });
       
       // Initialize counters
@@ -914,7 +924,7 @@ export class CacheInspector {
     options: {
       includeExpired?: boolean;
       pattern?: string;
-      userId?: string;
+      usuarioId?: string;
       maxLargestEntries?: number;
     } = {}
   ): Promise<CacheTypeStatistics> {
@@ -922,7 +932,7 @@ export class CacheInspector {
       const { 
         includeExpired = false, 
         pattern, 
-        userId,
+        usuarioId,
         maxLargestEntries = 5
       } = options;
       
@@ -930,13 +940,13 @@ export class CacheInspector {
       const sizeInfo = await this.calculateCacheSize(cacheType, {
         includeExpired,
         pattern,
-        userId
+        usuarioId
       });
       
       // Get status counts
       const statusCounts = await this.countEntriesByStatus(cacheType, {
         pattern,
-        userId
+        usuarioId
       });
       
       // Calculate average size
@@ -980,7 +990,7 @@ export class CacheInspector {
         includeExpired = false, 
         cacheType, 
         pattern, 
-        userId,
+        usuarioId,
         maxLargestEntries = 5
       } = options;
       
@@ -1000,7 +1010,7 @@ export class CacheInspector {
         const typeStats = await this.calculateTypeStatistics(type, {
           includeExpired,
           pattern,
-          userId,
+          usuarioId,
           maxLargestEntries
         });
         
@@ -1017,7 +1027,7 @@ export class CacheInspector {
       const expiration = await this.calculateExpirationStatistics({
         cacheType,
         pattern,
-        userId
+        usuarioId
       });
       
       return {

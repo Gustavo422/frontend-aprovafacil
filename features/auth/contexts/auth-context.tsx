@@ -186,30 +186,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         setUser(data.data.usuario);
         
-        // Check if onboarding is required
+        // Lógica de redirecionamento simplificada
+        // A informação de `primeiro_login` já está no objeto do usuário.
         if (data.data.usuario.primeiro_login) {
-          try {
-            const onboardingResponse = await fetch('/api/onboarding', {
-              headers: {
-                'Authorization': `Bearer ${data.data.token}`,
-              },
-            });
-            
-            if (onboardingResponse.ok) {
-              const onboardingData = await onboardingResponse.json();
-              if (onboardingData.requiresOnboarding) {
-                router.push('/onboarding');
-              } else {
-                router.push('/');
-              }
-            } else {
-              router.push('/onboarding');
-            }
-          } catch (error) {
-            console.error('Error checking onboarding status:', error);
-            router.push('/onboarding');
-          }
+          console.log('Primeiro login detectado. Redirecionando para /onboarding.');
+          router.push('/onboarding');
         } else {
+          console.log('Usuário existente. Redirecionando para /.');
           router.push('/');
         }
         

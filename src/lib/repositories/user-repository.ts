@@ -3,7 +3,6 @@ import { CachedRepository } from '@/src/lib/repositories/base';
 import { AppUser, mapUserRowToAppUser } from '@/src/features/auth/types/user.types';
 import { supabase } from '@/src/lib/supabase';
 import { DatabaseError } from '@/src/lib/errors';
-import type { TablesUpdate, TablesInsert } from '@/types/supabase.types';
 
 const logger = getLogger('UserRepository');
 
@@ -12,7 +11,7 @@ const logger = getLogger('UserRepository');
  */
 export type UserStats = {
   total_questoes_respondidas: number;
-  total_acertos: number;
+  total_acertos: number; // CORRETO conforme schema
   tempo_estudo_minutos: number;
   pontuacao_media: number;
 };
@@ -45,21 +44,17 @@ export class UserRepository extends CachedRepository<AppUser> {
    * Get the current user profile
    * @returns User profile or null if not authenticated
    */
-  async getProfile(): Promise<AppUser | null> {
+  async getProfile(usuario_id: string): Promise<AppUser | null> {
     try {
-      // Get current user
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      
-      if (authError || !user) {
-        logger.warn('Failed to get current user', { error: authError });
+      if (!usuario_id) {
+        logger.warn('Usuário não autenticado');
         return null;
       }
-      
       // Get user from database
       const { data, error } = await supabase
         .from('usuarios')
         .select('*')
-        .eq('id', user.id)
+        .eq('id', usuario_id)
         .single();
       
       if (error) {
@@ -84,17 +79,14 @@ export class UserRepository extends CachedRepository<AppUser> {
    * @param data Profile data to update
    * @returns Updated user profile or null if not authenticated
    */
-  async updateProfile(data: Partial<AppUser>): Promise<AppUser | null> {
+  async updateProfile(data: Partial<AppUser>, usuario_id: string): Promise<AppUser | null> {
     try {
-      // Get current user
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      
-      if (authError || !user) {
-        logger.warn('Failed to get current user', { error: authError });
+      if (!usuario_id) {
+        logger.warn('Usuário não autenticado');
         return null;
       }
       // Atualizar apenas campos permitidos pelo tipo TablesUpdate<'usuarios'>
-      const updateData: TablesUpdate<'usuarios'> = {
+      const updateData = {
         nome: data.nome,
         atualizado_em: new Date().toISOString(),
       };
@@ -102,7 +94,7 @@ export class UserRepository extends CachedRepository<AppUser> {
       const { data: updatedData, error } = await supabase
         .from('usuarios')
         .update(updateData)
-        .eq('id', user.id)
+        .eq('id', usuario_id)
         .select()
         .single();
       
@@ -112,7 +104,7 @@ export class UserRepository extends CachedRepository<AppUser> {
       }
       
       // Invalidate cache
-      this.invalidateByIdCache(user.id);
+      this.invalidateByIdCache(usuario_id);
       
       return mapUserRowToAppUser(updatedData);
     } catch (error) {
@@ -130,13 +122,10 @@ export class UserRepository extends CachedRepository<AppUser> {
    * Get user stats
    * @returns User stats or null if not authenticated
    */
-  async getStats(): Promise<UserStats | null> {
+  async getStats(usuario_id: string): Promise<UserStats | null> {
     try {
-      // Get current user
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      
-      if (authError || !user) {
-        logger.warn('Failed to get current user', { error: authError });
+      if (!usuario_id) {
+        logger.warn('Usuário não autenticado');
         return null;
       }
       
@@ -144,7 +133,7 @@ export class UserRepository extends CachedRepository<AppUser> {
       const { data, error } = await supabase
         .from('usuarios')
         .select('total_questoes_respondidas, total_acertos, tempo_estudo_minutos, pontuacao_media')
-        .eq('id', user.id)
+        .eq('id', usuario_id)
         .single();
       
       if (error) {
@@ -174,15 +163,14 @@ export class UserRepository extends CachedRepository<AppUser> {
    * @param stats Stats to update
    * @returns Updated stats or null if not authenticated
    */
-  async updateStats(stats: Partial<UserStats>): Promise<UserStats | null> {
+  async updateStats(stats: Partial<UserStats>, usuario_id: string): Promise<UserStats | null> {
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) {
-        logger.warn('Failed to get current user', { error: authError });
+      if (!usuario_id) {
+        logger.warn('Usuário não autenticado');
         return null;
       }
       // Atualizar apenas campos permitidos pelo tipo TablesUpdate<'usuarios'>
-      const updateData: TablesUpdate<'usuarios'> = {
+      const updateData = {
         total_questoes_respondidas: stats.total_questoes_respondidas,
         total_acertos: stats.total_acertos,
         tempo_estudo_minutos: stats.tempo_estudo_minutos,
@@ -193,14 +181,14 @@ export class UserRepository extends CachedRepository<AppUser> {
       const { data: updatedData, error } = await supabase
         .from('usuarios')
         .update(updateData)
-        .eq('id', user.id)
+        .eq('id', usuario_id)
         .select('total_questoes_respondidas, total_acertos, tempo_estudo_minutos, pontuacao_media')
         .single();
       if (error) {
         logger.error('Failed to update user stats', { error });
         throw new DatabaseError('Failed to update user stats: ' + error.message);
       }
-      this.invalidateByIdCache(user.id);
+      this.invalidateByIdCache(usuario_id);
       return {
         total_questoes_respondidas: updatedData.total_questoes_respondidas || 0,
         total_acertos: updatedData.total_acertos || 0,
@@ -220,13 +208,10 @@ export class UserRepository extends CachedRepository<AppUser> {
    * Get user preferences
    * @returns User preferences or null if not authenticated
    */
-  async getPreferences(): Promise<UserPreferences | null> {
+  async getPreferences(usuario_id: string): Promise<UserPreferences | null> {
     try {
-      // Get current user
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      
-      if (authError || !user) {
-        logger.warn('Failed to get current user', { error: authError });
+      if (!usuario_id) {
+        logger.warn('Usuário não autenticado');
         return null;
       }
       
@@ -234,7 +219,7 @@ export class UserRepository extends CachedRepository<AppUser> {
       const { data, error } = await supabase
         .from('preferencias_usuario')
         .select('*')
-        .eq('usuario_id', user.id)
+        .eq('usuario_id', usuario_id)
         .maybeSingle();
       
       if (error) {
@@ -272,17 +257,16 @@ export class UserRepository extends CachedRepository<AppUser> {
    * @param prefs Preferences to update
    * @returns Updated preferences or null if not authenticated
    */
-  async updatePreferences(prefs: Partial<UserPreferences>): Promise<UserPreferences | null> {
+  async updatePreferences(prefs: Partial<UserPreferences>, usuario_id: string): Promise<UserPreferences | null> {
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) {
-        logger.warn('Failed to get current user', { error: authError });
+      if (!usuario_id) {
+        logger.warn('Usuário não autenticado');
         return null;
       }
       const { data: existingPrefs, error: checkError } = await supabase
         .from('preferencias_usuario')
         .select('*')
-        .eq('usuario_id', user.id)
+        .eq('usuario_id', usuario_id)
         .maybeSingle();
       if (checkError) {
         logger.error('Failed to check user preferences', { error: checkError });
@@ -290,7 +274,7 @@ export class UserRepository extends CachedRepository<AppUser> {
       }
       let result;
       if (existingPrefs) {
-        const updateData: TablesUpdate<'preferencias_usuario'> = {
+        const updateData = {
           tema: (prefs.tema !== undefined ? prefs.tema : existingPrefs.tema) as 'light' | 'dark' | 'system',
           notificacoes_email: prefs.notificacoes_email !== undefined
             ? prefs.notificacoes_email
@@ -304,7 +288,7 @@ export class UserRepository extends CachedRepository<AppUser> {
         const { data, error } = await supabase
           .from('preferencias_usuario')
           .update(updateData)
-          .eq('usuario_id', user.id)
+          .eq('usuario_id', usuario_id)
           .select()
           .single();
         if (error) {
@@ -313,8 +297,8 @@ export class UserRepository extends CachedRepository<AppUser> {
         }
         result = data;
       } else {
-        const insertData: TablesInsert<'preferencias_usuario'> = {
-          usuario_id: user.id,
+        const insertData = {
+          usuario_id: usuario_id,
           tema: (prefs.tema || 'system') as 'light' | 'dark' | 'system',
           notificacoes_email: prefs.notificacoes_email !== undefined ? prefs.notificacoes_email : true,
           notificacoes_push: prefs.notificacoes_push !== undefined ? prefs.notificacoes_push : true
@@ -378,13 +362,13 @@ export class UserRepository extends CachedRepository<AppUser> {
   
   /**
    * Update user stats by user ID
-   * @param userId User ID
+   * @param usuarioId User ID
    * @param stats Stats to update
    * @returns Updated user or null if not found
    */
-  async updateusuariostats(userId: string, stats: Partial<UserStats>): Promise<AppUser | null> {
+  async updateusuariostats(usuarioId: string, stats: Partial<UserStats>): Promise<AppUser | null> {
     try {
-      const updateData: TablesUpdate<'usuarios'> = {
+      const updateData = {
         total_questoes_respondidas: stats.total_questoes_respondidas,
         total_acertos: stats.total_acertos,
         tempo_estudo_minutos: stats.tempo_estudo_minutos,
@@ -395,17 +379,17 @@ export class UserRepository extends CachedRepository<AppUser> {
       const { data, error } = await supabase
         .from('usuarios')
         .update(updateData)
-        .eq('id', userId)
+        .eq('id', usuarioId)
         .select()
         .single();
       if (error) {
-        logger.error('Failed to update user stats', { error, userId });
+        logger.error('Failed to update user stats', { error, usuarioId });
         throw new DatabaseError('Failed to update user stats: ' + error.message);
       }
-      this.invalidateByIdCache(userId);
+      this.invalidateByIdCache(usuarioId);
       return mapUserRowToAppUser(data);
     } catch (error) {
-      logger.error('Error in updateusuariostats', { error, userId });
+      logger.error('Error in updateusuariostats', { error, usuarioId });
       if (error instanceof DatabaseError) {
         throw error;
       }
@@ -415,12 +399,12 @@ export class UserRepository extends CachedRepository<AppUser> {
   
   /**
    * Deactivate a user account
-   * @param userId User ID
+   * @param usuarioId User ID
    * @returns True if successful, false otherwise
    */
-  async deactivateAccount(userId: string): Promise<boolean> {
+  async deactivateAccount(usuarioId: string): Promise<boolean> {
     try {
-      const updateData: TablesUpdate<'usuarios'> = {
+      const updateData = {
         ativo: false,
         atualizado_em: new Date().toISOString(),
       };
@@ -428,15 +412,15 @@ export class UserRepository extends CachedRepository<AppUser> {
       const { error } = await supabase
         .from('usuarios')
         .update(updateData)
-        .eq('id', userId);
+        .eq('id', usuarioId);
       if (error) {
-        logger.error('Failed to deactivate user account', { error, userId });
+        logger.error('Failed to deactivate user account', { error, usuarioId });
         throw new DatabaseError('Failed to deactivate user account: ' + error.message);
       }
-      this.invalidateByIdCache(userId);
+      this.invalidateByIdCache(usuarioId);
       return true;
     } catch (error) {
-      logger.error('Error in deactivateAccount', { error, userId });
+      logger.error('Error in deactivateAccount', { error, usuarioId });
       if (error instanceof DatabaseError) {
         throw error;
       }
@@ -446,12 +430,12 @@ export class UserRepository extends CachedRepository<AppUser> {
   
   /**
    * Activate a user account
-   * @param userId User ID
+   * @param usuarioId User ID
    * @returns True if successful, false otherwise
    */
-  async activateAccount(userId: string): Promise<boolean> {
+  async activateAccount(usuarioId: string): Promise<boolean> {
     try {
-      const updateData: TablesUpdate<'usuarios'> = {
+      const updateData = {
         ativo: true,
         atualizado_em: new Date().toISOString(),
       };
@@ -459,15 +443,15 @@ export class UserRepository extends CachedRepository<AppUser> {
       const { error } = await supabase
         .from('usuarios')
         .update(updateData)
-        .eq('id', userId);
+        .eq('id', usuarioId);
       if (error) {
-        logger.error('Failed to activate user account', { error, userId });
+        logger.error('Failed to activate user account', { error, usuarioId });
         throw new DatabaseError('Failed to activate user account: ' + error.message);
       }
-      this.invalidateByIdCache(userId);
+      this.invalidateByIdCache(usuarioId);
       return true;
     } catch (error) {
-      logger.error('Error in activateAccount', { error, userId });
+      logger.error('Error in activateAccount', { error, usuarioId });
       if (error instanceof DatabaseError) {
         throw error;
       }

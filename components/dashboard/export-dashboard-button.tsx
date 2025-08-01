@@ -15,20 +15,12 @@ interface ExportDashboardButtonProps {
 export function ExportDashboardButton({
   data,
   filenome,
-  disabled = false,
-  variant = 'outline',
-  size = 'default',
-  className = '',
 }: ExportDashboardButtonProps) {
   return (
     <div className="flex items-center gap-2">
       <ExportJsonButton
         data={data}
-        filenome={filenome}
-        disabled={disabled}
-        variant={variant}
-        size={size}
-        className={`flex items-center gap-2 ${className}`}
+        filename={filenome}
       />
     </div>
   );

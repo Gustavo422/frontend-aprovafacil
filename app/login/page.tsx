@@ -8,10 +8,10 @@ import { z } from 'zod';
 import {
   Card,
   CardContent,
-  Carddescricao,
+  CardDescription,
   CardFooter,
   CardHeader,
-  Cardtitulo,
+  CardTitle,
 } from '@/components/ui/card';
 import {
   Form,
@@ -26,7 +26,7 @@ import { useToast } from '@/features/shared/hooks/use-toast';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Alert, Alertdescricao } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Eye, EyeOff, Lock } from 'lucide-react';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 
@@ -193,19 +193,19 @@ export default function LoginPage() {
         {/* Card de Login */}
         <Card className="border-border/50">
           <CardHeader className="space-y-1 text-center">
-            <Cardtitulo className="text-xl font-semibold">Fazer Login</Cardtitulo>
-            <Carddescricao>
+            <CardTitle className="text-xl font-semibold">Fazer Login</CardTitle>
+            <CardDescription>
               Digite seu email e senha para continuar
-            </Carddescricao>
+            </CardDescription>
           </CardHeader>
           
           <CardContent>
             {isBlocked && (
               <Alert className="mb-6 border-destructive/50 bg-destructive/10">
                 <Lock className="h-4 w-4" />
-                <Alertdescricao>
+                <AlertDescription>
                   Conta temporariamente bloqueada. Tempo restante: {formatTime(timeUntilReset)}
-                </Alertdescricao>
+                </AlertDescription>
               </Alert>
             )}
 
@@ -298,9 +298,9 @@ export default function LoginPage() {
             {loginAttempts > 0 && loginAttempts < 3 && (
               <Alert className="border-warning/50 bg-warning/10">
                 <AlertCircle className="h-4 w-4" />
-                <Alertdescricao className="text-sm">
+                <AlertDescription className="text-sm">
                   Tentativa {loginAttempts} de 3. Após 3 tentativas, sua conta será temporariamente bloqueada.
-                </Alertdescricao>
+                </AlertDescription>
               </Alert>
             )}
           </CardFooter>

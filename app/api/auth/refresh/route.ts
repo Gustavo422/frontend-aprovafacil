@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getBackendUrl, withErrorHandling } from '@/lib/api-utils';
+import { sanitizeToken } from '@/lib/auth-utils';
 
 export async function POST(request: Request) {
   return withErrorHandling(async () => {
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
 
     // Se o refresh for bem-sucedido, atualizar o token nos cookies
     if (res.status === 200 && data.success && data.data?.token) {
-      console.log('[DEBUG] Refresh bem-sucedido, atualizando token em cookies');
+      console.log('[DEBUG] Refresh bem-sucedido, atualizando token em cookies:', sanitizeToken(data.data.token));
 
       // Atualizar cookie HTTP-only para segurança
       response.cookies.set('auth_token_secure', data.data.token, {

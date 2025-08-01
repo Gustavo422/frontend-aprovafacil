@@ -7,7 +7,7 @@ import { CacheOperation } from './cache-manager-monitor';
  * Extended options for setting cache entries with metadata
  */
 interface SetWithMetadataOptions extends CacheOptions {
-  userId?: string;
+  usuarioId?: string;
   expiresAt?: Date;
   createdAt?: Date;
   relatedKeys?: string[];
@@ -24,7 +24,7 @@ interface SetWithMetadataOptions extends CacheOptions {
 ): Promise<void> {
   const { 
     type = CacheType.MEMORY, 
-    userId,
+    usuarioId,
     expiresAt,
     createdAt,
     relatedKeys,
@@ -96,7 +96,7 @@ interface SetWithMetadataOptions extends CacheOptions {
         operationType: 'set',
         cacheType: type,
         key,
-        userId
+        usuarioId
       }
     );
     
@@ -106,14 +106,14 @@ interface SetWithMetadataOptions extends CacheOptions {
       expiresAt: expiresAt?.toISOString(),
       createdAt: createdAt?.toISOString(),
       hasRelatedKeys: !!relatedKeys && relatedKeys.length > 0,
-      userId
+      usuarioId
     });
   } catch (error) {
     logger.error('Failed to set cache entry with metadata', {
       key,
       cacheType: type,
       error: typeof error === 'object' && error && 'message' in error ? (error as { message: string }).message : String(error),
-      userId
+      usuarioId
     });
     
     throw error;
@@ -129,17 +129,17 @@ interface CacheManagerMonitorExtensions {
       operationType: CacheOperation;
       cacheType: CacheType;
       key?: string;
-      userId?: string;
+      usuarioId?: string;
     }
   ) => Promise<{ result: T; duration: number }>;
-  invalidateMultiple?: (keys: string[], options?: CacheOptions & { userId?: string }) => Promise<boolean>;
-  clearByType?: (cacheType: CacheType, userId?: string) => Promise<boolean>;
+  invalidateMultiple?: (keys: string[], options?: CacheOptions & { usuarioId?: string }) => Promise<boolean>;
+  clearByType?: (cacheType: CacheType, usuarioId?: string) => Promise<boolean>;
   clearExpired?: (options?: Record<string, unknown>) => Promise<void>;
   executeBatch?: (operations: unknown[]) => Promise<void>;
   importCache?: (jsonData: string) => Promise<void>;
-  set?: <T>(key: string, data: T, options?: CacheOptions & { userId?: string }) => Promise<void>;
-  invalidate?: (key: string, options?: CacheOptions & { userId?: string }) => Promise<void>;
-  clear?: (options?: { type?: CacheType; userId?: string }) => Promise<void>;
+  set?: <T>(key: string, data: T, options?: CacheOptions & { usuarioId?: string }) => Promise<void>;
+  invalidate?: (key: string, options?: CacheOptions & { usuarioId?: string }) => Promise<void>;
+  clear?: (options?: { type?: CacheType; usuarioId?: string }) => Promise<void>;
 }
 
 const monitor = cacheManagerMonitor as typeof cacheManagerMonitor & CacheManagerMonitorExtensions;
@@ -150,7 +150,7 @@ const monitor = cacheManagerMonitor as typeof cacheManagerMonitor & CacheManager
 // Elas não são necessárias para a extensão dinâmica e causam erro de tipagem.
 
 // Métodos de extensão para compatibilidade com rotas e testes
-monitor.invalidateMultiple = async function(keys: string[], options: CacheOptions & { userId?: string } = {}): Promise<boolean> {
+monitor.invalidateMultiple = async function(keys: string[], options: CacheOptions & { usuarioId?: string } = {}): Promise<boolean> {
   if (!Array.isArray(keys)) throw new Error('keys deve ser um array');
   for (const key of keys) {
     if (typeof monitor.invalidate === 'function') {
@@ -162,9 +162,9 @@ monitor.invalidateMultiple = async function(keys: string[], options: CacheOption
   return true;
 };
 
-monitor.clearByType = async function(cacheType: CacheType, userId?: string): Promise<boolean> {
+monitor.clearByType = async function(cacheType: CacheType, usuarioId?: string): Promise<boolean> {
   if (typeof monitor.clear === 'function') {
-    await monitor.clear({ type: cacheType, userId });
+    await monitor.clear({ type: cacheType, usuarioId });
     return true;
   }
   throw new Error('Método clear não implementado');

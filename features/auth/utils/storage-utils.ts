@@ -2,6 +2,8 @@
  * Utility functions for managing token storage in localStorage
  */
 
+import { sanitizeToken } from '@/lib/auth-utils';
+
 // Constants
 export const TOKEN_KEY = 'auth_token';
 export const TOKEN_EXPIRY_KEY = 'auth_token_expiry';
@@ -33,7 +35,7 @@ export const storeToken = (
       localStorage.setItem(TOKEN_REFRESH_KEY, refreshToken);
     }
     
-    console.log('[DEBUG] Token stored in localStorage');
+    console.log('[DEBUG] Token stored in localStorage:', sanitizeToken(token));
   } catch (error) {
     console.error('Error storing token in localStorage:', error);
   }

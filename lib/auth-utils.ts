@@ -1,6 +1,34 @@
 import { NextRequest } from 'next/server';
 
 /**
+ * Sanitiza um token para exibição em logs (mostra apenas primeiros 4 e últimos 4 caracteres)
+ * @param token Token a ser sanitizado
+ * @returns Token sanitizado ou string vazia se não fornecido
+ */
+export function sanitizeToken(token: string | null): string {
+  if (!token || typeof token !== 'string') return '';
+  if (token.length <= 8) return '[REDACTED]';
+  return `${token.substring(0, 4)}...${token.substring(token.length - 4)}`;
+}
+
+/**
+ * Sanitiza um header de cookies para exibição em logs
+ * @param cookieHeader String completa do header de cookies
+ * @returns String sanitizada com tokens truncados
+ */
+function sanitizeCookieHeader(cookieHeader: string): string {
+  if (!cookieHeader) return '';
+  
+  // Para simplificar, vamos apenas mostrar uma versão muito truncada
+  // já que o header é muito longo e complexo
+  if (cookieHeader.length > 100) {
+    return `[COOKIE_HEADER_TRUNCATED] - ${cookieHeader.length} chars - Contains auth tokens`;
+  }
+  
+  return cookieHeader;
+}
+
+/**
  * Extrai o token de autenticação do cabeçalho da requisição ou cookies
  * @param request Requisição Next.js
  * @returns Token de autenticação ou null se não encontrado
@@ -10,7 +38,7 @@ export function extractAuthToken(request: Request | NextRequest): string | null 
   
   // Tentar obter do cabeçalho Authorization
   const authHeader = request.headers.get('Authorization');
-  console.log('[DEBUG] Authorization header:', authHeader);
+  console.log('[DEBUG] Authorization header:', authHeader ? sanitizeToken(authHeader) : 'null');
   
   if (authHeader) {
     // Formato esperado: "Bearer <token>"
@@ -23,7 +51,7 @@ export function extractAuthToken(request: Request | NextRequest): string | null 
   
   // Tentar obter do cookie
   const cookieHeader = request.headers.get('Cookie');
-  console.log('[DEBUG] Cookie header:', cookieHeader);
+  console.log('[DEBUG] Cookie header:', cookieHeader ? sanitizeCookieHeader(cookieHeader) : 'null');
   
   if (cookieHeader) {
     const cookies = parseCookies(cookieHeader);

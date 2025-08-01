@@ -72,7 +72,7 @@ export interface CacheMetric {
   /**
    * User ID (if applicable)
    */
-  userId?: string;
+  usuarioId?: string;
 }
 
 /**
@@ -452,7 +452,7 @@ export class CacheMetricsCollector {
     options: {
       error?: string;
       size?: number;
-      userId?: string;
+      usuarioId?: string;
     } = {}
   ): void {
     if (!operationId || !this.enabled) {
@@ -494,7 +494,7 @@ export class CacheMetricsCollector {
       key?: string;
       error?: string;
       size?: number;
-      userId?: string;
+      usuarioId?: string;
     } = {}
   ): void {
     if (!this.enabled) {
@@ -563,7 +563,7 @@ export class CacheMetricsCollector {
             key: metric.key,
             error: metric.error,
             duration: metric.duration,
-            userId: metric.userId,
+            usuarioId: metric.usuarioId,
             correlationId: metric.id
           }
         )
@@ -605,7 +605,7 @@ export class CacheMetricsCollector {
     if (metric.id) size += metric.id.length * 2;
     if (metric.key) size += metric.key.length * 2;
     if (metric.error) size += metric.error.length * 2;
-    if (metric.userId) size += metric.userId.length * 2;
+    if (metric.usuarioId) size += metric.usuarioId.length * 2;
     
     // Add fixed sizes for other properties
     size += 8; // timestamp (Date object reference)

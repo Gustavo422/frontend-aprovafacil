@@ -2,11 +2,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/database.types';
 import type { AuditLogger } from '@/lib/audit';
 
-export async function signInLogic(email: string, password: string, deps: {
-  supabase: SupabaseClient,
-  serverClient: SupabaseClient<Database>,
-  auditLogger: AuditLogger,
-}) {
+export async function signInLogic(email: string, password: string) {
   try {
     const response = await fetch(`${process.env.BACKEND_API_URL}/api/auth/login`, {
       method: 'POST',
@@ -36,10 +32,10 @@ export async function signInLogic(email: string, password: string, deps: {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${data.session?.access_token}`,
+          'Authorization': `Bearer ${data.token}`,
         },
         body: JSON.stringify({
-          user_id: data.user.id,
+          usuario_id: data.user.id,
           action: 'LOGIN',
           table_nome: 'usuarios',
           record_id: data.user.id,

@@ -8,8 +8,8 @@ import { getErrorMessageFromStatus } from './api-error-handler';
  */
 export function showErrorToast(title: string, message: string) {
   toast({
-    title,
-    descricao: message,
+    title: 'Erro',
+    description: message,
     variant: 'destructive',
   });
 }
