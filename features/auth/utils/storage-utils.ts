@@ -17,7 +17,7 @@ export const TOKEN_REFRESH_KEY = 'auth_token_refresh';
  */
 export const storeToken = (
   token: string, 
-  expiresIn: number = 60 * 60 * 24 * 7, // 7 days in seconds
+  expiresIn: number = 60 * 60 * 24 * 30, // 30 days in seconds (padronizado)
   refreshToken?: string
 ): void => {
   if (typeof window === 'undefined') return;

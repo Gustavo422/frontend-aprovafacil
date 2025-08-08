@@ -17,18 +17,16 @@ import { User, Settings, LogOut, Shield } from 'lucide-react';
 import { useToast } from '@/features/shared/hooks/use-toast';
 import { useCallback, useMemo } from 'react';
 import { HydrationSafe } from '@/components/hydration-safe';
+import { useAuth } from '@/features/auth/contexts/auth-context';
 
 export function UserNav() {
   const router = useRouter();
   const { toast } = useToast();
+  const { user, isAuthenticated, signOut, loading } = useAuth();
 
   const handleSignOut = useCallback(async () => {
     try {
-      // Logout via JWT - remover token do localStorage
-      localStorage.removeItem('auth_token');
-      // Limpar qualquer outro estado de autenticação
-      // TODO: Implementar limpeza do contexto de autenticação JWT
-      
+      await signOut();
       toast({
         titulo: 'Logout realizado',
         descricao: 'Você foi desconectado com sucesso.',
@@ -41,41 +39,41 @@ export function UserNav() {
         descricao: 'Tente novamente.',
       });
     }
-  }, [toast, router]);
+  }, [signOut, toast, router]);
 
   const handleProfileClick = useCallback(() => {
-    router.push('/dashboard/configuracoes');
+    router.push('/perfil');
   }, [router]);
 
   const handleSettingsClick = useCallback(() => {
-    router.push('/dashboard/configuracoes');
+    router.push('/configuracoes');
   }, [router]);
 
   // Obter as iniciais do nome do usuário
   const getUserInitials = useCallback(() => {
-    // Assuming user object is no longer available, but keeping the structure
-    // For now, returning a placeholder
-    return 'U';
-  }, []);
+    if (!user?.nome) return 'U';
+    return user.nome
+      .split(' ')
+      .map(name => name.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  }, [user?.nome]);
 
   const getUsernome = useCallback(() => {
-    // Assuming user object is no longer available, but keeping the structure
-    // For now, returning a placeholder
-    return 'Usuário';
-  }, []);
+    return user?.nome || 'Usuário';
+  }, [user?.nome]);
 
   const getUserEmail = useCallback(() => {
-    // Assuming user object is no longer available, but keeping the structure
-    // For now, returning a placeholder
-    return 'Email não disponível';
-  }, []);
+    return user?.email || 'Email não disponível';
+  }, [user?.email]);
 
   const userInitials = useMemo(() => getUserInitials(), [getUserInitials]);
   const usernome = useMemo(() => getUsernome(), [getUsernome]);
   const userEmail = useMemo(() => getUserEmail(), [getUserEmail]);
 
   // Se ainda está carregando, mostrar um placeholder
-  if (false) { // Assuming loading state is no longer available
+  if (loading) {
     return (
       <Button variant="ghost" className="relative h-9 w-9 rounded-full">
         <Avatar className="h-9 w-9">
@@ -88,7 +86,7 @@ export function UserNav() {
   }
 
   // Se não há usuário logado, não mostrar o componente
-  if (false) { // Assuming user object is no longer available
+  if (!isAuthenticated || !user) {
     return null;
   }
 
@@ -108,7 +106,6 @@ export function UserNav() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-9 w-9 rounded-full">
             <Avatar className="h-9 w-9">
-              {/* Assuming user object is no longer available, but keeping the structure */}
               <AvatarFallback className="bg-primary/10 text-primary font-medium">
                 {userInitials}
               </AvatarFallback>

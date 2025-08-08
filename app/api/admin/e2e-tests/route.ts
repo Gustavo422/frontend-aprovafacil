@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+/* eslint-disable no-unreachable */
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server';
 
 // const execAsync = promisify(exec);
 

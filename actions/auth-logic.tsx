@@ -4,7 +4,7 @@ import type { AuditLogger } from '@/lib/audit';
 
 export async function signInLogic(email: string, password: string) {
   try {
-    const response = await fetch(`${process.env.BACKEND_API_URL}/api/auth/login`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -28,7 +28,7 @@ export async function signInLogic(email: string, password: string) {
 
     if (data.user) {
       // Registrar login no log de auditoria
-      const auditResponse = await fetch(`${process.env.BACKEND_API_URL}/api/audit/logs`, {
+      const auditResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/audit/logs`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

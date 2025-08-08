@@ -65,7 +65,7 @@ export interface PaginatedResponse<T> {
  * Serviço de API para categorias
  */
 class CategoriaService {
-  private baseUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
+  private readonly baseUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
   
   async getCategorias(filters?: CategoriaFilters, token?: string): Promise<PaginatedResponse<Categoria>> {
     const params = new URLSearchParams();
@@ -253,7 +253,7 @@ export function useCategorias(filters?: CategoriaFilters) {
   const queryKey = ['categorias', filters ? JSON.stringify(filters) : 'all'];
   const query = useQuery(
     queryKey,
-    () => categoriaService.getCategorias(filters, token || undefined),
+    async () => categoriaService.getCategorias(filters, token || undefined),
     {
       staleTime: 10 * 60 * 1000, // 10 minutos (categorias mudam pouco)
       onError: (error) => {
@@ -288,7 +288,7 @@ export function useCategoria(id: string) {
   
   const query = useQuery(
     ['categoria', id],
-    () => categoriaService.getCategoriaById(id, token || undefined),
+    async () => categoriaService.getCategoriaById(id, token || undefined),
     {
       enabled: !!id,
       staleTime: 15 * 60 * 1000, // 15 minutos
@@ -315,7 +315,7 @@ export function useCategoriaBySlug(slug: string) {
   
   const query = useQuery(
     ['categoria', 'slug', slug],
-    () => categoriaService.getCategoriaBySlug(slug, token || undefined),
+    async () => categoriaService.getCategoriaBySlug(slug, token || undefined),
     {
       enabled: !!slug,
       staleTime: 15 * 60 * 1000, // 15 minutos
@@ -342,7 +342,7 @@ export function useCategoriasAtivas() {
   
   const query = useQuery(
     ['categorias', 'ativas'],
-    () => categoriaService.getCategoriasAtivas(token || undefined),
+    async () => categoriaService.getCategoriasAtivas(token || undefined),
     {
       staleTime: 15 * 60 * 1000, // 15 minutos
       onError: (error) => {
@@ -368,7 +368,7 @@ export function useCreateCategoria() {
   const queryClient = useQueryClient();
   
   const mutation = useMutation(
-    (data: CreateCategoriaData) => categoriaService.createCategoria(data, token!),
+    async (data: CreateCategoriaData) => categoriaService.createCategoria(data, token!),
     {
       onSuccess: () => {
         // Invalidar queries relacionadas
@@ -399,7 +399,7 @@ export function useUpdateCategoria() {
   const queryClient = useQueryClient();
   
   const mutation = useMutation(
-    ({ id, data }: { id: string; data: UpdateCategoriaData }) =>
+    async ({ id, data }: { id: string; data: UpdateCategoriaData }) =>
       categoriaService.updateCategoria(id, data, token!),
     {
       onSuccess: (updatedCategoria) => {
@@ -414,8 +414,8 @@ export function useUpdateCategoria() {
   );
   
   return {
-    updateCategoria: (id: string, data: UpdateCategoriaData) => mutation.mutate({ id, data }),
-    updateCategoriaAsync: (id: string, data: UpdateCategoriaData) => mutation.mutateAsync({ id, data }),
+    updateCategoria: async (id: string, data: UpdateCategoriaData) => mutation.mutate({ id, data }),
+    updateCategoriaAsync: async (id: string, data: UpdateCategoriaData) => mutation.mutateAsync({ id, data }),
     isLoading: mutation.isLoading,
     isError: mutation.isError,
     isSuccess: mutation.isSuccess,
@@ -432,7 +432,7 @@ export function useDeleteCategoria() {
   const queryClient = useQueryClient();
   
   const mutation = useMutation(
-    (id: string) => categoriaService.deleteCategoria(id, token!),
+    async (id: string) => categoriaService.deleteCategoria(id, token!),
     {
       onSuccess: () => {
         // Invalidar queries relacionadas

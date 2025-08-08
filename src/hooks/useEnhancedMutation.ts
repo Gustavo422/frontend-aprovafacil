@@ -1,4 +1,5 @@
-import { useMutation as useTanstackMutation, UseMutationOptions as TanstackMutationOptions, QueryKey } from '@tanstack/react-query';
+import type { UseMutationOptions as TanstackMutationOptions, QueryKey } from '@tanstack/react-query';
+import { useMutation as useTanstackMutation } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { logger } from '@/lib/logger';
 import { queryClient } from '@/src/providers/query-client';
@@ -62,7 +63,7 @@ export function useEnhancedMutation<TData = unknown, TVariables = unknown, TErro
         // Cancelar queries relacionadas
         if (invalidateQueries.length > 0) {
           await Promise.all(
-            invalidateQueries.map(queryKey => 
+            invalidateQueries.map(async queryKey => 
               queryClient.cancelQueries({ queryKey })
             )
           );
@@ -122,7 +123,7 @@ export function useEnhancedMutation<TData = unknown, TVariables = unknown, TErro
     // Invalidar queries relacionadas
     if (invalidateQueries.length > 0) {
       await Promise.all(
-        invalidateQueries.map(queryKey => 
+        invalidateQueries.map(async queryKey => 
           queryClient.invalidateQueries({ queryKey })
         )
       );

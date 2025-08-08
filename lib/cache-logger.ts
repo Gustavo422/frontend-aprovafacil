@@ -1,7 +1,8 @@
 import { logger } from './logger';
-import { CacheType } from './cache-manager';
-import { CacheOperation, CacheOperationResult } from './cache-metrics-collector';
-import { cacheLogStorage, CacheLogEntry } from './cache-log-filter';
+import type { CacheType } from './cache-manager';
+import type { CacheOperation, CacheOperationResult } from './cache-metrics-collector';
+import type { CacheLogEntry } from './cache-log-filter';
+import { cacheLogStorage } from './cache-log-filter';
 
 /**
  * Log categories for cache operations
@@ -45,9 +46,9 @@ export interface CacheOperationContext {
  */
 export class CacheLogger {
   private static instance: CacheLogger;
-  private enabled: boolean = true;
+  private enabled = true;
   private logLevel: CacheLogLevel = CacheLogLevel.INFO;
-  private correlationIdCounter: number = 0;
+  private correlationIdCounter = 0;
   
   /**
    * Private constructor to enforce singleton pattern

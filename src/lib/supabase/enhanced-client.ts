@@ -1,8 +1,9 @@
-import { createClient, SupabaseClient as OriginalSupabaseClient, RealtimeChannelOptions, RealtimeChannel } from '@supabase/supabase-js';
+import type { SupabaseClient as OriginalSupabaseClient, RealtimeChannelOptions, RealtimeChannel } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/supabase.types';
 import { ConnectionStatus } from './enums/connection-status.enum';
-import { RetryOptions } from './types/retry-options.type';
-import { SupabaseOptions } from './types/supabase-options.type';
+import type { RetryOptions } from './types/retry-options.type';
+import type { SupabaseOptions } from './types/supabase-options.type';
 import { withRetry } from './retry-handler';
 import { SupabaseErrorHandler } from './error-handler';
 import { RetryStrategy } from './enums/retry-strategy.enum';
@@ -34,8 +35,8 @@ export class EnhancedSupabaseClient {
   private client: OriginalSupabaseClient<Database>;
   private status: ConnectionStatus = ConnectionStatus.DISCONNECTED;
   private statusListeners: ((status: ConnectionStatus) => void)[] = [];
-  private options: Required<SupabaseOptions>;
-  private errorHandler: SupabaseErrorHandler;
+  private readonly options: Required<SupabaseOptions>;
+  private readonly errorHandler: SupabaseErrorHandler;
   private reconnectAttempts = 0;
   private reconnectTimeout: NodeJS.Timeout | null = null;
   
@@ -46,8 +47,8 @@ export class EnhancedSupabaseClient {
    * @param options Client options
    */
   constructor(
-    private supabaseUrl: string,
-    private supabaseKey: string,
+    private readonly supabaseUrl: string,
+    private readonly supabaseKey: string,
     options?: SupabaseOptions
   ) {
     // Validate required environment variables
@@ -328,12 +329,12 @@ export class EnhancedSupabaseClient {
     return this.client.realtime;
   }
   
-  removeChannel(channel: RealtimeChannel) {
+  async removeChannel(channel: RealtimeChannel) {
     // Implementação compatível com ISupabaseClient
     // Se necessário, adapte para remover pelo nome ou referência
     return this.client.removeChannel(channel);
   }
-  removeAllChannels() {
+  async removeAllChannels() {
     return this.client.removeAllChannels();
   }
   

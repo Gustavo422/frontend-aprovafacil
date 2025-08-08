@@ -1,7 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server';
 import { cacheMonitor } from '@/lib/cache-monitor';
 import { cacheManagerMonitor } from '@/lib/cache-manager-monitor-extension';
-import { CacheType } from '@/lib/cache-manager';
+import type { CacheType } from '@/lib/cache-manager';
 import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {

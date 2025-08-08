@@ -1,6 +1,7 @@
 'use client';
 
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { getErrorHandler } from '@/src/lib/errors';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, RefreshCw } from 'lucide-react';

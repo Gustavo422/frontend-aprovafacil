@@ -178,12 +178,12 @@ export function CacheConfig() {
           ...prevConfig,
           monitoredCacheTypes: monitoredCacheTypes.filter(type => type !== cacheType)
         };
-      } else {
+      } 
         return {
           ...prevConfig,
           monitoredCacheTypes: [...monitoredCacheTypes, cacheType]
         };
-      }
+      
     });
   }, []);
 

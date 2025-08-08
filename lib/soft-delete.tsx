@@ -17,8 +17,8 @@ export interface SoftDeleteResult {
 
 export class SoftDeleteManager {
   private static instance: SoftDeleteManager;
-  private supabase = createServerSupabaseClient();
-  private auditLogger: unknown;
+  private readonly supabase = createServerSupabaseClient();
+  private readonly auditLogger: unknown;
 
   private constructor() {}
 
@@ -249,7 +249,7 @@ export class SoftDeleteManager {
    */
   async cleanupOldDeleted(
     tablenome: string,
-    daysToKeep: number = 30
+    daysToKeep = 30
   ): Promise<{ deleted: number; errors: number }> {
     try {
       const cutoffDate = new Date();
@@ -293,7 +293,7 @@ export class SoftDeleteManager {
    */
   async hardDeleteOldRecords(
     tablenome: string,
-    daysToKeep: number = 365
+    daysToKeep = 365
   ): Promise<number> {
     try {
       const supabaseClient = await this.supabase;
@@ -363,7 +363,7 @@ export class SoftDeleteManager {
   async getSoftDeletedRecords(
     tablenome: string,
     usuarioId?: string,
-    limit: number = 50
+    limit = 50
   ): Promise<unknown[]> {
     try {
       const supabaseClient = await this.supabase;

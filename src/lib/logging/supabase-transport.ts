@@ -1,5 +1,6 @@
 import { supabase } from '@/src/lib/supabase';
-import { LogEntry, LogLevel, LogTransport } from './index';
+import type { LogEntry, LogTransport } from './index';
+import { LogLevel } from './index';
 
 /**
  * Supabase log transport

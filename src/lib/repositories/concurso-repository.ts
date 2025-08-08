@@ -118,7 +118,7 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
       
       if (error) {
         logger.error('Failed to find concurso by slug', { error, slug });
-        throw new DatabaseError('Failed to find concurso by slug: ' + error.message);
+        throw new DatabaseError(`Failed to find concurso by slug: ${ error.message}`);
       }
       
       return mapDatabaseToApi(data);
@@ -148,7 +148,7 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
       
       if (error) {
         logger.error('Failed to find concurso by ID with category', { error, id });
-        throw new DatabaseError('Failed to find concurso by ID with category: ' + error.message);
+        throw new DatabaseError(`Failed to find concurso by ID with category: ${ error.message}`);
       }
       
       return mapDatabaseToApi(data);
@@ -347,7 +347,7 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
         
         if (error) {
           logger.error('Failed to search concursos', { error, searchTerm });
-          throw new DatabaseError('Failed to search concursos: ' + error.message);
+          throw new DatabaseError(`Failed to search concursos: ${ error.message}`);
         }
         
         return (data || []).map(mapDatabaseToApi);
@@ -437,7 +437,7 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
       
       if (error) {
         logger.error('Failed to get concurso statistics', { error });
-        throw new DatabaseError('Failed to get concurso statistics: ' + error.message);
+        throw new DatabaseError(`Failed to get concurso statistics: ${ error.message}`);
       }
       
       // Group by category

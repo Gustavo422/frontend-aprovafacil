@@ -1,5 +1,5 @@
 import { ConnectionStatus } from './enums/connection-status.enum';
-import { ISupabaseClient } from './interfaces/supabase-client.interface';
+import type { ISupabaseClient } from './interfaces/supabase-client.interface';
 
 /**
  * Options for the connection monitor
@@ -50,13 +50,13 @@ const DEFAULT_MONITOR_OPTIONS: Required<ConnectionMonitorOptions> = {
  * Service for monitoring Supabase connection status
  */
 export class ConnectionMonitorService {
-  private client: ISupabaseClient;
-  private options: Required<ConnectionMonitorOptions>;
+  private readonly client: ISupabaseClient;
+  private readonly options: Required<ConnectionMonitorOptions>;
   private healthCheckInterval: NodeJS.Timeout | null = null;
   private connectionListeners: ((status: ConnectionStatus) => void)[] = [];
   private reconnectAttempts = 0;
   private lastStatus: ConnectionStatus = ConnectionStatus.DISCONNECTED;
-  private connectionLogs: Array<{
+  private readonly connectionLogs: Array<{
     timestamp: Date;
     status: ConnectionStatus;
     details?: Record<string, unknown>;

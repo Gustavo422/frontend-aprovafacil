@@ -98,11 +98,11 @@ export default function AdminPage() {
             setIsAdmin(true);
             setIsAuthChecked(true);
             return;
-          } else {
+          } 
             setIsAdmin(false);
             setIsAuthChecked(true);
             return;
-          }
+          
         }
         
         // Verificar se o usuário é admin
@@ -413,7 +413,8 @@ export default function AdminPage() {
               <div className="flex items-center space-x-2">
                 <div className={`w-3 h-3 rounded-full ${stats.databaseStatus === 'healthy' ? 'bg-green-500' :
                   stats.databaseStatus === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
-                  }`} />
+                  }`}
+                />
                 <span className="capitalize">{stats.databaseStatus}</span>
               </div>
               <p className="text-sm text-muted-foreground mt-2">

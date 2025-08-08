@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -19,8 +19,10 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Flashcard } from '@/components/flashcard';
-import { BookOpen, Plus, Loader2 } from 'lucide-react';
+import { BookOpen, Loader2, AlertCircle } from 'lucide-react';
 import { logger } from '@/lib/logger';
+import { useConcursoQuery } from '@/src/hooks/useConcursoQuery';
+import { useConcurso } from '@/contexts/ConcursoContext';
 
 interface FlashcardFromDB {
   id: string;
@@ -44,7 +46,6 @@ interface FlashcardData {
 
 interface WeakPoint {
   disciplina: string;
-  tema: string;
   error_count: number;
   total_questions: number;
   error_rate: number;
@@ -52,63 +53,90 @@ interface WeakPoint {
 
 export default function FlashcardsPage() {
   const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState(0);
-  const [selectedDisciplina, setSelectedDisciplina] = useState<string | null>(
-    null
-  );
+  const [selectedDisciplina, setSelectedDisciplina] = useState<string | null>(null);
   const [selectedTema, setSelectedTema] = useState<string | null>(null);
-  const [flashcards, setFlashcards] = useState<FlashcardData[]>([]);
-  const [weakPoints, setWeakPoints] = useState<WeakPoint[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { activeConcursoId } = useConcurso();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        
-        // Buscar flashcards
-        const flashcardsResponse = await fetch('/api/flashcards');
-        if (!flashcardsResponse.ok) {
-          throw new Error('Erro ao carregar flashcards');
-        }
-        const flashcardsData = await flashcardsResponse.json();
-        
-        // Converter para o formato esperado pelo componente
-        const convertedFlashcards: FlashcardData[] = flashcardsData.map((fc: FlashcardFromDB) => ({
-          id: fc.id,
-          front: fc.front,
-          back: fc.back,
-          disciplina: fc.disciplina || 'Sem disciplina',
-          tema: fc.tema || 'Sem tema',
-          subtema: fc.subtema,
-        }));
-        
-        setFlashcards(convertedFlashcards);
+  // Usar o hook customizado para buscar flashcards com filtro automático
+  const {
+    data: flashcardsFromDB = [],
+    isLoading,
+    error,
+    hasConcurso,
+    isLoadingConcurso
+  } = useConcursoQuery<FlashcardFromDB[]>({
+    endpoint: '/api/flashcards',
+    requireConcurso: true,
+    fallbackData: [],
+    staleTime: 5 * 60 * 1000, // 5 minutos
+  });
 
-        // Buscar pontos fracos (se houver API)
-        try {
-          const weakPointsResponse = await fetch('/api/weak-points');
-          if (weakPointsResponse.ok) {
-            const weakPointsData = await weakPointsResponse.json();
-            setWeakPoints(weakPointsData);
-          }
-        } catch {
-          // Se não houver API de pontos fracos, usar dados vazios
-          logger.info('API de pontos fracos não disponível');
-        }
+  // Converter dados do banco para o formato esperado pelo componente
+  const flashcards: FlashcardData[] = flashcardsFromDB.map((fc) => ({
+    id: fc.id,
+    front: fc.front,
+    back: fc.back,
+    disciplina: fc.disciplina || 'Sem disciplina',
+    tema: fc.tema || 'Sem tema',
+    subtema: fc.subtema,
+  }));
 
-      } catch (error) {
-        logger.error('Erro ao buscar dados dos flashcards:', {
-          error: error instanceof Error ? error.message : String(error),
-        });
-        setError('Erro ao carregar flashcards. Tente novamente.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Usar o hook customizado para buscar pontos fracos
+  const {
+    data: weakPoints = [],
+    isLoading: isLoadingWeakPoints,
+  } = useConcursoQuery<WeakPoint[]>({
+    endpoint: '/api/weak-points',
+    requireConcurso: true,
+    fallbackData: [],
+    staleTime: 5 * 60 * 1000, // 5 minutos
+  });
 
-    fetchData();
-  }, []);
+  // Loading state
+  if (isLoading || isLoadingConcurso) {
+    return (
+      <div className="flex flex-col gap-4">
+        <h1 className="text-3xl font-bold tracking-tight">Cartões de Memorização</h1>
+        <p className="text-muted-foreground">Carregando...</p>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    logger.error('Erro ao buscar flashcards:', {
+      error: error instanceof Error ? error.message : String(error),
+      concursoId: activeConcursoId,
+    });
+    
+    return (
+      <div className="flex flex-col gap-4">
+        <h1 className="text-3xl font-bold tracking-tight">Cartões de Memorização</h1>
+        <div className="flex items-center gap-2 text-red-600">
+          <AlertCircle className="h-5 w-5" />
+          <p>Erro ao carregar flashcards. Tente novamente.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // No concurso selected state
+  if (!hasConcurso) {
+    return (
+      <div className="flex flex-col gap-4">
+        <h1 className="text-3xl font-bold tracking-tight">Cartões de Memorização</h1>
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
+          <BookOpen className="mb-4 h-12 w-12 text-muted-foreground" />
+          <h3 className="mb-2 text-lg font-medium">
+            Nenhum concurso selecionado
+          </h3>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Selecione um concurso para visualizar os flashcards disponíveis.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // Filtrar flashcards com base na disciplina e tema selecionados
   const filteredFlashcards = flashcards.filter(flashcard => {
@@ -164,40 +192,20 @@ export default function FlashcardsPage() {
 
   const handleDisciplinaChange = (value: string) => {
     setSelectedDisciplina(value === 'all' ? null : value);
-    setSelectedTema(null); // Resetar o tema quando a disciplina mudar
-    setCurrentFlashcardIndex(0); // Voltar ao primeiro flashcard
+    setSelectedTema(null);
+    setCurrentFlashcardIndex(0);
   };
 
   const handleTemaChange = (value: string) => {
     setSelectedTema(value === 'all' ? null : value);
-    setCurrentFlashcardIndex(0); // Voltar ao primeiro flashcard
+    setCurrentFlashcardIndex(0);
   };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-        <h2 className="text-xl font-semibold">Erro ao carregar flashcards</h2>
-        <p className="text-muted-foreground">{error}</p>
-        <Button onClick={() => window.location.reload()}>
-          Tentar novamente
-        </Button>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-3xl font-bold tracking-tight">Flashcards</h1>
+      <h1 className="text-3xl font-bold tracking-tight">Cartões de Memorização</h1>
       <p className="text-muted-foreground">
-        Pratique com flashcards dinâmicos baseados nos seus pontos fracos.
+        Pratique com cartões de memorização para fixar o conteúdo.
       </p>
 
       <Tabs defaultValue="estudar" className="w-full">
@@ -207,48 +215,34 @@ export default function FlashcardsPage() {
         </TabsList>
 
         <TabsContent value="estudar" className="space-y-4">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-1 items-center gap-2">
-              <Select
-                value={selectedDisciplina || 'all'}
-                onValueChange={handleDisciplinaChange}
-              >
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Selecione a disciplina" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas as disciplinas</SelectItem>
-                  {disciplinas.map(disciplina => (
-                    <SelectItem key={disciplina ?? ''} value={disciplina ?? ''}>
-                      {disciplina ?? 'Sem disciplina'}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Select value={selectedDisciplina || 'all'} onValueChange={handleDisciplinaChange}>
+              <SelectTrigger className="w-full sm:w-[200px]">
+                <SelectValue placeholder="Selecionar disciplina" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas as disciplinas</SelectItem>
+                {disciplinas.map((disciplina) => (
+                  <SelectItem key={disciplina} value={disciplina}>
+                    {disciplina}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-              <Select
-                value={selectedTema || 'all'}
-                onValueChange={handleTemaChange}
-                disabled={!selectedDisciplina}
-              >
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Selecione o tema" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os temas</SelectItem>
-                  {temas.map(tema => (
-                    <SelectItem key={tema ?? ''} value={tema ?? ''}>
-                      {tema ?? 'Sem tema'}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Criar Flashcard
-            </Button>
+            <Select value={selectedTema || 'all'} onValueChange={handleTemaChange}>
+              <SelectTrigger className="w-full sm:w-[200px]">
+                <SelectValue placeholder="Selecionar tema" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os temas</SelectItem>
+                {temas.map((tema) => (
+                  <SelectItem key={tema} value={tema}>
+                    {tema}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {filteredFlashcards.length > 0 ? (
@@ -292,42 +286,49 @@ export default function FlashcardsPage() {
         </TabsContent>
 
         <TabsContent value="pontos-fracos" className="space-y-4">
-          {weakPoints.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {weakPoints.map((pontoFraco, index) => (
-                <Card key={index}>
-                  <CardHeader>
-                    <CardTitle>{pontoFraco.disciplina}</CardTitle>
-                    <CardDescription>{pontoFraco.tema}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">
-                      Taxa de erro: {pontoFraco.error_rate.toFixed(1)}% ({pontoFraco.error_count} de {pontoFraco.total_questions} questões)
-                    </p>
-                  </CardContent>
-                  <CardFooter>
-                    <Button
-                      className="w-full"
-                      onClick={() => {
-                        setSelectedDisciplina(pontoFraco.disciplina);
-                        setSelectedTema(pontoFraco.tema);
-                      }}
-                    >
-                      Estudar Flashcards
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
+          {isLoadingWeakPoints ? (
+            <div className="flex items-center justify-center p-8">
+              <Loader2 className="h-8 w-8 animate-spin" />
             </div>
-          ) : (
+          ) : weakPoints.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
               <BookOpen className="mb-4 h-12 w-12 text-muted-foreground" />
               <h3 className="mb-2 text-lg font-medium">
                 Nenhum ponto fraco identificado
               </h3>
               <p className="mb-4 text-sm text-muted-foreground">
-                Complete alguns simulados para que possamos identificar seus pontos fracos.
+                Continue estudando para identificar seus pontos fracos.
               </p>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {weakPoints.map((weakPoint) => (
+                <Card key={weakPoint.disciplina}>
+                  <CardHeader>
+                    <CardTitle>{weakPoint.disciplina}</CardTitle>
+                    <CardDescription>
+                      Taxa de erro: {Math.round(weakPoint.error_rate * 100)}%
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <span>Erros:</span>
+                        <span className="font-medium">{weakPoint.error_count}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span>Total:</span>
+                        <span className="font-medium">{weakPoint.total_questions}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Button className="w-full">
+                      Estudar {weakPoint.disciplina}
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
             </div>
           )}
         </TabsContent>

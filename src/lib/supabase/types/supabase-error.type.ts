@@ -1,4 +1,4 @@
-import { ErrorCategory } from '../enums/error-category.enum';
+import type { ErrorCategory } from '../enums/error-category.enum';
 
 /**
  * Standardized Supabase error type

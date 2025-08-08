@@ -5,7 +5,7 @@ export async function POST(request: Request) {
   return withErrorHandling(async () => {
     const { isValid, url, error } = getBackendUrl('/api/auth/logout');
 
-    if (!isValid) return error!;
+    if (!isValid) return NextResponse.json({ error: error || 'Invalid backend URL' }, { status: 500 });
 
     console.log('[DEBUG] Logout - Fazendo requisição para:', url);
 

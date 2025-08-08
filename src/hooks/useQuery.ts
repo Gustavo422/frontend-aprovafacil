@@ -119,7 +119,7 @@ export interface UseQueryResult<T> {
  * Cache simples para queries
  */
 class QueryCache {
-  private cache = new Map<string, { data: unknown; timestamp: number; staleTime: number }>();
+  private readonly cache = new Map<string, { data: unknown; timestamp: number; staleTime: number }>();
   
   get<T>(key: string): T | undefined {
     const cached = this.cache.get(key);

@@ -304,7 +304,7 @@ export default function CacheMonitorPage() {
                 <CardTitle>Cache Operations</CardTitle>
                 <CardDescription>
                    Distribution of operation types
-                 </CardDescription>
+                </CardDescription>
               </CardHeader>
               <CardContent className="h-80">
                 <CacheOperationsChart
@@ -361,7 +361,7 @@ export default function CacheMonitorPage() {
               <CardTitle>Cache Performance Over Time</CardTitle>
               <CardDescription>
                  Hit rate and operation duration trends
-               </CardDescription>
+              </CardDescription>
             </CardHeader>
             <CardContent className="h-96">
               {/* This would be a time-series chart in a real implementation */}
@@ -382,7 +382,7 @@ export default function CacheMonitorPage() {
                 <CardTitle>Cache Size Over Time</CardTitle>
                 <CardDescription>
                    Memory usage trends
-                 </CardDescription>
+                </CardDescription>
               </CardHeader>
               <CardContent className="h-80">
                 <CacheSizeChart
@@ -397,7 +397,7 @@ export default function CacheMonitorPage() {
                 <CardTitle>Error Rate</CardTitle>
                 <CardDescription>
                    Cache operation failures
-                 </CardDescription>
+                </CardDescription>
               </CardHeader>
               <CardContent className="h-80">
                 <div className="flex flex-col items-center justify-center h-full">
@@ -452,7 +452,7 @@ export default function CacheMonitorPage() {
               <CardTitle>Cache Type Distribution</CardTitle>
               <CardDescription>
                  Distribution of cache entries by type
-               </CardDescription>
+              </CardDescription>
             </CardHeader>
             <CardContent className="h-96">
               <CacheTypeDistribution
@@ -472,7 +472,7 @@ export default function CacheMonitorPage() {
                 <CardTitle>Expiration Timeline</CardTitle>
                 <CardDescription>
                    When cache entries will expire
-                 </CardDescription>
+                </CardDescription>
               </CardHeader>
               <CardContent className="h-80">
                 {completeStats && (
@@ -483,7 +483,7 @@ export default function CacheMonitorPage() {
                         <div
                           className="bg-blue-600 h-2.5 rounded-full"
                           style={{ width: `${(completeStats.expiration.expiringInNextMinute / completeStats.totalEntries) * 100}%` }}
-                        ></div>
+                        />
                       </div>
                       <span className="text-sm">{completeStats.expiration.expiringInNextMinute}</span>
                     </div>
@@ -493,7 +493,7 @@ export default function CacheMonitorPage() {
                         <div
                           className="bg-blue-500 h-2.5 rounded-full"
                           style={{ width: `${(completeStats.expiration.expiringInNextHour / completeStats.totalEntries) * 100}%` }}
-                        ></div>
+                        />
                       </div>
                       <span className="text-sm">{completeStats.expiration.expiringInNextHour}</span>
                     </div>
@@ -503,7 +503,7 @@ export default function CacheMonitorPage() {
                         <div
                           className="bg-blue-400 h-2.5 rounded-full"
                           style={{ width: `${(completeStats.expiration.expiringInNextDay / completeStats.totalEntries) * 100}%` }}
-                        ></div>
+                        />
                       </div>
                       <span className="text-sm">{completeStats.expiration.expiringInNextDay}</span>
                     </div>
@@ -513,7 +513,7 @@ export default function CacheMonitorPage() {
                         <div
                           className="bg-blue-300 h-2.5 rounded-full"
                           style={{ width: `${(completeStats.expiration.expiringInNextWeek / completeStats.totalEntries) * 100}%` }}
-                        ></div>
+                        />
                       </div>
                       <span className="text-sm">{completeStats.expiration.expiringInNextWeek}</span>
                     </div>
@@ -523,7 +523,7 @@ export default function CacheMonitorPage() {
                         <div
                           className="bg-blue-200 h-2.5 rounded-full"
                           style={{ width: `${(completeStats.expiration.expiringLater / completeStats.totalEntries) * 100}%` }}
-                        ></div>
+                        />
                       </div>
                       <span className="text-sm">{completeStats.expiration.expiringLater}</span>
                     </div>
@@ -533,7 +533,7 @@ export default function CacheMonitorPage() {
                         <div
                           className="bg-red-400 h-2.5 rounded-full"
                           style={{ width: `${(completeStats.expiration.expired / completeStats.totalEntries) * 100}%` }}
-                        ></div>
+                        />
                       </div>
                       <span className="text-sm">{completeStats.expiration.expired}</span>
                     </div>
@@ -547,7 +547,7 @@ export default function CacheMonitorPage() {
                 <CardTitle>Active vs Expired</CardTitle>
                 <CardDescription>
                    Current status of cache entries
-                 </CardDescription>
+                </CardDescription>
               </CardHeader>
               <CardContent className="h-80">
                 {completeStats && (
@@ -583,11 +583,11 @@ export default function CacheMonitorPage() {
                     </div>
                     <div className="grid grid-cols-2 gap-8 mt-6">
                       <div className="flex items-center">
-                        <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                        <div className="w-3 h-3 bg-green-500 rounded-full mr-2" />
                         <span>Active: {completeStats.totalEntries - completeStats.expiration.expired}</span>
                       </div>
                       <div className="flex items-center">
-                        <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                        <div className="w-3 h-3 bg-red-500 rounded-full mr-2" />
                         <span>Expired: {completeStats.expiration.expired}</span>
                       </div>
                     </div>

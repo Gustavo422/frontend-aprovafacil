@@ -259,10 +259,10 @@ export function CacheInspector() {
       return <Badge variant="outline" className="bg-red-100 text-red-800">Expiring soon ({minutesUntilExpiration}m)</Badge>;
     } else if (minutesUntilExpiration <= 60) {
       return <Badge variant="outline" className="bg-yellow-100 text-yellow-800">Expires in {minutesUntilExpiration}m</Badge>;
-    } else {
+    } 
       const hoursUntilExpiration = Math.round(minutesUntilExpiration / 60);
       return <Badge variant="outline" className="bg-green-100 text-green-800">Expires in {hoursUntilExpiration}h</Badge>;
-    }
+    
   };
 
   useEffect(() => {
@@ -401,14 +401,14 @@ export function CacheInspector() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleViewEntry(entry)}
+                            onClick={async () => handleViewEntry(entry)}
                           >
                             <Info className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleViewRelationships(entry)}
+                            onClick={async () => handleViewRelationships(entry)}
                             disabled={!entry.relatedKeys || entry.relatedKeys.length === 0}
                           >
                             <LinkIcon className="h-4 w-4" />
@@ -542,23 +542,23 @@ export function CacheInspector() {
                   <h4 className="text-sm font-medium mb-2">Legend</h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 bg-green-200 border border-green-600 rounded-sm"></div>
+                      <div className="w-3 h-3 bg-green-200 border border-green-600 rounded-sm" />
                       <span className="text-xs">Memory</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 bg-blue-200 border border-blue-600 rounded-sm"></div>
+                      <div className="w-3 h-3 bg-blue-200 border border-blue-600 rounded-sm" />
                       <span className="text-xs">Local Storage</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 bg-purple-200 border border-purple-600 rounded-sm"></div>
+                      <div className="w-3 h-3 bg-purple-200 border border-purple-600 rounded-sm" />
                       <span className="text-xs">Session Storage</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 bg-orange-200 border border-orange-600 rounded-sm"></div>
+                      <div className="w-3 h-3 bg-orange-200 border border-orange-600 rounded-sm" />
                       <span className="text-xs">Supabase</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 bg-red-200 border border-red-600 rounded-sm"></div>
+                      <div className="w-3 h-3 bg-red-200 border border-red-600 rounded-sm" />
                       <span className="text-xs">Expired</span>
                     </div>
                   </div>

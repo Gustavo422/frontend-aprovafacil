@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server';
 import { cacheMonitor } from '@/lib/cache-monitor';
 import { cacheManagerMonitor } from '@/lib/cache-manager-monitor-extension';
 import { CacheType } from '@/lib/cache-manager';
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { importData, options } = body;
 
-        if (!importData || !importData.entries || !Array.isArray(importData.entries)) {
+        if (!importData?.entries || !Array.isArray(importData.entries)) {
             return NextResponse.json(
                 { error: 'Invalid import data format' },
                 { status: 400 }

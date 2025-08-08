@@ -4,7 +4,8 @@ import { logger } from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/features/shared/hooks/use-toast';
-import { QuestionPlayer, SimuladoQuestion } from '@/components/question-player';
+import type { SimuladoQuestion } from '@/components/question-player';
+import { QuestionPlayer } from '@/components/question-player';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -58,9 +59,9 @@ export default function SimuladoPage({ params }: { params: Promise<{ id: string 
       const data = await response.json();
       setSimulado(data.simulado);
       setQuestoes(data.questoes || []);
-    } catch (error) {
+    } catch (err) {
       logger.error('Erro ao buscar simulado:', {
-        error: error instanceof Error ? error.message : String(error),
+        error: err instanceof Error ? err.message : String(err),
       });
       setError('Erro ao carregar simulado. Tente novamente.');
     } finally {
@@ -92,7 +93,7 @@ export default function SimuladoPage({ params }: { params: Promise<{ id: string 
         },
         body: JSON.stringify({
           answers,
-          score: score,
+          score,
           timeTaken: timeSpent,
         }),
       });
@@ -109,9 +110,9 @@ export default function SimuladoPage({ params }: { params: Promise<{ id: string 
 
       // Redirecionar para a página de resultados
       router.push(`/dashboard/simulados/${id}/resultado`);
-    } catch (error) {
+    } catch (err) {
       logger.error('Erro ao finalizar simulado:', {
-        error: error instanceof Error ? error.message : String(error),
+        error: err instanceof Error ? err.message : String(err),
       });
       toast({
         title: 'Erro',

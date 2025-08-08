@@ -25,7 +25,7 @@ export function SessionMonitor() {
     // and update it every second.
     if (!sessionInfo) {
       setSessionInfo(null);
-      return;
+      return () => {};
     }
 
     const updateSessionInfo = () => {

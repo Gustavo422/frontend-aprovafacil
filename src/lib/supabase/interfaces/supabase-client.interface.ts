@@ -1,6 +1,6 @@
-import { SupabaseClient } from '@supabase/supabase-js';
-import { ConnectionStatus } from '../enums/connection-status.enum';
-import { RetryOptions } from '../types/retry-options.type';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type { ConnectionStatus } from '../enums/connection-status.enum';
+import type { RetryOptions } from '../types/retry-options.type';
 
 /**
  * Interface for the enhanced Supabase client with additional functionality

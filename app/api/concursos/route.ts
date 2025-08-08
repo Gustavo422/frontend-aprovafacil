@@ -5,7 +5,7 @@ export async function GET(request: Request) {
   return withErrorHandling(async () => {
     const { isValid, url, error } = getBackendUrl('/api/concursos');
     
-    if (!isValid) return error!;
+    if (!isValid) return NextResponse.json({ error: error || 'Invalid backend URL' }, { status: 500 });
     
     const res = await fetch(url, {
       method: 'GET',

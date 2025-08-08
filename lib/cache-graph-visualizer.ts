@@ -1,4 +1,4 @@
-import { CacheRelationshipGraph } from './cache-relationship-graph';
+import type { CacheRelationshipGraph } from './cache-relationship-graph';
 import { CacheType } from './cache-manager';
 
 /**

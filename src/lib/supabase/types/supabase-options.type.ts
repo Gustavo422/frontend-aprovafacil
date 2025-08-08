@@ -1,4 +1,4 @@
-import { RetryOptions } from './retry-options.type';
+import type { RetryOptions } from './retry-options.type';
 
 /**
  * Options for configuring the Supabase client

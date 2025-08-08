@@ -57,7 +57,7 @@ export async function setCache(
   usuarioId: string,
   key: CacheKey,
   data: CacheData,
-  ttlMinutes: number = 30
+  ttlMinutes = 30
 ): Promise<void> {
   try {
     const supabase = await createServerSupabaseClient();

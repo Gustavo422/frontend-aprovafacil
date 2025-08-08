@@ -171,7 +171,7 @@ export interface StatisticsOptions {
  * Cache Statistics Calculator - Provides utilities for calculating cache statistics
  */
 export class CacheStatisticsCalculator {
-  private cacheInspector: CacheInspector;
+  private readonly cacheInspector: CacheInspector;
   
   /**
    * Constructor

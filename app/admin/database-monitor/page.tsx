@@ -577,11 +577,13 @@ export default function DatabaseMonitorPage() {
                             <p className="text-sm font-medium mb-1">Recomendações:</p>
                             <ul className="list-disc list-inside text-xs space-y-1">
                               {table.recommendations.map((rec, index) => (
-                                <li key={index} className={
+                                <li
+key={index} className={
                                   rec.includes('CRÍTICO') ? 'text-red-600' : 
                                   rec.includes('CONFLITO') ? 'text-yellow-600' : 
                                   'text-muted-foreground'
-                                }>
+                                }
+                                >
                                   {rec}
                                 </li>
                               ))}

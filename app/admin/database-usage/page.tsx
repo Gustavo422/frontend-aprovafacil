@@ -249,10 +249,10 @@ export default function DatabaseUsagePage() {
                       <h4 className="font-semibold mb-2">Níveis de Risco</h4>
                       <div className="space-y-2">
                         {Object.entries(
-                          Object.entries(usageReport.tables).reduce((acc, [, table]) => {
+                          Object.entries(usageReport.tables).reduce<Record<string, number>>((acc, [, table]) => {
                             acc[table.riskLevel] = (acc[table.riskLevel] || 0) + 1;
                             return acc;
-                          }, {} as Record<string, number>)
+                          }, {})
                         ).map(([riskLevel, count]) => (
                           <div key={riskLevel} className="flex justify-between items-center">
                             <div className="flex items-center gap-2">
@@ -323,11 +323,13 @@ export default function DatabaseUsagePage() {
                             <p className="text-sm font-medium mb-1">Recomendações:</p>
                             <ul className="list-disc list-inside text-xs space-y-1">
                               {table.recommendations.map((rec, index) => (
-                                <li key={index} className={
+                                <li
+key={index} className={
                                   rec.includes('CRÍTICO') ? 'text-red-600' : 
                                   rec.includes('CONFLITO') ? 'text-yellow-600' : 
                                   'text-muted-foreground'
-                                }>
+                                }
+                                >
                                   {rec}
                                 </li>
                               ))}

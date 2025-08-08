@@ -151,7 +151,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       
       if (error) {
         logger.error('Failed to find categoria by slug', { error, slug });
-        throw new DatabaseError('Failed to find categoria by slug: ' + error.message);
+        throw new DatabaseError(`Failed to find categoria by slug: ${ error.message}`);
       }
       
       return data as unknown as Categoria | null;
@@ -207,7 +207,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       
       if (categoriaError) {
         logger.error('Failed to create categoria', { error: categoriaError });
-        throw new DatabaseError('Failed to create categoria: ' + categoriaError.message);
+        throw new DatabaseError(`Failed to create categoria: ${ categoriaError.message}`);
       }
       // Checagem de tipo para garantir que categoria possui id
       if (!categoria || typeof categoria !== 'object' || !('id' in categoria)) {
@@ -231,7 +231,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
           .insert(disciplinasData);
         if (disciplinasError) {
           logger.error('Failed to create disciplinas', { error: disciplinasError });
-          throw new DatabaseError('Failed to create disciplinas: ' + disciplinasError.message);
+          throw new DatabaseError(`Failed to create disciplinas: ${ disciplinasError.message}`);
         }
       }
       // Get categoria with disciplinas
@@ -242,7 +242,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
         .single();
       if (getError) {
         logger.error('Failed to get created categoria', { error: getError });
-        throw new DatabaseError('Failed to get created categoria: ' + getError.message);
+        throw new DatabaseError(`Failed to get created categoria: ${ getError.message}`);
       }
       // Invalidate cache
       this.invalidateAllCaches();
@@ -290,7 +290,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       
       if (categoriaError) {
         logger.error('Failed to update categoria', { error: categoriaError });
-        throw new DatabaseError('Failed to update categoria: ' + categoriaError.message);
+        throw new DatabaseError(`Failed to update categoria: ${ categoriaError.message}`);
       }
       
       // Update disciplinas if provided
@@ -303,7 +303,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
         
         if (getDisciplinasError) {
           logger.error('Failed to get existing disciplinas', { error: getDisciplinasError });
-          throw new DatabaseError('Failed to get existing disciplinas: ' + getDisciplinasError.message);
+          throw new DatabaseError(`Failed to get existing disciplinas: ${ getDisciplinasError.message}`);
         }
         
         // Process disciplinas
@@ -321,7 +321,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
             
             if (updateError) {
               logger.error('Failed to update disciplina', { error: updateError });
-              throw new DatabaseError('Failed to update disciplina: ' + updateError.message);
+              throw new DatabaseError(`Failed to update disciplina: ${ updateError.message}`);
             }
           } else {
             // Create new disciplina
@@ -340,7 +340,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
             
             if (insertError) {
               logger.error('Failed to create disciplina', { error: insertError });
-              throw new DatabaseError('Failed to create disciplina: ' + insertError.message);
+              throw new DatabaseError(`Failed to create disciplina: ${ insertError.message}`);
             }
           }
         }
@@ -355,7 +355,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       
       if (getError) {
         logger.error('Failed to get updated categoria', { error: getError });
-        throw new DatabaseError('Failed to get updated categoria: ' + getError.message);
+        throw new DatabaseError(`Failed to get updated categoria: ${ getError.message}`);
       }
       
       // Invalidate cache
@@ -401,7 +401,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       
       if (error) {
         logger.error('Failed to deactivate categoria', { error });
-        throw new DatabaseError('Failed to deactivate categoria: ' + error.message);
+        throw new DatabaseError(`Failed to deactivate categoria: ${ error.message}`);
       }
       
       // Invalidate cache
@@ -447,7 +447,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       
       if (error) {
         logger.error('Failed to activate categoria', { error });
-        throw new DatabaseError('Failed to activate categoria: ' + error.message);
+        throw new DatabaseError(`Failed to activate categoria: ${ error.message}`);
       }
       
       // Invalidate cache
@@ -504,7 +504,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       
       if (error) {
         logger.error('Failed to find categorias with filters', { error, filtros });
-        throw new DatabaseError('Failed to find categorias with filters: ' + error.message);
+        throw new DatabaseError(`Failed to find categorias with filters: ${ error.message}`);
       }
       
       return data as unknown as Categoria[];
@@ -540,7 +540,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       
       if (error) {
         logger.error('Failed to find categorias by parent ID', { error, parentId });
-        throw new DatabaseError('Failed to find categorias by parent ID: ' + error.message);
+        throw new DatabaseError(`Failed to find categorias by parent ID: ${ error.message}`);
       }
       
       return data as unknown as Categoria[];
@@ -569,7 +569,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       
       if (error) {
         logger.error('Failed to find categoria tree', { error });
-        throw new DatabaseError('Failed to find categoria tree: ' + error.message);
+        throw new DatabaseError(`Failed to find categoria tree: ${ error.message}`);
       }
       
       // Build tree
@@ -637,7 +637,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       
       if (childrenError) {
         logger.error('Failed to check categoria children', { error: childrenError });
-        throw new DatabaseError('Failed to check categoria children: ' + childrenError.message);
+        throw new DatabaseError(`Failed to check categoria children: ${ childrenError.message}`);
       }
       
       if (children && children.length > 0) {
@@ -655,7 +655,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       
       if (concursosError) {
         logger.error('Failed to check categoria concursos', { error: concursosError });
-        throw new DatabaseError('Failed to check categoria concursos: ' + concursosError.message);
+        throw new DatabaseError(`Failed to check categoria concursos: ${ concursosError.message}`);
       }
       
       if (concursos && concursos.length > 0) {
@@ -673,7 +673,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       
       if (disciplinasError) {
         logger.error('Failed to check categoria disciplinas', { error: disciplinasError });
-        throw new DatabaseError('Failed to check categoria disciplinas: ' + disciplinasError.message);
+        throw new DatabaseError(`Failed to check categoria disciplinas: ${ disciplinasError.message}`);
       }
       
       if (disciplinas && disciplinas.length > 0) {

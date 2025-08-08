@@ -173,7 +173,7 @@ export const cacheInvalidation = {
   invalidateDelayed(key: string, delay = 5000, _invalidateRelated?: boolean, usuarioId?: string): void {
     // Cancelar timeout anterior se existir
     if (invalidationTimeouts.has(key)) {
-      clearTimeout(invalidationTimeouts.get(key)!);
+      clearTimeout(invalidationTimeouts.get(key));
     }
     
     // Configurar novo timeout
@@ -221,7 +221,7 @@ export const cacheInvalidation = {
    */
   cancelDelayedInvalidation(key: string): void {
     if (invalidationTimeouts.has(key)) {
-      clearTimeout(invalidationTimeouts.get(key)!);
+      clearTimeout(invalidationTimeouts.get(key));
       invalidationTimeouts.delete(key);
       
       logger.debug('Invalidação de cache cancelada', { key });

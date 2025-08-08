@@ -5,7 +5,7 @@ export async function GET(request: Request) {
   return withErrorHandling(async () => {
     const { isValid, url, error } = getBackendUrl('/api/auth/me');
 
-    if (!isValid) return error!;
+    if (!isValid) return NextResponse.json({ error: error || 'Invalid backend URL' }, { status: 500 });
 
     // Passar o cabeçalho de autorização para o backend
     const authHeader = request.headers.get('Authorization');

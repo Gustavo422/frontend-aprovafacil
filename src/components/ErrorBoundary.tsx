@@ -1,4 +1,5 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import type { ErrorInfo, ReactNode } from 'react';
+import React, { Component } from 'react';
 
 /**
  * Props do ErrorBoundary
@@ -141,7 +142,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     window.location.reload();
   };
   
-  render() {
+  async render() {
     if (this.state.hasError) {
       // Se há um componente de fallback personalizado, usá-lo
       if (this.props.fallback && this.state.error && this.state.errorInfo) {

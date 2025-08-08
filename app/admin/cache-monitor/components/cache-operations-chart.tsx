@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Chart, registerables, TooltipItem } from 'chart.js';
+import type { TooltipItem } from 'chart.js';
+import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
@@ -20,7 +21,7 @@ export function CacheOperationsChart({ operations }: CacheOperationsChartProps) 
   const chartInstance = useRef<Chart | null>(null);
 
   useEffect(() => {
-    if (!chartRef.current) return;
+    if (!chartRef.current) return () => {};
 
     // Destroy existing chart if it exists
     if (chartInstance.current) {
@@ -28,7 +29,7 @@ export function CacheOperationsChart({ operations }: CacheOperationsChartProps) 
     }
 
     const ctx = chartRef.current.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) return () => {};
 
     const labels = Object.keys(operations).map(key => 
       key.charAt(0).toUpperCase() + key.slice(1)
@@ -85,7 +86,7 @@ export function CacheOperationsChart({ operations }: CacheOperationsChartProps) 
           },
           tooltip: {
             callbacks: {
-              label: function(context: TooltipItem<'bar'>) {
+              label(context: TooltipItem<'bar'>) {
                 const label = context.dataset.label || '';
                 const value = context.raw as number;
                 return `${label}: ${value}`;
@@ -105,7 +106,7 @@ export function CacheOperationsChart({ operations }: CacheOperationsChartProps) 
 
   return (
     <div className="w-full h-full flex items-center justify-center">
-      <canvas ref={chartRef}></canvas>
+      <canvas ref={chartRef} />
     </div>
   );
 }

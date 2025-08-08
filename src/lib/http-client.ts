@@ -2,7 +2,7 @@
  * Cliente HTTP para fazer requisições autenticadas
  */
 class HttpClient {
-  private baseURL: string;
+  private readonly baseURL: string;
   
   constructor(baseURL = '/api') {
     this.baseURL = baseURL;

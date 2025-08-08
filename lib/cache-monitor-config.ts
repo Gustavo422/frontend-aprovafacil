@@ -1,7 +1,8 @@
 import { CacheType } from './cache-manager';
-import { MetricsCollectorConfig } from './cache-metrics-collector';
+import type { MetricsCollectorConfig } from './cache-metrics-collector';
 import { CacheLogLevel, cacheLogger } from './cache-logger';
-import { AdaptiveLoggingConfig, adaptiveCacheLogger } from './cache-adaptive-logger';
+import type { AdaptiveLoggingConfig} from './cache-adaptive-logger';
+import { adaptiveCacheLogger } from './cache-adaptive-logger';
 import { SamplingStrategyType } from './cache-sampling-strategies';
 import { logger } from './logger';
 // Import dynamically to avoid circular dependencies
@@ -131,23 +132,23 @@ export const DEFAULT_CONFIG: CacheMonitorConfig = {
     slowOperationThreshold: 3,
     thresholds: {
       get: {
-        warn: 100,  // 100ms
-        error: 500  // 500ms
+        warn: 100, // 100ms
+        error: 500 // 500ms
       },
       set: {
-        warn: 150,  // 150ms
-        error: 750  // 750ms
+        warn: 150, // 150ms
+        error: 750 // 750ms
       },
       delete: {
-        warn: 100,  // 100ms
-        error: 500  // 500ms
+        warn: 100, // 100ms
+        error: 500 // 500ms
       },
       invalidate: {
-        warn: 200,  // 200ms
+        warn: 200, // 200ms
         error: 1000 // 1s
       },
       clear: {
-        warn: 500,  // 500ms
+        warn: 500, // 500ms
         error: 2000 // 2s
       }
     }
@@ -195,23 +196,23 @@ export const DEV_CONFIG: CacheMonitorConfig = {
     slowOperationThreshold: 2, // More sensitive in development
     thresholds: {
       get: {
-        warn: 50,   // 50ms in development
-        error: 250  // 250ms in development
+        warn: 50, // 50ms in development
+        error: 250 // 250ms in development
       },
       set: {
-        warn: 100,  // 100ms in development
-        error: 500  // 500ms in development
+        warn: 100, // 100ms in development
+        error: 500 // 500ms in development
       },
       delete: {
-        warn: 50,   // 50ms in development
-        error: 250  // 250ms in development
+        warn: 50, // 50ms in development
+        error: 250 // 250ms in development
       },
       invalidate: {
-        warn: 100,  // 100ms in development
-        error: 500  // 500ms in development
+        warn: 100, // 100ms in development
+        error: 500 // 500ms in development
       },
       clear: {
-        warn: 250,  // 250ms in development
+        warn: 250, // 250ms in development
         error: 1000 // 1s in development
       }
     }
@@ -445,7 +446,7 @@ export class CacheMonitorConfigService {
   /**
    * Save configuration to localStorage
    */
-  public saveConfig(): Promise<void> {
+  public async saveConfig(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       if (typeof window === 'undefined') {
         resolve();
@@ -470,7 +471,7 @@ export class CacheMonitorConfigService {
   /**
    * Load configuration from localStorage
    */
-  public loadConfig(): Promise<boolean> {
+  public async loadConfig(): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
       if (typeof window === 'undefined') {
         resolve(false);

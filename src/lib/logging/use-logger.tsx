@@ -1,7 +1,8 @@
 'use client';
 
 import { useCallback } from 'react';
-import { getLogger, Logger } from '@/src/lib/logging';
+import type { Logger } from '@/src/lib/logging';
+import { getLogger } from '@/src/lib/logging';
 
 /**
  * Hook for using the logger in React components

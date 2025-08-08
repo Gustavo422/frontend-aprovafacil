@@ -1,4 +1,4 @@
-import { RetryStrategy } from '../enums/retry-strategy.enum';
+import type { RetryStrategy } from '../enums/retry-strategy.enum';
 
 /**
  * Options for retry behavior

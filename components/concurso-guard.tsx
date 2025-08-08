@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server';
 
 // ========================================
 // ROTAS QUE NÃO PRECISAM DE CONCURSO SELECIONADO
@@ -12,9 +13,7 @@ const PUBLIC_ROUTES = [
   '/api/auth',
   '/api/user/concurso-preference',
   '/api/concurso-categorias',
-  '/api/concursos',
-  '/onboarding',
-  '/selecionar-concurso'
+  '/api/concursos'
 ];
 
 const API_PUBLIC_ROUTES = [
@@ -74,15 +73,15 @@ export async function verificarConcursoSelecionado(
     });
     
     if (!preferenceResponse.ok) {
-      // Usuário não tem concurso selecionado, redirecionar para seleção
-      return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
+      // Usuário não tem concurso selecionado, redirecionar para home
+      return NextResponse.redirect(new URL('/', request.url));
     }
     
     const preference = await preferenceResponse.json();
     
-    if (!preference || !preference.ativo) {
-      // Usuário não tem concurso selecionado, redirecionar para seleção
-      return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
+    if (!preference?.ativo) {
+      // Usuário não tem concurso selecionado, redirecionar para home
+      return NextResponse.redirect(new URL('/', request.url));
     }
     
     // Verificar se o concurso ainda existe e está ativo via API
@@ -103,12 +102,12 @@ export async function verificarConcursoSelecionado(
         },
       });
       
-      return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
+      return NextResponse.redirect(new URL('/', request.url));
     }
     
     const concurso = await concursoResponse.json();
     
-    if (!concurso || !concurso.ativo) {
+    if (!concurso?.ativo) {
       // Concurso não está ativo, limpar preferência e redirecionar
       await fetch(`${request.nextUrl.origin}/api/user/concurso-preference`, {
         method: 'DELETE',
@@ -118,7 +117,7 @@ export async function verificarConcursoSelecionado(
         },
       });
       
-      return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
+      return NextResponse.redirect(new URL('/', request.url));
     }
     
     // Verificar se a categoria do concurso ainda existe e está ativa via API
@@ -139,12 +138,12 @@ export async function verificarConcursoSelecionado(
         },
       });
       
-      return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
+      return NextResponse.redirect(new URL('/', request.url));
     }
     
     const categoria = await categoriaResponse.json();
     
-    if (!categoria || !categoria.ativo) {
+    if (!categoria?.ativo) {
       // Categoria não está ativa, limpar preferência e redirecionar
       await fetch(`${request.nextUrl.origin}/api/user/concurso-preference`, {
         method: 'DELETE',
@@ -154,15 +153,15 @@ export async function verificarConcursoSelecionado(
         },
       });
       
-      return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
+      return NextResponse.redirect(new URL('/', request.url));
     }
     
     // Tudo OK, permitir acesso
     return null;
     
   } catch {
-    // Em caso de erro, redirecionar para seleção de concurso
-    return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
+    // Em caso de erro, redirecionar para home
+    return NextResponse.redirect(new URL('/', request.url));
   }
 }
 
@@ -172,13 +171,13 @@ export async function verificarConcursoSelecionado(
 
 function isPublicRoute(pathname: string): boolean {
   return PUBLIC_ROUTES.some(route => 
-    pathname === route || pathname.startsWith(route + '/')
+    pathname === route || pathname.startsWith(`${route }/`)
   );
 }
 
 function isApiPublicRoute(pathname: string): boolean {
   return API_PUBLIC_ROUTES.some(route => 
-    pathname === route || pathname.startsWith(route + '/')
+    pathname === route || pathname.startsWith(`${route }/`)
   );
 }
 

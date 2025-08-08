@@ -1,4 +1,5 @@
-import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
+import type { UseQueryOptions } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 // TODO: Implementar ConcursoRepository e tipos ou substituir por mocks temporários
 type ConcursoType = {
   id: string;
@@ -108,7 +109,7 @@ export const useListarConcursos = (
 ) => {
   return useQuery<ConcursoType[], Error>({
     queryKey: concursoKeys.list(filters),
-    queryFn: () => concursoRepo.buscarComFiltros(),
+    queryFn: async () => concursoRepo.buscarComFiltros(),
     ...options,
   });
 };
@@ -119,7 +120,7 @@ export const useListarConcursosAtivos = (
 ) => {
   return useQuery<ConcursoType[], Error>({
     queryKey: concursoKeys.ativos(),
-    queryFn: () => concursoRepo.findAtivos(),
+    queryFn: async () => concursoRepo.findAtivos(),
     ...options,
   });
 };
@@ -131,7 +132,7 @@ export const useListarConcursosPorCategoria = (
 ) => {
   return useQuery<ConcursoType[], Error>({
     queryKey: concursoKeys.byCategoria(categoriaId),
-    queryFn: () => concursoRepo.findByCategoria(categoriaId),
+    queryFn: async () => concursoRepo.findByCategoria(categoriaId),
     enabled: !!categoriaId,
     ...options,
   });
@@ -144,7 +145,7 @@ export const useListarConcursosPorBanca = (
 ) => {
   return useQuery<ConcursoType[], Error>({
     queryKey: concursoKeys.byBanca(banca),
-    queryFn: () => concursoRepo.findByBanca(banca),
+    queryFn: async () => concursoRepo.findByBanca(banca),
     enabled: !!banca,
     ...options,
   });
@@ -180,7 +181,7 @@ export const useCriarConcurso = () => {
     CriarConcursoData,
     { previousConcursos: ConcursoType[] | undefined }
   >({
-    mutationFn: (data) => concursoRepo.criarConcurso({
+    mutationFn: async (data) => concursoRepo.criarConcurso({
       ...data,
       nivel_dificuldade: (data.nivel_dificuldade === 'facil' || data.nivel_dificuldade === 'medio' || data.nivel_dificuldade === 'dificil') ? data.nivel_dificuldade : undefined,
       multiplicador_questoes: typeof data.multiplicador_questoes === 'number' ? data.multiplicador_questoes : undefined,
@@ -226,7 +227,7 @@ export const useAtualizarConcurso = () => {
     { id: string; data: AtualizarConcursoData },
     { previousConcurso: ConcursoType | undefined }
   >({
-    mutationFn: ({ id, data }) => concursoRepo.atualizarConcurso(id, data),
+    mutationFn: async ({ id, data }) => concursoRepo.atualizarConcurso(id, data),
     // Otimista UI update
     onMutate: async ({ id, data }) => {
       // Cancelar queries em andamento
@@ -267,7 +268,7 @@ export const useDesativarConcurso = () => {
     string,
     { previousConcurso: ConcursoType | undefined }
   >({
-    mutationFn: (id) => concursoRepo.desativarConcurso(id),
+    mutationFn: async (id) => concursoRepo.desativarConcurso(id),
     // Otimista UI update
     onMutate: async (id) => {
       // Cancelar queries em andamento
@@ -308,7 +309,7 @@ export const useAtivarConcurso = () => {
     string,
     { previousConcurso: ConcursoType | undefined }
   >({
-    mutationFn: (id) => concursoRepo.ativarConcurso(id),
+    mutationFn: async (id) => concursoRepo.ativarConcurso(id),
     // Otimista UI update
     onMutate: async (id) => {
       // Cancelar queries em andamento

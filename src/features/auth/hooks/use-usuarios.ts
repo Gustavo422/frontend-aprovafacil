@@ -1,4 +1,5 @@
-import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
+import type { UseQueryOptions } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { UserRepository } from '@/lib/repositories/user-repository';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { mapUserRowToAppUser } from '../types/user.types';
@@ -179,7 +180,7 @@ export const useDesativarConta = () => {
   const queryClient = useQueryClient();
   
   return useMutation<boolean, Error, string, { previousUser: AppUser | undefined }>({
-    mutationFn: (usuarioId: string) => userRepo.deactivateAccount(usuarioId),
+    mutationFn: async (usuarioId: string) => userRepo.deactivateAccount(usuarioId),
     // Otimista UI update
     onMutate: async (usuarioId: string) => {
       await queryClient.cancelQueries({ queryKey: userKeys.detail(usuarioId) });
@@ -269,7 +270,7 @@ export const useListarUsuarios = (
       }
       
       const data = await response.json();
-      return (data || []).map((user: unknown) => mapUserRowToAppUser(user as unknown as DBUserRow)!).filter(Boolean) as AppUser[];
+      return (data || []).map((user: unknown) => mapUserRowToAppUser(user as DBUserRow)).filter(Boolean) as AppUser[];
     },
     ...options,
   });

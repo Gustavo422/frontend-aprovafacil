@@ -1,4 +1,6 @@
-import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
+import type { UseQueryOptions } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import apiClient from '@/lib/api';
 
 export type SimuladoType = {
   id: string;
@@ -15,59 +17,51 @@ export type SimuladoType = {
   created_by: string | null;
 };
 
-// Mock de simulados em memória (substituir por repositório real)
-const simuladosMock: SimuladoType[] = [
-  {
-    id: '1',
-    titulo: 'Simulado Exemplo',
-    descricao: 'Descrição de exemplo',
-    questions_count: 20,
-    time_minutes: 60,
-    dificuldade: 'Médio',
-    criado_em: new Date().toISOString(),
-    concurso_id: '1',
-    is_public: true,
-    atualizado_em: new Date().toISOString(),
-    deleted_at: null,
-    created_by: 'user1',
-  }
-];
-
+// Repositório para chamadas à API de simulados
 const simuladoRepo = {
-  buscarTodos: async () => simuladosMock,
-  findById: async (id: string) => simuladosMock.find(s => s.id === id),
-  findByConcurso: async (concursoId: string) => simuladosMock.filter(s => s.concurso_id === concursoId),
-  findByDificuldade: async (dificuldade: string) => simuladosMock.filter(s => s.dificuldade === dificuldade),
+  buscarTodos: async (filters: SimuladoFilters = {}) => {
+    const params = new URLSearchParams();
+    
+    if (filters.concursoId) params.append('concurso_id', filters.concursoId);
+    if (filters.dificuldade) params.append('dificuldade', filters.dificuldade);
+    if (filters.isPublic !== undefined) params.append('is_public', String(filters.isPublic));
+    if (filters.search) params.append('search', filters.search);
+    
+    const queryString = params.toString();
+    const url = queryString ? `/simulados?${queryString}` : '/simulados';
+    
+    const response = await apiClient.get(url);
+    return response.data;
+  },
+  
+  findById: async (id: string) => {
+    const response = await apiClient.get(`/simulados/${id}`);
+    return response.data;
+  },
+  
+  findByConcurso: async (concursoId: string) => {
+    const response = await apiClient.get(`/simulados?concurso_id=${concursoId}`);
+    return response.data;
+  },
+  
+  findByDificuldade: async (dificuldade: string) => {
+    const response = await apiClient.get(`/simulados?dificuldade=${dificuldade}`);
+    return response.data;
+  },
+  
   criarSimulado: async (data: CriarSimuladoData) => {
-    const novo: SimuladoType = {
-      ...data,
-      id: (simuladosMock.length + 1).toString(),
-      criado_em: new Date().toISOString(),
-      atualizado_em: new Date().toISOString(),
-      deleted_at: null,
-    };
-    simuladosMock.push(novo);
-    return novo;
+    const response = await apiClient.post('/simulados', data);
+    return response.data;
   },
+  
   atualizarSimulado: async (id: string, data: AtualizarSimuladoData) => {
-    const idx = simuladosMock.findIndex(s => s.id === id);
-    if (idx >= 0) {
-      simuladosMock[idx] = {
-        ...simuladosMock[idx],
-        ...data,
-        atualizado_em: new Date().toISOString(),
-      };
-      return simuladosMock[idx];
-    }
-    throw new Error('Simulado não encontrado');
+    const response = await apiClient.put(`/simulados/${id}`, data);
+    return response.data;
   },
+  
   deletarSimulado: async (id: string) => {
-    const idx = simuladosMock.findIndex(s => s.id === id);
-    if (idx >= 0) {
-      simuladosMock[idx].deleted_at = new Date().toISOString();
-      return simuladosMock[idx];
-    }
-    throw new Error('Simulado não encontrado');
+    const response = await apiClient.delete(`/simulados/${id}`);
+    return response.data;
   },
 };
 
@@ -77,6 +71,7 @@ type SimuladoFilters = {
   dificuldade?: string;
   isPublic?: boolean;
   search?: string;
+  [key: string]: unknown; // Permite filtros adicionais
 };
 
 // Chaves de query
@@ -98,7 +93,7 @@ export const useListarSimulados = (
 ) => {
   return useQuery<SimuladoType[], Error>({
     queryKey: simuladoKeys.list(filters),
-    queryFn: () => simuladoRepo.buscarTodos(),
+    queryFn: async () => simuladoRepo.buscarTodos(filters),
     ...options,
   });
 };
@@ -127,7 +122,7 @@ export const useListarSimuladosPorConcurso = (
 ) => {
   return useQuery<SimuladoType[], Error>({
     queryKey: simuladoKeys.byConcurso(concursoId),
-    queryFn: () => simuladoRepo.findByConcurso(concursoId),
+    queryFn: async () => simuladoRepo.findByConcurso(concursoId),
     enabled: !!concursoId,
     ...options,
   });
@@ -140,7 +135,7 @@ export const useListarSimuladosPorDificuldade = (
 ) => {
   return useQuery<SimuladoType[], Error>({
     queryKey: simuladoKeys.byDificuldade(dificuldade),
-    queryFn: () => simuladoRepo.findByDificuldade(dificuldade),
+    queryFn: async () => simuladoRepo.findByDificuldade(dificuldade),
     enabled: !!dificuldade,
     ...options,
   });
@@ -152,7 +147,7 @@ export const useListarSimuladosPublicos = (
 ) => {
   return useQuery<SimuladoType[], Error>({
     queryKey: simuladoKeys.publicos(),
-    queryFn: () => simuladoRepo.buscarTodos().then(simulados => simulados.filter(s => s.is_public)),
+    queryFn: async () => simuladoRepo.buscarTodos({ isPublic: true }),
     ...options,
   });
 };
@@ -171,7 +166,10 @@ export const useCriarSimulado = () => {
     CriarSimuladoData,
     { previousSimulados: SimuladoType[] | undefined }
   >({
-    mutationFn: (data) => simuladoRepo.criarSimulado(data),
+    mutationFn: async (data: CriarSimuladoData) => {
+      const response = await simuladoRepo.criarSimulado(data);
+      return response;
+    },
     // Otimista UI update
     onMutate: async (newSimulado) => {
       await queryClient.cancelQueries({ queryKey: simuladoKeys.lists() });
@@ -207,7 +205,10 @@ export const useAtualizarSimulado = () => {
     { id: string; data: AtualizarSimuladoData },
     { previousSimulado: SimuladoType | undefined }
   >({
-    mutationFn: ({ id, data }) => simuladoRepo.atualizarSimulado(id, data),
+    mutationFn: async ({ id, data }: { id: string; data: AtualizarSimuladoData }) => {
+      const response = await simuladoRepo.atualizarSimulado(id, data);
+      return response;
+    },
     // Otimista UI update
     onMutate: async ({ id, data }) => {
       await queryClient.cancelQueries({ queryKey: simuladoKeys.detail(id) });
@@ -245,7 +246,10 @@ export const useDeletarSimulado = () => {
     string,
     { previousSimulado: SimuladoType | undefined }
   >({
-    mutationFn: (id) => simuladoRepo.deletarSimulado(id),
+    mutationFn: async (id: string) => {
+      const response = await simuladoRepo.deletarSimulado(id);
+      return response;
+    },
     // Otimista UI update
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: simuladoKeys.detail(id) });

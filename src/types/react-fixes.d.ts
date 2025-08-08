@@ -1,6 +1,6 @@
 // Fixes para compatibilidade com React 19
 declare module 'cmdk' {
-  import * as React from 'react';
+  import type * as React from 'react';
   
   export interface CommandProps extends React.HTMLAttributes<HTMLDivElement> {
     children?: React.ReactNode;
@@ -44,7 +44,7 @@ declare module 'cmdk' {
 }
 
 declare module 'input-otp' {
-  import * as React from 'react';
+  import type * as React from 'react';
   
   export interface OTPInputProps {
     value?: string;
@@ -63,7 +63,7 @@ declare module 'input-otp' {
 }
 
 declare module 'react-resizable-panels' {
-  import * as React from 'react';
+  import type * as React from 'react';
   
   export interface PanelGroupProps extends React.HTMLAttributes<HTMLDivElement> {
     direction: 'horizontal' | 'vertical';
@@ -80,7 +80,7 @@ declare module 'react-resizable-panels' {
 }
 
 declare module 'sonner' {
-  import * as React from 'react';
+  import type * as React from 'react';
   
   export interface ToasterProps {
     theme?: 'light' | 'dark' | 'system';

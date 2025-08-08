@@ -1,5 +1,5 @@
 import { RetryStrategy } from './enums/retry-strategy.enum';
-import { RetryOptions } from './types/retry-options.type';
+import type { RetryOptions } from './types/retry-options.type';
 
 /**
  * Default retry options

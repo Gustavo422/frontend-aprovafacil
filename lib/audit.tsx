@@ -1,6 +1,6 @@
 import { headers } from 'next/headers';
 import { logger } from '@/lib/logger';
-import { Json } from './database.types';
+import type { Json } from './database.types';
 
 export type AuditAction =
   | 'CREATE'
@@ -26,9 +26,9 @@ export interface AuditLogData {
 }
 
 export class AuditLogger {
-  private baseUrl: string;
+  private readonly baseUrl: string;
 
-  constructor(baseUrl: string = '/api') {
+  constructor(baseUrl = '/api') {
     this.baseUrl = baseUrl;
   }
 
@@ -209,7 +209,7 @@ export class AuditLogger {
     });
   }
 
-  async getUserLogs(usuarioId: string, limit: number = 50): Promise<AuditLogData[]> {
+  async getUserLogs(usuarioId: string, limit = 50): Promise<AuditLogData[]> {
     try {
       const params = new URLSearchParams({
         usuario_id: usuarioId,
@@ -225,7 +225,7 @@ export class AuditLogger {
     }
   }
 
-  async getResourceLogs(tablenome: string, recordId: string, limit: number = 50): Promise<AuditLogData[]> {
+  async getResourceLogs(tablenome: string, recordId: string, limit = 50): Promise<AuditLogData[]> {
     try {
       const params = new URLSearchParams({
         table_nome: tablenome,

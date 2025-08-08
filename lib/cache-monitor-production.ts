@@ -1,5 +1,5 @@
 import { CacheType } from './cache-manager';
-import { CacheMonitorConfig } from './cache-monitor-config';
+import type { CacheMonitorConfig } from './cache-monitor-config';
 import { SamplingStrategyType } from './cache-sampling-strategies';
 import { CacheLogLevel } from './cache-logger';
 
@@ -32,17 +32,17 @@ export const PRODUCTION_CONFIG: Partial<CacheMonitorConfig> = {
       loadThreshold: 0.6, // More aggressive load threshold in production
       adaptiveWindowMs: 120000, // 2 minutes window in production
       operationPriorities: {
-        get: 0.8,      // Lower priority for gets in production
-        set: 1.2,      // Normal priority for sets
-        delete: 1.2,   // Normal priority for deletes
+        get: 0.8, // Lower priority for gets in production
+        set: 1.2, // Normal priority for sets
+        delete: 1.2, // Normal priority for deletes
         invalidate: 2.0, // High priority for invalidations
-        clear: 3.0     // Highest priority for clears
+        clear: 3.0 // Highest priority for clears
       },
       cacheTypePriorities: {
-        [CacheType.MEMORY]: 0.8,       // Lower priority for memory cache
+        [CacheType.MEMORY]: 0.8, // Lower priority for memory cache
         [CacheType.LOCAL_STORAGE]: 1.0, // Normal priority for local storage
         [CacheType.SESSION_STORAGE]: 1.0, // Normal priority for session storage
-        [CacheType.SUPABASE]: 1.5      // Higher priority for Supabase
+        [CacheType.SUPABASE]: 1.5 // Higher priority for Supabase
       }
     },
     useSystemLoadForSampling: true,
@@ -63,19 +63,19 @@ export const PRODUCTION_CONFIG: Partial<CacheMonitorConfig> = {
     slowOperationThreshold: 5, // Less sensitive in production
     thresholds: {
       get: {
-        warn: 200,  // 200ms in production
+        warn: 200, // 200ms in production
         error: 1000 // 1s in production
       },
       set: {
-        warn: 300,  // 300ms in production
+        warn: 300, // 300ms in production
         error: 1500 // 1.5s in production
       },
       delete: {
-        warn: 200,  // 200ms in production
+        warn: 200, // 200ms in production
         error: 1000 // 1s in production
       },
       invalidate: {
-        warn: 500,  // 500ms in production
+        warn: 500, // 500ms in production
         error: 2000 // 2s in production
       },
       clear: {
@@ -115,9 +115,9 @@ export const DEFAULT_PRODUCTION_TOGGLES: FeatureToggles = {
  * Memory usage limits for different device types
  */
 export const MEMORY_USAGE_LIMITS = {
-  LOW_END_DEVICE: 1 * 1024 * 1024,    // 1MB for low-end devices
-  STANDARD_DEVICE: 2 * 1024 * 1024,   // 2MB for standard devices
-  HIGH_END_DEVICE: 5 * 1024 * 1024    // 5MB for high-end devices
+  LOW_END_DEVICE: 1 * 1024 * 1024, // 1MB for low-end devices
+  STANDARD_DEVICE: 2 * 1024 * 1024, // 2MB for standard devices
+  HIGH_END_DEVICE: 5 * 1024 * 1024 // 5MB for high-end devices
 };
 
 /**

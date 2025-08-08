@@ -116,7 +116,7 @@ export function DebugPanel({ className = '' }: DebugPanelProps) {
                   <div className="text-xs text-gray-400 mb-2">Debug Info:</div>
                   <div className="text-xs space-y-1">
                     <div>URL: {typeof window !== 'undefined' ? window.location.href : 'N/A'}</div>
-                    <div>User Agent: {typeof navigator !== 'undefined' ? navigator.userAgent.substring(0, 50) + '...' : 'N/A'}</div>
+                    <div>User Agent: {typeof navigator !== 'undefined' ? `${navigator.userAgent.substring(0, 50) }...` : 'N/A'}</div>
                     <div>Screen: {typeof screen !== 'undefined' ? `${screen.width}x${screen.height}` : 'N/A'}</div>
                   </div>
                 </div>

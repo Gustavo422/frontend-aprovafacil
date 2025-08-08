@@ -26,7 +26,7 @@ REQUIRE_STRONG_PASSWORD=true
 ALLOW_MULTIPLE_SESSIONS=true
 
 # Configurações de Autenticação
-JWT_SECRET=seu_jwt_secret_aqui_com_pelo_menos_32_caracteres
+JWT_SECRET=8010902753635503e0e33dc19efeba3b
 JWT_ACCESS_EXPIRY=15m
 JWT_REFRESH_EXPIRY=7d
 

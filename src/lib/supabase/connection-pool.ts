@@ -1,5 +1,6 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { SupabaseOptions } from './types/supabase-options.type';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
+import type { SupabaseOptions } from './types/supabase-options.type';
 
 /**
  * Options for the connection pool
@@ -88,10 +89,10 @@ interface PooledConnection {
  * Connection pool for Supabase clients
  */
 export class ConnectionPool {
-  private supabaseUrl: string;
-  private supabaseKey: string;
-  private options: Required<ConnectionPoolOptions>;
-  private supabaseOptions: SupabaseOptions;
+  private readonly supabaseUrl: string;
+  private readonly supabaseKey: string;
+  private readonly options: Required<ConnectionPoolOptions>;
+  private readonly supabaseOptions: SupabaseOptions;
   private pool: PooledConnection[] = [];
   private cleanupInterval: NodeJS.Timeout | null = null;
   

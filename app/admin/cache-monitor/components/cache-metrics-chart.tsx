@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Chart, registerables, TooltipItem } from 'chart.js';
+import type { TooltipItem } from 'chart.js';
+import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
@@ -15,7 +16,7 @@ export function CacheMetricsChart({ hitRate, missRate }: CacheMetricsChartProps)
   const chartInstance = useRef<Chart | null>(null);
 
   useEffect(() => {
-    if (!chartRef.current) return;
+    if (!chartRef.current) return () => {};
 
     // Destroy existing chart if it exists
     if (chartInstance.current) {
@@ -23,7 +24,7 @@ export function CacheMetricsChart({ hitRate, missRate }: CacheMetricsChartProps)
     }
 
     const ctx = chartRef.current.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) return () => {};
 
     chartInstance.current = new Chart(ctx, {
       type: 'doughnut',
@@ -48,7 +49,7 @@ export function CacheMetricsChart({ hitRate, missRate }: CacheMetricsChartProps)
           },
           tooltip: {
             callbacks: {
-              label: function(context: TooltipItem<'line'>) {
+              label(context: TooltipItem<'line'>) {
                 const label = context.label || '';
                 const value = context.raw as number;
                 return `${label}: ${value.toFixed(1)}%`;
@@ -68,7 +69,7 @@ export function CacheMetricsChart({ hitRate, missRate }: CacheMetricsChartProps)
 
   return (
     <div className="w-full h-full flex items-center justify-center">
-      <canvas ref={chartRef}></canvas>
+      <canvas ref={chartRef} />
     </div>
   );
 }

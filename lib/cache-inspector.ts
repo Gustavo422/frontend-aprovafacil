@@ -1,12 +1,12 @@
 import { cacheManager, CacheType } from './cache-manager';
 import { logger } from './logger';
 import { createClient } from './supabase';
-import { 
+import type { 
   CacheRelationshipGraph, 
   CacheGraphNode,
   BuildGraphOptions
 } from './cache-relationship-graph';
-import {
+import type {
   CacheSizeInfo,
   CacheStatusCounts,
   CacheTypeStatistics,
@@ -506,7 +506,7 @@ export class CacheInspector {
    */
   public async getAllRelatedKeysRecursive(
     key: string, 
-    maxDepth: number = 3,
+    maxDepth = 3,
     visited: Set<string> = new Set()
   ): Promise<Set<string>> {
     // Prevent infinite recursion
@@ -690,7 +690,7 @@ export class CacheInspector {
   /**
    * Shorten a key for display in the graph
    */
-  private shortenKeyForDisplay(key: string, maxLength: number = 30): string {
+  private shortenKeyForDisplay(key: string, maxLength = 30): string {
     if (key.length <= maxLength) {
       return key;
     }
@@ -708,14 +708,14 @@ export class CacheInspector {
       
       if (middleSpace > 0) {
         return `${firstPart}:...${lastPart.substring(0, middleSpace)}`;
-      } else {
+      } 
         // Not enough space, just truncate
         return `${key.substring(0, maxLength - 3)}...`;
-      }
-    } else {
+      
+    } 
       // Simple truncation
       return `${key.substring(0, maxLength - 3)}...`;
-    }
+    
   }
   
   /**

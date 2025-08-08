@@ -75,7 +75,7 @@ export default function UsuariosAdminPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px]">
         <p className="text-red-500 mb-2">Erro ao carregar usuários</p>
-        <Button onClick={() => refetch()}>Tentar novamente</Button>
+        <Button onClick={async () => refetch()}>Tentar novamente</Button>
       </div>
     );
   }

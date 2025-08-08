@@ -1,7 +1,8 @@
-import { cacheManager, CacheType, CacheOptions } from './cache-manager';
+import type { CacheOptions } from './cache-manager';
+import { cacheManager, CacheType } from './cache-manager';
 import { cacheMonitor } from './cache-monitor';
 import { logger } from './logger';
-import { CacheOperation, CacheOperationResult } from './cache-metrics-collector';
+import type { CacheOperation, CacheOperationResult } from './cache-metrics-collector';
 import { cacheLogger, CacheLogLevel } from './cache-logger';
 import { adaptiveCacheLogger } from './cache-adaptive-logger';
 
@@ -84,8 +85,8 @@ export interface CacheExportData {
  */
 export class CacheManagerMonitor {
   private static instance: CacheManagerMonitor;
-  private eventListeners: Map<CacheEventType, Set<CacheEventListener>> = new Map();
-  private originalMethods: {
+  private readonly eventListeners: Map<CacheEventType, Set<CacheEventListener>> = new Map();
+  private readonly originalMethods: {
     get: typeof cacheManager.get;
     set: typeof cacheManager.set;
     delete: typeof cacheManager.delete;
@@ -260,7 +261,7 @@ export class CacheManagerMonitor {
       try {
         // Call original method
         await this.originalMethods.set<T>(key, data, options);
-        return;
+        
       } catch (e) {
         error = e instanceof Error ? e : new Error(String(e));
         result = 'error';
@@ -384,7 +385,7 @@ export class CacheManagerMonitor {
       try {
         // Call original method
         await this.originalMethods.delete(key, options);
-        return;
+        
       } catch (e) {
         error = e instanceof Error ? e : new Error(String(e));
         result = 'error';
@@ -478,7 +479,7 @@ export class CacheManagerMonitor {
       try {
         // Call original method
         await this.originalMethods.invalidate(key, options);
-        return;
+        
       } catch (e) {
         error = e instanceof Error ? e : new Error(String(e));
         result = 'error';
@@ -571,7 +572,7 @@ export class CacheManagerMonitor {
       try {
         // Call original method
         await this.originalMethods.clear(options);
-        return;
+        
       } catch (e) {
         error = e instanceof Error ? e : new Error(String(e));
         result = 'error';

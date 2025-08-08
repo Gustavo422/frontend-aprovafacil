@@ -11,7 +11,7 @@ export default function DashboardUserInfo() {
     fetch('/api/auth/me', {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(res => res.json())
+      .then(async res => res.json())
       .then(data => {
         if (data.success && data.data) setUser(data.data);
       });

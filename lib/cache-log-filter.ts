@@ -1,6 +1,6 @@
-import { CacheType } from './cache-manager';
-import { CacheOperation, CacheOperationResult } from './cache-metrics-collector';
-import { CacheLogCategory, CacheLogLevel } from './cache-logger';
+import type { CacheType } from './cache-manager';
+import type { CacheOperation, CacheOperationResult } from './cache-metrics-collector';
+import type { CacheLogCategory, CacheLogLevel } from './cache-logger';
 
 /**
  * Interface for a cache log entry
@@ -308,8 +308,8 @@ export class CacheLogFilter {
   private static wildcardToRegExp(pattern: string): RegExp {
     const escapedPattern = pattern
       .replace(/[.+^${}()|[\]\\]/g, '\\$&') // Escape special regex chars
-      .replace(/\*/g, '.*')                 // * becomes .*
-      .replace(/\?/g, '.');                 // ? becomes .
+      .replace(/\*/g, '.*') // * becomes .*
+      .replace(/\?/g, '.'); // ? becomes .
     
     return new RegExp(`^${escapedPattern}$`);
   }
@@ -321,7 +321,7 @@ export class CacheLogFilter {
 export class CacheLogStorage {
   private static instance: CacheLogStorage;
   private logs: CacheLogEntry[] = [];
-  private maxLogs: number = 1000;
+  private maxLogs = 1000;
   
   /**
    * Private constructor to enforce singleton pattern

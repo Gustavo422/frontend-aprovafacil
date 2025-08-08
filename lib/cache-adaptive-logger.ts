@@ -1,5 +1,5 @@
-import { CacheType } from './cache-manager';
-import { CacheOperation, CacheOperationResult } from './cache-metrics-collector';
+import type { CacheType } from './cache-manager';
+import type { CacheOperation, CacheOperationResult } from './cache-metrics-collector';
 import { cacheLogger, CacheLogLevel } from './cache-logger';
 
 /**
@@ -33,23 +33,23 @@ export interface PerformanceThresholds {
  */
 export const DEFAULT_THRESHOLDS: PerformanceThresholds = {
   get: {
-    warn: 100,  // 100ms
-    error: 500  // 500ms
+    warn: 100, // 100ms
+    error: 500 // 500ms
   },
   set: {
-    warn: 150,  // 150ms
-    error: 750  // 750ms
+    warn: 150, // 150ms
+    error: 750 // 750ms
   },
   delete: {
-    warn: 100,  // 100ms
-    error: 500  // 500ms
+    warn: 100, // 100ms
+    error: 500 // 500ms
   },
   invalidate: {
-    warn: 200,  // 200ms
+    warn: 200, // 200ms
     error: 1000 // 1s
   },
   clear: {
-    warn: 500,  // 500ms
+    warn: 500, // 500ms
     error: 2000 // 2s
   }
 };
@@ -104,7 +104,7 @@ export const DEFAULT_ADAPTIVE_CONFIG: AdaptiveLoggingConfig = {
   warnLogLevel: CacheLogLevel.DEBUG,
   errorLogLevel: CacheLogLevel.DEBUG,
   performanceWindowMs: 60000, // 1 minute
-  slowOperationThreshold: 3   // 3 slow operations to trigger adjustment
+  slowOperationThreshold: 3 // 3 slow operations to trigger adjustment
 };
 
 /**

@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { CacheType } from './cache-manager';
+import type { CacheType } from './cache-manager';
 import { logger } from './logger';
 
 /**
@@ -67,9 +67,9 @@ export interface CacheMonitorConfigRecord {
  */
 export class CacheDatabaseService {
   private static instance: CacheDatabaseService;
-  private supabase!: ReturnType<typeof createClient>;
-  private enabled: boolean = true;
-  private batchSize: number = 50;
+  private readonly supabase!: ReturnType<typeof createClient>;
+  private enabled = true;
+  private readonly batchSize = 50;
   private pendingMetrics: CacheMetricRecord[] = [];
   private flushInterval: ReturnType<typeof setInterval> | null = null;
   private lastFlush: number = Date.now();
@@ -527,7 +527,7 @@ export class CacheDatabaseService {
   /**
    * Limpar métricas antigas
    */
-  public async cleanupOldMetrics(daysToKeep: number = 30): Promise<number> {
+  public async cleanupOldMetrics(daysToKeep = 30): Promise<number> {
     if (!this.enabled) return 0;
 
     try {

@@ -22,7 +22,7 @@ api.interceptors.request.use(
     return config;
   },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (error: any) => Promise.reject(error)
+  async (error: any) => Promise.reject(error)
 );
 
 // Interceptor para tratar erros
@@ -30,7 +30,7 @@ api.interceptors.response.use(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (response: any) => response,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (error: any) => {
+  async (error: any) => {
     // Tratar erros de autenticação
     if (error.response?.status === 401) {
       console.error('Erro de autenticação:', error.response.data);

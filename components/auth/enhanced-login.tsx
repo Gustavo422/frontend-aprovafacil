@@ -64,7 +64,7 @@ export default function EnhancedLogin() {
       const userAgent = navigator.userAgent;
       const fingerprint = generateFingerprint();
       
-      const deviceInfo: DeviceInfo = {
+      const detectedDevice: DeviceInfo = {
         fingerprint,
         name: getDeviceName(userAgent),
         type: getDeviceType(userAgent),
@@ -72,7 +72,7 @@ export default function EnhancedLogin() {
         os: getOSName(userAgent)
       };
 
-      setDeviceInfo(deviceInfo);
+      setDeviceInfo(detectedDevice);
     };
 
     detectDevice();
@@ -86,7 +86,7 @@ export default function EnhancedLogin() {
     const fingerprint = [
       navigator.userAgent,
       navigator.language,
-      screen.width + 'x' + screen.height,
+      `${screen.width }x${ screen.height}`,
       new Date().getTimezoneOffset(),
       canvas.toDataURL()
     ].join('|');
@@ -96,10 +96,10 @@ export default function EnhancedLogin() {
 
   const getDeviceName = (userAgent: string): string => {
     if (/iPhone|iPad|iPod/.test(userAgent)) return 'iOS Device';
-    if (/Android/.test(userAgent)) return 'Android Device';
-    if (/Windows/.test(userAgent)) return 'Windows Computer';
-    if (/Mac/.test(userAgent)) return 'Mac Computer';
-    if (/Linux/.test(userAgent)) return 'Linux Computer';
+    if (userAgent.includes('Android')) return 'Android Device';
+    if (userAgent.includes('Windows')) return 'Windows Computer';
+    if (userAgent.includes('Mac')) return 'Mac Computer';
+    if (userAgent.includes('Linux')) return 'Linux Computer';
     return 'Unknown Device';
   };
 
@@ -110,19 +110,19 @@ export default function EnhancedLogin() {
   };
 
   const getBrowserName = (userAgent: string): string => {
-    if (/Chrome/.test(userAgent)) return 'Chrome';
-    if (/Firefox/.test(userAgent)) return 'Firefox';
-    if (/Safari/.test(userAgent)) return 'Safari';
-    if (/Edge/.test(userAgent)) return 'Edge';
+    if (userAgent.includes('Chrome')) return 'Chrome';
+    if (userAgent.includes('Firefox')) return 'Firefox';
+    if (userAgent.includes('Safari')) return 'Safari';
+    if (userAgent.includes('Edge')) return 'Edge';
     return 'Unknown Browser';
   };
 
   const getOSName = (userAgent: string): string => {
-    if (/Windows/.test(userAgent)) return 'Windows';
-    if (/Mac/.test(userAgent)) return 'macOS';
-    if (/Linux/.test(userAgent)) return 'Linux';
-    if (/Android/.test(userAgent)) return 'Android';
-    if (/iOS/.test(userAgent)) return 'iOS';
+    if (userAgent.includes('Windows')) return 'Windows';
+    if (userAgent.includes('Mac')) return 'macOS';
+    if (userAgent.includes('Linux')) return 'Linux';
+    if (userAgent.includes('Android')) return 'Android';
+    if (userAgent.includes('iOS')) return 'iOS';
     return 'Unknown OS';
   };
 

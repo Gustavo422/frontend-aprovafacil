@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, createContext, useContext, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { useState, useEffect, useCallback, createContext, useContext } from 'react';
 import { useMutation } from './useMutation';
 import { useQuery } from './useQuery';
 import { setCookie, removeCookie } from '@/lib/cookie-utils';
@@ -130,7 +131,7 @@ const STORAGE_KEYS = {
  * Serviço de API para autenticação
  */
 class AuthService {
-  private baseUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
+  private readonly baseUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
   
   async login(data: LoginData): Promise<LoginResponse> {
     const response = await fetch(`${this.baseUrl}/auth/login`, {
@@ -277,7 +278,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       
       console.log('Login bem-sucedido!');
-      console.log('Token:', data.token.substring(0, 10) + '...');
+      console.log('Token:', `${data.token.substring(0, 10) }...`);
       console.log('Usuário:', data.usuario.nome);
     }
   });
@@ -287,7 +288,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   // Mutação para atualizar perfil
   const updateProfileMutation = useMutation(
-    (data: Partial<User>) => {
+    async (data: Partial<User>) => {
       if (!token) throw new Error('Token não disponível');
       return authService.updateProfile(token, data);
     },
@@ -301,7 +302,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   // Mutação para alterar senha
   const changePasswordMutation = useMutation(
-    ({ currentPassword, newPassword }: { currentPassword: string; newPassword: string }) => {
+    async ({ currentPassword, newPassword }: { currentPassword: string; newPassword: string }) => {
       if (!token) throw new Error('Token não disponível');
       return authService.changePassword(token, currentPassword, newPassword);
     }
@@ -310,7 +311,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Query para validar token
   const { refetch: validateToken } = useQuery(
     ['auth', 'validate', token ?? ''],
-    () => {
+    async () => {
       if (!token) throw new Error('Token não disponível');
       return authService.validateToken(token);
     },

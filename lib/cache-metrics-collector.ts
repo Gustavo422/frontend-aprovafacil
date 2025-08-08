@@ -1,10 +1,11 @@
 import { CacheType } from './cache-manager';
 import { cacheLogger, CacheLogLevel } from './cache-logger';
+import type { 
+  SamplingStrategy,
+  SamplingStrategyConfig} from './cache-sampling-strategies';
 import { 
-  SamplingStrategy, 
   SamplingStrategyFactory, 
   SamplingStrategyType,
-  SamplingStrategyConfig,
   SystemLoadEstimator,
   AdaptiveSamplingStrategy
 } from './cache-sampling-strategies';
@@ -218,13 +219,13 @@ const DEFAULT_CONFIG: MetricsCollectorConfig = {
  */
 export class CacheMetricsCollector {
   private config: MetricsCollectorConfig;
-  private metricsBuffer: CircularBuffer<CacheMetric>;
-  private enabled: boolean = false;
-  private operationTimers: Map<string, { startTime: number; operation: CacheOperation; key?: string; cacheType: CacheType }> = new Map();
+  private readonly metricsBuffer: CircularBuffer<CacheMetric>;
+  private enabled = false;
+  private readonly operationTimers: Map<string, { startTime: number; operation: CacheOperation; key?: string; cacheType: CacheType }> = new Map();
   private samplingStrategy: SamplingStrategy = SamplingStrategyFactory.createStrategy({ type: SamplingStrategyType.FIXED_RATE, baseSampleRate: 0.1 });
-  private systemLoadEstimator: SystemLoadEstimator;
+  private readonly systemLoadEstimator: SystemLoadEstimator;
   private pruningInterval: ReturnType<typeof setInterval> | null = null;
-  private estimatedMemoryUsage: number = 0;
+  private estimatedMemoryUsage = 0;
   private lastPruneTime: number = Date.now();
   
   /**

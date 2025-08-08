@@ -1,4 +1,5 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 import { getLogger } from '@/src/lib/logging';
 import { DatabaseError } from '@/src/lib/errors';
 
@@ -264,10 +265,10 @@ export abstract class BaseRepository<T extends { id: string }> implements IRepos
  * Cached repository implementation
  */
 export class CachedRepository<T extends { id: string }> extends BaseRepository<T> {
-  private cache: Map<string, T> = new Map();
+  private readonly cache: Map<string, T> = new Map();
   private allCache: T[] | null = null;
-  private cacheTimestamp: number = 0;
-  private options: CacheOptions;
+  private cacheTimestamp = 0;
+  private readonly options: CacheOptions;
 
   /**
    * Create a new cached repository

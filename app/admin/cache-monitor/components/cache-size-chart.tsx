@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Chart, registerables, TooltipItem } from 'chart.js';
+import type { TooltipItem } from 'chart.js';
+import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
@@ -15,7 +16,7 @@ export function CacheSizeChart({ cacheSize, entryCount }: CacheSizeChartProps) {
   const chartInstance = useRef<Chart | null>(null);
 
   useEffect(() => {
-    if (!chartRef.current) return;
+    if (!chartRef.current) return () => {};
 
     // Destroy existing chart if it exists
     if (chartInstance.current) {
@@ -23,7 +24,7 @@ export function CacheSizeChart({ cacheSize, entryCount }: CacheSizeChartProps) {
     }
 
     const ctx = chartRef.current.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) return () => {};
 
     // For demo purposes, create a time series of the last 24 hours
     const labels = Array.from({ length: 24 }, (_, i) => {
@@ -58,10 +59,10 @@ export function CacheSizeChart({ cacheSize, entryCount }: CacheSizeChartProps) {
       if (bytes === 0) return '0 B';
       
       const k = 1024;
-      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const units = ['B', 'KB', 'MB', 'GB'];
       const i = Math.floor(Math.log(bytes) / Math.log(k));
       
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+      return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2)) } ${ units[i]}`;
     };
 
     chartInstance.current = new Chart(ctx, {
@@ -112,7 +113,7 @@ export function CacheSizeChart({ cacheSize, entryCount }: CacheSizeChartProps) {
               text: 'Size'
             },
             ticks: {
-              callback: function(value: string | number) {
+              callback(value: string | number) {
                 return formatBytes(Number(value));
               }
             }
@@ -133,7 +134,7 @@ export function CacheSizeChart({ cacheSize, entryCount }: CacheSizeChartProps) {
         plugins: {
           tooltip: {
             callbacks: {
-              label: function(context: TooltipItem<'bar'>) {
+              label(context: TooltipItem<'bar'>) {
                 const label = context.dataset.label || '';
                 const value = context.raw as number;
                 if (label === 'Cache Size') {
@@ -156,7 +157,7 @@ export function CacheSizeChart({ cacheSize, entryCount }: CacheSizeChartProps) {
 
   return (
     <div className="w-full h-full flex items-center justify-center">
-      <canvas ref={chartRef}></canvas>
+      <canvas ref={chartRef} />
     </div>
   );
 }

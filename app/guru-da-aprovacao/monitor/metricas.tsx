@@ -19,7 +19,7 @@ export default function MetricasCustomizadas() {
     fetch('/api/monitor/metrics/history', {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(res => res.json())
+      .then(async res => res.json())
       .then(data => {
         if (data.success) setMetricas(data.history || []);
         else setError(data.error || 'Erro ao buscar métricas');
@@ -32,11 +32,11 @@ export default function MetricasCustomizadas() {
   if (error) return <div className="text-red-600">{error}</div>;
 
   // Agrupar por tipo para cards
-  const agrupadas = metricas.reduce((acc, m) => {
+  const agrupadas = metricas.reduce<Record<string, Metrica[]>>((acc, m) => {
     if (!acc[m.type]) acc[m.type] = [];
     acc[m.type].push(m);
     return acc;
-  }, {} as Record<string, Metrica[]>);
+  }, {});
 
   return (
     <div className="p-6 max-w-4xl mx-auto">

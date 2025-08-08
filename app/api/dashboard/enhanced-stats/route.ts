@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { extractAuthToken, sanitizeToken } from '@/lib/auth-utils';
+import { extractAuthToken, sanitizeHeadersForLog, sanitizeToken } from '@/lib/auth-utils';
 
 export async function GET(request: Request) {
   try {
     console.log('[DEBUG] Processando requisição GET /api/dashboard/enhanced-stats');
-    console.log('[DEBUG] Headers da requisição:', Object.fromEntries(request.headers.entries()));
+    console.log('[DEBUG] Headers da requisição:', sanitizeHeadersForLog(request.headers));
     
     // Obter token de autenticação
     const token = extractAuthToken(request);

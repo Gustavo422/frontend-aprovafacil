@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from './useQuery';
 import { useMutation } from './useMutation';
 import { useAuth } from './useAuth';
-import { User } from './useAuth';
+import type { User } from './useAuth';
 
 /**
  * Estatísticas do usuário
@@ -39,7 +39,7 @@ export interface InitialConfigData {
  * Serviço de API para usuários
  */
 class UserService {
-  private baseUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
+  private readonly baseUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
   
   async getUserById(id: string, token: string): Promise<User> {
     const response = await fetch(`${this.baseUrl}/users/${id}`, {
@@ -141,7 +141,7 @@ export function useUser() {
   const queryKey = ['user', user?.id ? String(user.id) : 'none'].join(':');
   const query = useQuery(
     queryKey,
-    () => userService.getUserById(user!.id, token!),
+    async () => userService.getUserById(user!.id, token!),
     {
       enabled: isAuthenticated && !!user?.id && !!token,
       staleTime: 5 * 60 * 1000, // 5 minutos
@@ -170,7 +170,7 @@ export function useUserStats(usuarioId?: string) {
   const queryKey = ['user', 'stats', targetUserId ? String(targetUserId) : 'none'].join(':');
   const query = useQuery(
     queryKey,
-    () => userService.getUserStats(targetUserId!, token!),
+    async () => userService.getUserStats(targetUserId!, token!),
     {
       enabled: isAuthenticated && !!targetUserId && !!token,
       staleTime: 2 * 60 * 1000, // 2 minutos
@@ -205,7 +205,7 @@ export function useUpdateProfile() {
   const queryClient = useQueryClient();
   
   const mutation = useMutation(
-    (data: UpdateProfileData) => userService.updateProfile(user!.id, data, token!),
+    async (data: UpdateProfileData) => userService.updateProfile(user!.id, data, token!),
     {
       onSuccess: (updatedUser) => {
         // Atualizar contexto de autenticação
@@ -239,7 +239,7 @@ export function useInitialConfig() {
   const queryClient = useQueryClient();
   
   const mutation = useMutation(
-    (data: InitialConfigData) => userService.initialConfig(data, token!),
+    async (data: InitialConfigData) => userService.initialConfig(data, token!),
     {
       onSuccess: () => {
         // Invalidar queries relacionadas
@@ -285,7 +285,7 @@ export function useUserProgress() {
   
   const simuladosQuery = useQuery(
     ['user', 'progress', 'simulados', String(user?.id ?? 'none')],
-    () => {
+    async () => {
       // Implementar busca de progresso em simulados
       return Promise.resolve([]);
     },
@@ -297,7 +297,7 @@ export function useUserProgress() {
   
   const apostilasQuery = useQuery(
     ['user', 'progress', 'apostilas', String(user?.id ?? 'none')],
-    () => {
+    async () => {
       // Implementar busca de progresso em apostilas
       return Promise.resolve([]);
     },

@@ -1,6 +1,6 @@
 import { ErrorCategory } from '../supabase/enums/error-category.enum';
-import { IErrorHandler } from '../supabase/interfaces/error-handler.interface';
-import { SupabaseError } from '../supabase/types/supabase-error.type';
+import type { IErrorHandler } from '../supabase/interfaces/error-handler.interface';
+import type { SupabaseError } from '../supabase/types/supabase-error.type';
 import { ErrorUtils } from './error-utils';
 
 /**

@@ -1,6 +1,6 @@
 import { ErrorCategory } from './enums/error-category.enum';
-import { IErrorHandler } from './interfaces/error-handler.interface';
-import { SupabaseError } from './types/supabase-error.type';
+import type { IErrorHandler } from './interfaces/error-handler.interface';
+import type { SupabaseError } from './types/supabase-error.type';
 
 /**
  * Implementation of the error handler for Supabase errors
@@ -26,7 +26,7 @@ export class SupabaseErrorHandler implements IErrorHandler {
     
     // Handle Supabase API error
     if (this.isSupabaseError(error)) {
-      const supabaseError = error as unknown;
+      const supabaseError = error;
       
       if (typeof supabaseError === 'object' && supabaseError !== null && 'error' in supabaseError) {
         const errorObj = supabaseError.error as Record<string, unknown>;
@@ -144,12 +144,12 @@ export class SupabaseErrorHandler implements IErrorHandler {
     const potentialAuthError = error as Record<string, unknown>;
     
     // Check for auth error structure
-    if ((potentialAuthError as Record<string, unknown>).name === 'AuthApiError' || (potentialAuthError as Record<string, unknown>).name === 'AuthError') {
+    if ((potentialAuthError).name === 'AuthApiError' || (potentialAuthError).name === 'AuthError') {
       return true;
     }
     
     // Check for status code
-    if ((potentialAuthError as Record<string, unknown>).status === 401 || (potentialAuthError as Record<string, unknown>).status === 403) {
+    if ((potentialAuthError).status === 401 || (potentialAuthError).status === 403) {
       return true;
     }
     
@@ -161,7 +161,7 @@ export class SupabaseErrorHandler implements IErrorHandler {
       'message' in potentialAuthError &&
       typeof (potentialAuthError as { message: unknown }).message === 'string'
     ) {
-      errorMessage = ((potentialAuthError as { message: string }).message as string).toLowerCase();
+      errorMessage = ((potentialAuthError as { message: string }).message).toLowerCase();
     }
     return (
       errorMessage.includes('auth') ||

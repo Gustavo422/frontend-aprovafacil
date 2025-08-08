@@ -9,7 +9,7 @@ interface LogEntry {
 
 class Logger {
   private static instance: Logger;
-  private isDevelopment: boolean;
+  private readonly isDevelopment: boolean;
 
   private constructor() {
     this.isDevelopment = process.env.NODE_ENV === 'development';

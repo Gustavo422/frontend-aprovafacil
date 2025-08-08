@@ -3,9 +3,9 @@
  */
 export class CircularBuffer<T> {
   private buffer: Array<T | null>;
-  private head: number = 0;
-  private tail: number = 0;
-  private size: number = 0;
+  private head = 0;
+  private tail = 0;
+  private size = 0;
   private readonly capacity: number;
   
   /**

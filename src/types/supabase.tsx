@@ -1,4 +1,4 @@
-import { Database } from '@/types/supabase.types';
+import type { Database } from '@/types/supabase.types';
 
 declare global {
   // Extend the Window interface to include ENV variables

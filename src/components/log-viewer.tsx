@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, ReactElement } from 'react';
-import { LogEntry, LogLevel, getRecentLogs } from '@/src/lib/logging';
+import type { ReactElement } from 'react';
+import React, { useState, useEffect } from 'react';
+import type { LogEntry} from '@/src/lib/logging';
+import { LogLevel, getRecentLogs } from '@/src/lib/logging';
 
 interface LogViewerProps {
   /**

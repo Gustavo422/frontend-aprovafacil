@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server';
 import { cacheMonitor } from '@/lib/cache-monitor';
-import { CacheType } from '@/lib/cache-manager';
+import type { CacheType } from '@/lib/cache-manager';
 import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {

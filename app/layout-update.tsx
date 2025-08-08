@@ -62,7 +62,7 @@ export default function RootLayout({
       </head>
       <body 
         className={`${inter.className} min-h-screen bg-background`} 
-        suppressHydrationWarning={true}
+        suppressHydrationWarning
         data-suppress-hydration-warning="true"
         data-extension-attributes="suppress"
       >

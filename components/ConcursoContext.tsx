@@ -1,6 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { useCallback } from 'react';
 import type { 
   ConcursoContext as ConcursoContextType,
@@ -176,11 +177,11 @@ export function ConcursoProvider({ children }: ConcursoProviderProps) {
   // Verificar se o usuário está autenticado (tem token)
   const isAuthenticated = (): boolean => {
     // Verificar se há token nos cookies ou localStorage
-    const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+    const cookies = document.cookie.split(';').reduce<Record<string, string>>((acc, cookie) => {
       const [key, value] = cookie.trim().split('=');
       acc[key] = value;
       return acc;
-    }, {} as Record<string, string>);
+    }, {});
 
     // Verificar tokens conhecidos
     const hasAccessToken = cookies.accessToken || 

@@ -1,9 +1,10 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { EnhancedSupabaseClient, getSupabaseClient } from './enhanced-client';
+import type { EnhancedSupabaseClient} from './enhanced-client';
+import { getSupabaseClient } from './enhanced-client';
 import { ConnectionStatus } from './enums/connection-status.enum';
-import { SupabaseOptions } from './types/supabase-options.type';
+import type { SupabaseOptions } from './types/supabase-options.type';
 
 // Context type
 interface SupabaseContextType {

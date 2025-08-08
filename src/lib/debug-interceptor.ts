@@ -23,7 +23,7 @@ interface DebugInfo {
 
 class FrontendDebugLogger {
   private static instance: FrontendDebugLogger;
-  private requestStartTimes: Map<string, number> = new Map();
+  private readonly requestStartTimes: Map<string, number> = new Map();
 
   static getInstance(): FrontendDebugLogger {
     if (!FrontendDebugLogger.instance) {
@@ -198,7 +198,7 @@ export function setupDebugInterceptors(axiosInstance: any): void {
       logger.logRequest(config);
       return config;
     },
-    (error: any) => {
+    async (error: any) => {
       logger.logError(error);
       return Promise.reject(error);
     }
@@ -210,7 +210,7 @@ export function setupDebugInterceptors(axiosInstance: any): void {
       logger.logResponse(response);
       return response;
     },
-    (error: any) => {
+    async (error: any) => {
       logger.logError(error);
       return Promise.reject(error);
     }

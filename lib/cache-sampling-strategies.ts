@@ -1,5 +1,5 @@
 import { CacheType } from './cache-manager';
-import { CacheOperation } from './cache-metrics-collector';
+import type { CacheOperation } from './cache-metrics-collector';
 import { cacheLogger } from './cache-logger';
 
 /**
@@ -68,15 +68,15 @@ export const DEFAULT_SAMPLING_CONFIG: SamplingStrategyConfig = {
   type: SamplingStrategyType.FIXED_RATE,
   baseSampleRate: 0.1, // 10% sampling by default
   minSampleRate: 0.01, // 1% minimum sampling rate
-  maxSampleRate: 1.0,  // 100% maximum sampling rate
-  loadThreshold: 0.7,  // 70% load threshold
+  maxSampleRate: 1.0, // 100% maximum sampling rate
+  loadThreshold: 0.7, // 70% load threshold
   adaptiveWindowMs: 60000, // 1 minute window for adaptive sampling
   operationPriorities: {
-    get: 1.0,      // Normal priority
-    set: 1.5,      // Higher priority
-    delete: 1.5,   // Higher priority
+    get: 1.0, // Normal priority
+    set: 1.5, // Higher priority
+    delete: 1.5, // Higher priority
     invalidate: 2.0, // High priority
-    clear: 3.0     // Highest priority (always sample)
+    clear: 3.0 // Highest priority (always sample)
   },
   cacheTypePriorities: {
     [CacheType.MEMORY]: 1.0,
@@ -305,12 +305,12 @@ export class PriorityBasedSamplingStrategy implements SamplingStrategy {
     let priorityFactor = 1.0;
     
     // Apply operation priority
-    if (this.config.operationPriorities && this.config.operationPriorities[context.operation]) {
+    if (this.config.operationPriorities?.[context.operation]) {
       priorityFactor *= this.config.operationPriorities[context.operation];
     }
     
     // Apply cache type priority
-    if (this.config.cacheTypePriorities && this.config.cacheTypePriorities[context.cacheType]) {
+    if (this.config.cacheTypePriorities?.[context.cacheType]) {
       priorityFactor *= this.config.cacheTypePriorities[context.cacheType];
     }
     
@@ -393,9 +393,9 @@ export class SamplingStrategyFactory {
  */
 export class SystemLoadEstimator {
   private static instance: SystemLoadEstimator;
-  private samples: Array<{ timestamp: number; load: number }> = [];
-  private maxSamples = 10;
-  private lastCPUInfo: { idle: number; total: number } | null = null;
+  private readonly samples: Array<{ timestamp: number; load: number }> = [];
+  private readonly maxSamples = 10;
+  private readonly lastCPUInfo: { idle: number; total: number } | null = null;
   
   private constructor() {}
   
@@ -444,7 +444,7 @@ export class SystemLoadEstimator {
   /**
    * Estimate load from timing of requestAnimationFrame
    */
-  private estimateLoadFromTiming(): Promise<number> {
+  private async estimateLoadFromTiming(): Promise<number> {
     return new Promise<number>((resolve) => {
       // Measure time between requestAnimationFrame calls
       // Longer times indicate higher load

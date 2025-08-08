@@ -5,9 +5,9 @@ export class AppError extends Error {
   constructor(
     message: string,
     public code?: string,
-    public status: number = 500,
+    public status = 500,
     public context?: Record<string, unknown>,
-    public isOperational: boolean = true
+    public isOperational = true
   ) {
     super(message);
     this.name = 'AppError';
@@ -72,7 +72,7 @@ export const ErrorCodes = {
 export function createError(
   message: string,
   code: keyof typeof ErrorCodes = 'UNKNOWN_ERROR',
-  status: number = 500,
+  status = 500,
   context?: Record<string, unknown>
 ): AppError {
   return new AppError(message, ErrorCodes[code], status, context);
@@ -116,7 +116,7 @@ export function createNotFoundError(
 
 // Função para criar erros de rate limit
 export function createRateLimitError(
-  message: string = 'Muitas tentativas. Aguarde alguns minutos.',
+  message = 'Muitas tentativas. Aguarde alguns minutos.',
   context?: Record<string, unknown>
 ): AppError {
   return createError(message, 'RATE_LIMIT_EXCEEDED', 429, context);
@@ -124,7 +124,7 @@ export function createRateLimitError(
 
 // Função para criar erros de servidor
 export function createServerError(
-  message: string = 'Erro interno do servidor',
+  message = 'Erro interno do servidor',
   context?: Record<string, unknown>
 ): AppError {
   return createError(message, 'INTERNAL_SERVER_ERROR', 500, context);

@@ -227,14 +227,14 @@ const QuestionHeader = memo(({
 });
 QuestionHeader.displayName = 'QuestionHeader';
 
-export const QuestionPlayer = memo(function QuestionPlayer({
+export const QuestionPlayer = memo(({
   questions,
   title,
   description,
   timeLimit,
   onComplete,
   showCorrectAnswers = false,
-}: QuestionPlayerProps) {
+}: QuestionPlayerProps) => {
   // Use memoized normalized questions
   const normalizedQuestions = useNormalizedQuestions(questions);
 
@@ -255,7 +255,7 @@ export const QuestionPlayer = memo(function QuestionPlayer({
 
   // Timer para questões com limite de tempo
   useEffect(() => {
-    if (!timeLimit || isFinished) return;
+    if (!timeLimit || isFinished) return () => {};
 
     const timer = setInterval(() => {
       setTimeLeft(prev => {

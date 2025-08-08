@@ -1,8 +1,9 @@
-import { SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { ConnectionStatus } from './enums/connection-status.enum';
-import { RetryOptions } from './types/retry-options.type';
-import { SupabaseOptions } from './types/supabase-options.type';
-import { ConnectionPool, ConnectionPoolOptions, getConnectionPool } from './connection-pool';
+import type { RetryOptions } from './types/retry-options.type';
+import type { SupabaseOptions } from './types/supabase-options.type';
+import type { ConnectionPool, ConnectionPoolOptions} from './connection-pool';
+import { getConnectionPool } from './connection-pool';
 import { withRetry } from './retry-handler';
 import { SupabaseErrorHandler } from './error-handler';
 
@@ -20,11 +21,11 @@ export interface PooledClientOptions extends SupabaseOptions {
  * Pooled Supabase client that uses a connection pool
  */
 export class PooledSupabaseClient {
-  private pool: ConnectionPool;
+  private readonly pool: ConnectionPool;
   private status: ConnectionStatus = ConnectionStatus.DISCONNECTED;
   private statusListeners: ((status: ConnectionStatus) => void)[] = [];
-  private options: SupabaseOptions;
-  private errorHandler: SupabaseErrorHandler;
+  private readonly options: SupabaseOptions;
+  private readonly errorHandler: SupabaseErrorHandler;
   private activeClient: SupabaseClient | null = null;
   
   /**
@@ -34,8 +35,8 @@ export class PooledSupabaseClient {
    * @param options Client options
    */
   constructor(
-    private supabaseUrl: string,
-    private supabaseKey: string,
+    private readonly supabaseUrl: string,
+    private readonly supabaseKey: string,
     options?: PooledClientOptions
   ) {
     // Validate required environment variables

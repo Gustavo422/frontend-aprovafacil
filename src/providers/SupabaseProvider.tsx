@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import type { ReactNode} from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 import { useAuth } from '../hooks/useAuth';
 
 /**
@@ -239,7 +241,7 @@ export function SupabaseProvider({
       const isHealthy = await checkHealth();
       if (!isHealthy && autoReconnect) {
         // Tentar novamente
-        setTimeout(() => reconnect(), retryDelay * (retryCount + 1));
+        setTimeout(async () => reconnect(), retryDelay * (retryCount + 1));
       }
     }
   }, [retryCount, maxRetries, addConnectionEvent, retryDelay, createSupabaseClient, checkHealth, autoReconnect, setSupabase]);

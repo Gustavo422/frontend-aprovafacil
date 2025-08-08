@@ -158,7 +158,7 @@ export class AuditLogger {
   }
 
   // Método para buscar logs de um usuário específico
-  async getUserLogs(usuarioId: string, limit: number = 50, offset: number = 0) {
+  async getUserLogs(usuarioId: string, limit = 50, offset = 0) {
     try {
       const supabase = await createServerSupabaseClient();
       const { data, error } = await supabase
@@ -181,7 +181,7 @@ export class AuditLogger {
   }
 
   // Método para buscar logs de atividades suspeitas
-  async getSuspiciousActivityLogs(limit: number = 50) {
+  async getSuspiciousActivityLogs(limit = 50) {
     try {
       const supabase = await createServerSupabaseClient();
       const { data, error } = await supabase

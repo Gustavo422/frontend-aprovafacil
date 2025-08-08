@@ -81,7 +81,7 @@ export function CacheManagement() {
     action: 'invalidate' | 'clearByType' | 'clearByPattern',
     keys?: string[],
     cacheType?: CacheType,
-    pattern?: string,
+    patternParam?: string,
     token?: string,
     reason?: string
   ) => {
@@ -97,7 +97,7 @@ export function CacheManagement() {
           action,
           keys,
           cacheType,
-          pattern,
+          pattern: patternParam,
           confirmationToken: token,
           reason
         }),
@@ -123,7 +123,7 @@ export function CacheManagement() {
         } else {
           setOperationResults([{
             operation: action,
-            key: pattern || 'all',
+            key: patternParam || 'all',
             cacheType: cacheType || CacheType.MEMORY,
             success: true
           }]);
@@ -221,13 +221,13 @@ export function CacheManagement() {
   const handleConfirmAction = useCallback(() => {
     if (!pendingAction) return;
     
-    const { action, keys, cacheType, pattern } = pendingAction;
+    const { action, keys, cacheType, pattern: chosenPattern } = pendingAction;
     
     executeAction(
       action, 
       keys, 
       cacheType, 
-      pattern, 
+      chosenPattern, 
       confirmationToken,
       confirmationReason
     );

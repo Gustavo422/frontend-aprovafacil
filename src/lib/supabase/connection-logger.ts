@@ -1,4 +1,4 @@
-import { ConnectionStatus } from './enums/connection-status.enum';
+import type { ConnectionStatus } from './enums/connection-status.enum';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -31,8 +31,8 @@ export class ConnectionLogger {
   private usuarioId: string | null = null;
   private buffer: ConnectionLogEntry[] = [];
   private flushInterval: NodeJS.Timeout | null = null;
-  private maxBufferSize: number;
-  private flushIntervalMs: number;
+  private readonly maxBufferSize: number;
+  private readonly flushIntervalMs: number;
   
   /**
    * Create a new connection logger

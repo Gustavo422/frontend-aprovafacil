@@ -5,7 +5,7 @@ import { RetryHandler } from './retry-handler';
  * Utility class to demonstrate and test different retry strategies
  */
 export class RetryDemo {
-  private retryHandler: RetryHandler;
+  private readonly retryHandler: RetryHandler;
   
   constructor() {
     this.retryHandler = new RetryHandler();

@@ -100,8 +100,8 @@ export default function SecurityDashboard() {
         setActiveSessions(sessionsData.data || []);
       }
 
-    } catch (error) {
-      console.error('Erro ao carregar dados de segurança:', error);
+  } catch (error) {
+    console.error('Erro ao carregar dados de segurança:', error);
       setError('Erro ao carregar dados de segurança');
     } finally {
       setIsLoading(false);
@@ -126,8 +126,8 @@ export default function SecurityDashboard() {
       if (response.ok) {
         loadSecurityData(); // Recarregar dados
       }
-    } catch (error) {
-      console.error('Erro ao desbloquear:', error);
+  } catch (error) {
+    console.error('Erro ao desbloquear:', error);
     }
   };
 
@@ -141,8 +141,8 @@ export default function SecurityDashboard() {
       if (response.ok) {
         loadSecurityData(); // Recarregar dados
       }
-    } catch (error) {
-      console.error('Erro ao revogar sessão:', error);
+  } catch (error) {
+    console.error('Erro ao revogar sessão:', error);
     }
   };
 
@@ -183,7 +183,7 @@ export default function SecurityDashboard() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto" />
           <p className="mt-2 text-gray-500">Carregando dados de segurança...</p>
         </div>
       </div>
@@ -379,7 +379,7 @@ export default function SecurityDashboard() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => unblockIP(block.id)}
+                            onClick={async () => unblockIP(block.id)}
                           >
                             Desbloquear
                           </Button>
@@ -434,7 +434,7 @@ export default function SecurityDashboard() {
                           <Button
                             size="sm"
                             variant="destructive"
-                            onClick={() => revokeSession(session.id)}
+                            onClick={async () => revokeSession(session.id)}
                           >
                             Revogar
                           </Button>

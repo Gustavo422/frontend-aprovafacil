@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -102,57 +103,127 @@ export default function LoginPage() {
       const result = await signIn(values.email, values.password);
       
       if (result.error) {
-        const newAttempts = loginAttempts + 1;
-        setLoginAttempts(newAttempts);
-        if (newAttempts >= 3) {
+        console.log('[LOGIN-PAGE] Login failed:', {
+          error: result.error,
+          errorCode: result.errorCode,
+          suggestions: result.suggestions
+        });
+
+        // Handle rate limiting from server
+        if (result.errorCode === 'TOO_MANY_REQUESTS') {
           setIsBlocked(true);
-          setTimeUntilReset(300); // 5 minutos
+          setTimeUntilReset(300); // 5 minutes
           toast({
             title: 'Muitas tentativas de login',
-            descricao: 'Sua conta foi temporariamente bloqueada por 5 minutos.',
+            descricao: result.error,
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        // Handle client-side rate limiting
+        const newAttempts = loginAttempts + 1;
+        setLoginAttempts(newAttempts);
+        
+        if (newAttempts >= 3) {
+          setIsBlocked(true);
+          setTimeUntilReset(300); // 5 minutes
+          toast({
+            title: 'Muitas tentativas de login',
+            descricao: 'Sua conta foi temporariamente bloqueada por 5 minutos por segurança.',
             variant: 'destructive',
           });
         } else {
+          // Show enhanced error message with suggestions
+          const errorTitle = getErrorTitle(result.errorCode);
+          const errorDescription = result.error;
+          const suggestions = result.suggestions?.join(' • ') || '';
+          
           toast({
-            title: 'Erro ao fazer login',
-            descricao: result.error,
+            title: errorTitle,
+            descricao: `${errorDescription}${suggestions ? `\n\nSugestões: ${suggestions}` : ''}`,
             variant: 'destructive',
           });
         }
         return;
       }
 
-      // Sucesso: salvar também em cookie para middleware server-side
-      if (result.token) {
-        document.cookie = `auth_token=${result.token}; path=/; max-age=${60 * 60 * 24 * 7}`;
-      }
+      // Success: token is already handled by AuthProvider
+      console.log('[LOGIN-PAGE] Login successful');
       
       toast({
         title: 'Login realizado com sucesso!',
         descricao: 'Bem-vindo de volta ao AprovaFácil.',
       });
       
-      // O redirecionamento já é feito pelo AuthProvider
+      // Reset login attempts on success
+      setLoginAttempts(0);
+      
+      // Redirection is handled by AuthProvider
     } catch (error: unknown) {
+      console.error('[LOGIN-PAGE] Unexpected error during login:', error);
+      
       const newAttempts = loginAttempts + 1;
       setLoginAttempts(newAttempts);
+      
       if (newAttempts >= 3) {
         setIsBlocked(true);
-        setTimeUntilReset(300); // 5 minutos
+        setTimeUntilReset(300); // 5 minutes
         toast({
           title: 'Muitas tentativas de login',
-          descricao: 'Sua conta foi temporariamente bloqueada por 5 minutos.',
+          descricao: 'Sua conta foi temporariamente bloqueada por 5 minutos por segurança.',
           variant: 'destructive',
         });
       } else {
+        const errorMessage = error instanceof Error ? error.message : 'Erro inesperado durante o login';
         toast({
-          title: 'Erro ao fazer login',
-          descricao: error instanceof Error ? error.message : 'Email ou senha incorretos',
+          title: 'Erro inesperado',
+          descricao: `${errorMessage}\n\nSugestões: Tente novamente • Verifique sua conexão • Entre em contato com o suporte se persistir`,
           variant: 'destructive',
         });
       }
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  // Helper function to get user-friendly error titles
+  function getErrorTitle(errorCode?: string): string {
+    switch (errorCode) {
+      case 'INVALID_CREDENTIALS':
+        return 'Credenciais inválidas';
+      case 'NETWORK_TIMEOUT':
+        return 'Tempo limite excedido';
+      case 'NETWORK_UNAVAILABLE':
+        return 'Servidor indisponível';
+      case 'SERVER_ERROR':
+        return 'Erro do servidor';
+      case 'DATABASE_ERROR':
+        return 'Erro de banco de dados';
+      case 'INVALID_EMAIL_FORMAT':
+        return 'Email inválido';
+      case 'PASSWORD_TOO_SHORT':
+        return 'Senha muito curta';
+      case 'TOO_MANY_REQUESTS':
+        return 'Muitas tentativas';
+      case 'TOKEN_EXPIRED':
+        return 'Sessão expirada';
+      case 'TOKEN_INVALID':
+        return 'Token inválido';
+      case 'BACKEND_URL_MISSING':
+        return 'Configuração inválida';
+      case 'ENVIRONMENT_INVALID':
+        return 'Ambiente inválido';
+      case 'ACCOUNT_LOCKED':
+        return 'Conta bloqueada';
+      case 'TIMEOUT_ERROR':
+        return 'Tempo limite excedido';
+      case 'NETWORK_ERROR':
+        return 'Erro de conexão';
+      case 'INVALID_RESPONSE':
+        return 'Resposta inválida';
+      default:
+        return 'Erro ao fazer login';
     }
   }
 
@@ -274,7 +345,7 @@ export default function LoginPage() {
                 >
                   {isLoading ? (
                     <div className="flex items-center space-x-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary-foreground/20 border-t-primary-foreground"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary-foreground/20 border-t-primary-foreground" />
                       <span>Entrando...</span>
                     </div>
                   ) : (

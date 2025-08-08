@@ -8,7 +8,7 @@ export async function GET(request: Request) {
       new URL(request.url).search
     );
     
-    if (!isValid) return error!;
+    if (!isValid) return NextResponse.json({ error: error || 'Invalid backend URL' }, { status: 500 });
     
     const res = await fetch(url, {
       method: 'GET',
@@ -21,8 +21,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  console.log('BACKEND_API_URL:', process.env.BACKEND_API_URL);
-  const backendUrl = `${process.env.BACKEND_API_URL}/api/concurso-categorias`;
+  console.log('NEXT_PUBLIC_BACKEND_API_URL:', process.env.NEXT_PUBLIC_BACKEND_API_URL);
+  const backendUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/concurso-categorias`;
   const res = await fetch(backendUrl, {
     method: 'POST',
     headers: request.headers,

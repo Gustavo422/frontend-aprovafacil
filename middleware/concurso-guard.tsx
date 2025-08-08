@@ -13,8 +13,7 @@ const PUBLIC_ROUTES = [
   '/api/user/concurso-preference',
   '/api/concurso-categorias',
   '/api/concursos',
-  '/onboarding',
-  '/selecionar-concurso',
+  // rotas removidas: '/onboarding', '/selecionar-concurso'
   '/forgot-password',
   '/reset-password'
 ];
@@ -50,8 +49,8 @@ export async function verificarConcursoSelecionado(
     return null; // Permitir acesso
   }
   
-  // Verificação especial para a página de seleção de concurso
-  if (pathname === '/selecionar-concurso') {
+  // Verificação especial removida: página '/selecionar-concurso' não existe mais
+  if (false) {
     console.log('[DEBUG] Página de seleção de concurso, verificando se já tem preferência');
     
     try {
@@ -81,8 +80,7 @@ export async function verificarConcursoSelecionado(
         }
       }
       
-      console.log('[DEBUG] Não tem concurso selecionado, permitindo acesso à página de seleção');
-      return null; // Permitir acesso à página de seleção
+      return null;
     } catch (error) {
       console.log('[DEBUG] Erro na verificação da página de seleção:', error);
       return null; // Em caso de erro, permitir acesso
@@ -116,8 +114,7 @@ export async function verificarConcursoSelecionado(
     }
     
     if (!preferenceResponse.ok) {
-      console.log('[DEBUG] Erro na API de preferência, redirecionando para seleção');
-      return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
+      return NextResponse.redirect(new URL('/', request.url));
     }
     
     const preference = await preferenceResponse.json();
@@ -130,16 +127,14 @@ export async function verificarConcursoSelecionado(
     
     // Verificação simplificada: se há dados de preferência (mesmo que seja fallback), permitir acesso
     if (!preference || !preference.data) {
-      console.log('[DEBUG] Nenhuma preferência encontrada, redirecionando para seleção');
-      return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
+      return NextResponse.redirect(new URL('/', request.url));
     }
     
     console.log('[DEBUG] Preferência encontrada, permitindo acesso');
     // Tudo OK, permitir acesso
     return null;
   } catch (error) {
-    console.log('[DEBUG] Erro na verificação de concurso:', error);
-    return NextResponse.redirect(new URL('/selecionar-concurso', request.url));
+    return NextResponse.redirect(new URL('/', request.url));
   }
 }
 

@@ -44,7 +44,7 @@ export default function ApostilasPage() {
         if (!response.ok) {
           logger.error('Erro ao buscar apostilas', {
             status: response.status,
-            data: data
+            data
           });
         }
       }
@@ -108,12 +108,11 @@ export default function ApostilasPage() {
                 <span>0 módulos concluídos</span>
               </div>
 
-              <Link
-                href={`/apostilas/${apostila.id}`}
-                className="w-full"
-              >
-                <Button className="w-full">Acessar Apostila</Button>
-              </Link>
+              <Button className="w-full" asChild>
+                <Link href={`/apostila-customizada?id=${apostila.id}`} className="w-full">
+                  Acessar Apostila
+                </Link>
+              </Button>
             </CardContent>
           </Card>
         ))}

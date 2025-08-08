@@ -72,11 +72,11 @@ const ActivityItemComponent = memo(({ activity }: { activity: ActivityItem }) =>
 });
 ActivityItemComponent.displayName = 'ActivityItemComponent';
 
-export const RecentActivity = memo(function RecentActivity({ 
+export const RecentActivity = memo(({ 
   activities, 
   className, 
   maxItems = 5 
-}: RecentActivityProps) {
+}: RecentActivityProps) => {
   // Memoize the sliced activities to prevent unnecessary calculations on re-renders
   const displayedActivities = useMemo(() => {
     return activities.slice(0, maxItems);

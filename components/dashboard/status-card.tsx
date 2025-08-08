@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 type StatusCardProps = {
   titulo: string;
@@ -40,7 +40,8 @@ export function StatusCard({
             'mt-2 flex items-center text-xs',
             trend.type === 'up' ? 'text-green-500' : 
             trend.type === 'down' ? 'text-red-500' : 'text-amber-500'
-          )}>
+          )}
+          >
             {trend.type === 'up' ? '↑' : trend.type === 'down' ? '↓' : '→'} {trend.value}
           </div>
         )}

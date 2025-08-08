@@ -1,6 +1,6 @@
 "use client";
-import { logger } from '@/lib/logger';
 
+import { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -8,67 +8,125 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { CheckCircle, Clock, AlertTriangle, Circle } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
-import { useState, useEffect } from 'react';
+import { Badge } from '@/components/ui/badge';
+
+import { 
+  CheckCircle, 
+  Clock, 
+  AlertTriangle, 
+  Circle, 
+  Map, 
+  AlertCircle,
+  Loader2
+} from 'lucide-react';
+import { logger } from '@/lib/logger';
+import { useConcursoQuery } from '@/src/hooks/useConcursoQuery';
+import { useConcursoMutation } from '@/src/hooks/useConcursoMutation';
+import { useConcurso } from '@/contexts/ConcursoContext';
 
 interface Assunto {
   id: string;
-  disciplina: string;
   tema: string;
   subtema: string | null;
   status: string;
 }
 
+interface MapaAssuntosData {
+  assuntosPorDisciplina: Record<string, Assunto[]>;
+}
+
 export default function MapaAssuntosPage() {
-  const [assuntosPorDisciplina, setAssuntosPorDisciplina] = useState<
-    Record<string, Assunto[]>
-  >({});
-  const [loading, setLoading] = useState(true);
+  const [selectedDisciplina, setSelectedDisciplina] = useState<string | null>(null);
+  const { activeConcursoId } = useConcurso();
 
-  useEffect(() => {
-    fetchMapaAssuntos();
-  }, []);
+  // Usar o hook customizado para buscar mapa de assuntos com filtro automático
+  const {
+    data: mapaData,
+    isLoading,
+    error,
+    hasConcurso,
+    isLoadingConcurso
+  } = useConcursoQuery<MapaAssuntosData>({
+    endpoint: '/api/mapa-assuntos',
+    requireConcurso: true,
+    fallbackData: { assuntosPorDisciplina: {} },
+    staleTime: 5 * 60 * 1000, // 5 minutos
+  });
 
-  const fetchMapaAssuntos = async () => {
-    try {
-      const response = await fetch('/api/mapa-assuntos');
-      const data = await response.json();
-      setAssuntosPorDisciplina(data.assuntosPorDisciplina);
-    } catch (error) {
-      logger.error('Erro ao buscar mapa de assuntos', {
-        error: error instanceof Error ? error.message : String(error),
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Usar o hook customizado para atualizar status
+  const updateStatusMutation = useConcursoMutation({
+    endpoint: '/api/mapa-assuntos/status',
+    method: 'PUT',
+    requireConcurso: true,
+  });
+
+  const assuntosPorDisciplina = mapaData?.assuntosPorDisciplina || {};
+
+  // Loading state
+  if (isLoading || isLoadingConcurso) {
+    return (
+      <div className="flex flex-col gap-4">
+        <h1 className="text-3xl font-bold tracking-tight">Mapa de Assuntos</h1>
+        <p className="text-muted-foreground">Carregando...</p>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    logger.error('Erro ao buscar mapa de assuntos', {
+      error: error instanceof Error ? error.message : String(error),
+      concursoId: activeConcursoId,
+    });
+    
+    return (
+      <div className="flex flex-col gap-4">
+        <h1 className="text-3xl font-bold tracking-tight">Mapa de Assuntos</h1>
+        <div className="flex items-center gap-2 text-red-600">
+          <AlertCircle className="h-5 w-5" />
+          <p>Erro ao carregar mapa de assuntos. Tente novamente.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // No concurso selected state
+  if (!hasConcurso) {
+    return (
+      <div className="flex flex-col gap-4">
+        <h1 className="text-3xl font-bold tracking-tight">Mapa de Assuntos</h1>
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
+          <Map className="mb-4 h-12 w-12 text-muted-foreground" />
+          <h3 className="mb-2 text-lg font-medium">
+            Nenhum concurso selecionado
+          </h3>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Selecione um concurso para visualizar o mapa de assuntos.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const updateStatus = async (assuntoId: string, status: string) => {
     try {
-      await fetch('/api/mapa-assuntos/status', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ assuntoId, status }),
-      });
-
-      // Atualizar o estado local
-      setAssuntosPorDisciplina(prev => {
-        const newState = { ...prev };
-        Object.keys(newState).forEach(disciplina => {
-          newState[disciplina] = newState[disciplina].map(assunto =>
-            assunto.id === assuntoId ? { ...assunto, status } : assunto
-          );
-        });
-        return newState;
-      });
-    } catch (error) {
+      await updateStatusMutation.mutateAsync({ assuntoId, status });
+      
+      // O React Query irá invalidar e refazer a query automaticamente
+      // devido ao cache invalidation configurado no hook
+    } catch (err) {
       logger.error('Erro ao atualizar status', {
-        error: error instanceof Error ? error.message : String(error),
+        error: err instanceof Error ? err.message : String(err),
+        assuntoId,
+        status,
       });
     }
   };
@@ -89,29 +147,31 @@ export default function MapaAssuntosPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'estudado':
-        return (
-          <Badge variant="default" className="bg-green-500">
-            Estudado
-          </Badge>
-        );
+        return <Badge className="bg-green-100 text-green-800">Estudado</Badge>;
       case 'a_revisar':
-        return (
-          <Badge variant="secondary" className="bg-yellow-500">
-            A Revisar
-          </Badge>
-        );
+        return <Badge className="bg-yellow-100 text-yellow-800">A Revisar</Badge>;
       case 'nao_sei_nada':
-        return <Badge variant="destructive">Não Sei Nada</Badge>;
+        return <Badge className="bg-red-100 text-red-800">Não Sei Nada</Badge>;
       default:
-        return <Badge variant="outline">Não Estudado</Badge>;
+        return <Badge variant="outline">Não Definido</Badge>;
     }
   };
 
-  if (loading) {
+  const disciplinas = Object.keys(assuntosPorDisciplina);
+
+  if (disciplinas.length === 0) {
     return (
       <div className="flex flex-col gap-4">
         <h1 className="text-3xl font-bold tracking-tight">Mapa de Assuntos</h1>
-        <p className="text-muted-foreground">Carregando...</p>
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
+          <Map className="mb-4 h-12 w-12 text-muted-foreground" />
+          <h3 className="mb-2 text-lg font-medium">
+            Nenhum assunto encontrado
+          </h3>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Não há assuntos disponíveis para o concurso selecionado.
+          </p>
+        </div>
       </div>
     );
   }
@@ -123,107 +183,104 @@ export default function MapaAssuntosPage() {
         Acompanhe seu progresso em cada disciplina e assunto.
       </p>
 
-      <div className="grid gap-6">
-        {assuntosPorDisciplina && Object.entries(assuntosPorDisciplina).map(([disciplina, assuntos]) => {
-          const totalAssuntos = assuntos.length;
-          const estudados = assuntos.filter(
-            a => a.status === 'estudado'
-          ).length;
-          const progresso = (estudados / totalAssuntos) * 100;
-
-          return (
-            <Card key={disciplina}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>{disciplina}</CardTitle>
-                    <CardDescription>
-                      {estudados} de {totalAssuntos} assuntos estudados (
-                      {Math.round(progresso)}%)
-                    </CardDescription>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-green-500 transition-all duration-300"
-                        style={{ width: `${progresso}%` }}
-                      />
-                    </div>
-                    <span className="text-sm font-medium">
-                      {Math.round(progresso)}%
-                    </span>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-3">
-                  {assuntos.map(assunto => (
-                    <div
-                      key={assunto.id}
-                      className="flex items-center justify-between p-3 border rounded-lg"
-                    >
-                      <div className="flex items-center gap-3">
-                        {getStatusIcon(assunto.status)}
-                        <div>
-                          <h4 className="font-medium">{assunto.tema}</h4>
-                          {assunto.subtema && (
-                            <p className="text-sm text-muted-foreground">
-                              {assunto.subtema}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {getStatusBadge(assunto.status)}
-                        <div className="flex gap-1">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => updateStatus(assunto.id, 'estudado')}
-                            className={
-                              assunto.status === 'estudado' ? 'bg-green-50' : ''
-                            }
-                          >
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              updateStatus(assunto.id, 'a_revisar')
-                            }
-                            className={
-                              assunto.status === 'a_revisar'
-                                ? 'bg-yellow-50'
-                                : ''
-                            }
-                          >
-                            <Clock className="h-4 w-4 text-yellow-600" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              updateStatus(assunto.id, 'nao_sei_nada')
-                            }
-                            className={
-                              assunto.status === 'nao_sei_nada'
-                                ? 'bg-red-50'
-                                : ''
-                            }
-                          >
-                            <AlertTriangle className="h-4 w-4 text-red-600" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <Select value={selectedDisciplina || 'all'} onValueChange={(value) => setSelectedDisciplina(value === 'all' ? null : value)}>
+          <SelectTrigger className="w-full sm:w-[200px]">
+            <SelectValue placeholder="Filtrar por disciplina" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas as disciplinas</SelectItem>
+            {disciplinas.map((disciplina) => (
+              <SelectItem key={disciplina} value={disciplina}>
+                {disciplina}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
+
+      <div className="grid gap-6">
+        {Object.entries(assuntosPorDisciplina)
+          .filter(([disciplina]) => !selectedDisciplina || disciplina === selectedDisciplina)
+          .map(([disciplina, assuntos]) => {
+            const totalAssuntos = assuntos.length;
+            const estudados = assuntos.filter(a => a.status === 'estudado').length;
+            const progresso = (estudados / totalAssuntos) * 100;
+
+            return (
+              <Card key={disciplina}>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>{disciplina}</CardTitle>
+                      <CardDescription>
+                        {estudados} de {totalAssuntos} assuntos estudados (
+                        {Math.round(progresso)}%)
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-green-500 transition-all duration-300"
+                          style={{ width: `${progresso}%` }}
+                        />
+                      </div>
+                      <span className="text-sm font-medium">
+                        {Math.round(progresso)}%
+                      </span>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-3">
+                    {assuntos.map((assunto) => (
+                      <div
+                        key={assunto.id}
+                        className="flex items-center justify-between p-3 border rounded-lg"
+                      >
+                        <div className="flex items-center gap-3">
+                          {getStatusIcon(assunto.status)}
+                          <div>
+                            <h4 className="font-medium">{assunto.tema}</h4>
+                            {assunto.subtema && (
+                              <p className="text-sm text-muted-foreground">
+                                {assunto.subtema}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {getStatusBadge(assunto.status)}
+                          <Select
+                            value={assunto.status}
+                            onValueChange={async (value) => updateStatus(assunto.id, value)}
+                            disabled={updateStatusMutation.isPending}
+                          >
+                            <SelectTrigger className="w-[140px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="nao_sei_nada">Não Sei Nada</SelectItem>
+                              <SelectItem value="a_revisar">A Revisar</SelectItem>
+                              <SelectItem value="estudado">Estudado</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+      </div>
+
+      {updateStatusMutation.isPending && (
+        <div className="flex items-center justify-center p-4">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span className="ml-2">Atualizando status...</span>
+        </div>
+      )}
     </div>
   );
 }

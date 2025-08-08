@@ -1,5 +1,5 @@
-import { ConnectionStatus } from '../enums/connection-status.enum';
-import { ISupabaseClient } from './supabase-client.interface';
+import type { ConnectionStatus } from '../enums/connection-status.enum';
+import type { ISupabaseClient } from './supabase-client.interface';
 
 /**
  * Interface for managing Supabase connections

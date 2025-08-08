@@ -6,7 +6,7 @@ import { BaseError } from './base-error';
  */
 export class NetworkError extends BaseError {
   constructor(
-    message: string = 'A network error occurred',
+    message = 'A network error occurred',
     options: {
       statusCode?: number;
       code?: string;
@@ -31,7 +31,7 @@ export class NetworkError extends BaseError {
  */
 export class AuthError extends BaseError {
   constructor(
-    message: string = 'An authentication error occurred',
+    message = 'An authentication error occurred',
     options: {
       statusCode?: number;
       code?: string;
@@ -56,7 +56,7 @@ export class AuthError extends BaseError {
  */
 export class PermissionError extends BaseError {
   constructor(
-    message: string = 'Permission denied',
+    message = 'Permission denied',
     options: {
       statusCode?: number;
       code?: string;
@@ -81,7 +81,7 @@ export class PermissionError extends BaseError {
  */
 export class DatabaseError extends BaseError {
   constructor(
-    message: string = 'A database error occurred',
+    message = 'A database error occurred',
     options: {
       statusCode?: number;
       code?: string;
@@ -110,7 +110,7 @@ export class ValidationError extends BaseError {
   public readonly validationErrors: Record<string, string[]>;
   
   constructor(
-    message: string = 'Validation failed',
+    message = 'Validation failed',
     validationErrors: Record<string, string[]> = {},
     options: {
       statusCode?: number;
@@ -143,7 +143,7 @@ export class ValidationError extends BaseError {
  */
 export class NotFoundError extends BaseError {
   constructor(
-    message: string = 'Resource not found',
+    message = 'Resource not found',
     options: {
       statusCode?: number;
       code?: string;
@@ -173,7 +173,7 @@ export class RateLimitError extends BaseError {
   public readonly resetAt?: Date;
   
   constructor(
-    message: string = 'Rate limit exceeded',
+    message = 'Rate limit exceeded',
     options: {
       statusCode?: number;
       code?: string;
@@ -203,7 +203,7 @@ export class RateLimitError extends BaseError {
  */
 export class TimeoutError extends BaseError {
   constructor(
-    message: string = 'Operation timed out',
+    message = 'Operation timed out',
     options: {
       statusCode?: number;
       code?: string;
@@ -229,7 +229,7 @@ export class TimeoutError extends BaseError {
  */
 export class ConfigError extends BaseError {
   constructor(
-    message: string = 'Configuration error',
+    message = 'Configuration error',
     options: {
       statusCode?: number;
       code?: string;

@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { extractAuthToken, sanitizeToken } from '@/lib/auth-utils';
+import { extractAuthToken, sanitizeHeadersForLog, sanitizeToken } from '@/lib/auth-utils';
 
 export async function GET(request: Request) {
   try {
     console.log('[DEBUG] Processando requisição GET /api/user/concurso-preference');
-    console.log('[DEBUG] Headers da requisição:', Object.fromEntries(request.headers.entries()));
+    console.log('[DEBUG] Headers da requisição:', sanitizeHeadersForLog(request.headers));
     
     // Obter token de autenticação
     const token = extractAuthToken(request);
@@ -33,7 +33,7 @@ export async function GET(request: Request) {
       console.log('[DEBUG] Erro ao decodificar token:', error);
     }
 
-    const backendUrl = `${process.env.BACKEND_API_URL}/api/user/concurso-preference${new URL(request.url).search}`;
+    const backendUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/user/concurso-preference${new URL(request.url).search}`;
     console.log('[DEBUG] Fazendo requisição para:', backendUrl);
     console.log('[DEBUG] Com token:', `Bearer ${token.substring(0, 4)}...${token.substring(token.length - 4)}`);
     
@@ -66,7 +66,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    const backendUrl = `${process.env.BACKEND_API_URL}/api/user/concurso-preference`;
+    const backendUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/user/concurso-preference`;
     const res = await fetch(backendUrl, {
       method: 'POST',
       headers: {
@@ -97,7 +97,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    const backendUrl = `${process.env.BACKEND_API_URL}/api/user/concurso-preference`;
+    const backendUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/user/concurso-preference`;
     const res = await fetch(backendUrl, {
       method: 'PUT',
       headers: {
@@ -128,7 +128,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    const backendUrl = `${process.env.BACKEND_API_URL}/api/user/concurso-preference`;
+    const backendUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/user/concurso-preference`;
     const res = await fetch(backendUrl, {
       method: 'DELETE',
       headers: {

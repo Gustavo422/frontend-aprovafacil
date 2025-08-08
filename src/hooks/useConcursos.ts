@@ -84,7 +84,7 @@ export interface PaginatedResponse<T> {
  * Serviço de API para concursos
  */
 class ConcursoService {
-  private baseUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
+  private readonly baseUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
   
   async getConcursos(filters?: ConcursoFilters, token?: string): Promise<PaginatedResponse<Concurso>> {
     const params = new URLSearchParams();
@@ -296,7 +296,7 @@ export function useConcursos(filters?: ConcursoFilters) {
   const queryKey = ['concursos', filters ? JSON.stringify(filters) : 'all'];
   const query = useQuery(
     queryKey,
-    () => concursoService.getConcursos(filters, token || undefined),
+    async () => concursoService.getConcursos(filters, token || undefined),
     {
       staleTime: 5 * 60 * 1000, // 5 minutos
       onError: (error) => {
@@ -331,7 +331,7 @@ export function useConcurso(id: string) {
   
   const query = useQuery(
     ['concurso', id],
-    () => concursoService.getConcursoById(id, token || undefined),
+    async () => concursoService.getConcursoById(id, token || undefined),
     {
       enabled: !!id,
       staleTime: 10 * 60 * 1000, // 10 minutos
@@ -358,7 +358,7 @@ export function useConcursoBySlug(slug: string) {
   
   const query = useQuery(
     ['concurso', 'slug', slug],
-    () => concursoService.getConcursoBySlug(slug, token || undefined),
+    async () => concursoService.getConcursoBySlug(slug, token || undefined),
     {
       enabled: !!slug,
       staleTime: 10 * 60 * 1000, // 10 minutos
@@ -385,7 +385,7 @@ export function useConcursosByCategoria(categoriaId: string) {
   
   const query = useQuery(
     ['concursos', 'categoria', categoriaId],
-    () => concursoService.getConcursosByCategoria(categoriaId, token || undefined),
+    async () => concursoService.getConcursosByCategoria(categoriaId, token || undefined),
     {
       enabled: !!categoriaId,
       staleTime: 5 * 60 * 1000, // 5 minutos
@@ -412,7 +412,7 @@ export function useConcursosAtivos() {
   
   const query = useQuery(
     ['concursos', 'ativos'],
-    () => concursoService.getConcursosAtivos(token || undefined),
+    async () => concursoService.getConcursosAtivos(token || undefined),
     {
       staleTime: 10 * 60 * 1000, // 10 minutos
       onError: (error) => {
@@ -438,7 +438,7 @@ export function useCreateConcurso() {
   const queryClient = useQueryClient();
   
   const mutation = useMutation(
-    (data: CreateConcursoData) => concursoService.createConcurso(data, token!),
+    async (data: CreateConcursoData) => concursoService.createConcurso(data, token!),
     {
       onSuccess: () => {
         // Invalidar queries relacionadas
@@ -469,7 +469,7 @@ export function useUpdateConcurso() {
   const queryClient = useQueryClient();
   
   const mutation = useMutation(
-    ({ id, data }: { id: string; data: UpdateConcursoData }) =>
+    async ({ id, data }: { id: string; data: UpdateConcursoData }) =>
       concursoService.updateConcurso(id, data, token!),
     {
       onSuccess: (updatedConcurso) => {
@@ -484,8 +484,8 @@ export function useUpdateConcurso() {
   );
   
   return {
-    updateConcurso: (id: string, data: UpdateConcursoData) => mutation.mutate({ id, data }),
-    updateConcursoAsync: (id: string, data: UpdateConcursoData) => mutation.mutateAsync({ id, data }),
+    updateConcurso: async (id: string, data: UpdateConcursoData) => mutation.mutate({ id, data }),
+    updateConcursoAsync: async (id: string, data: UpdateConcursoData) => mutation.mutateAsync({ id, data }),
     isLoading: mutation.isLoading,
     isError: mutation.isError,
     isSuccess: mutation.isSuccess,
@@ -502,7 +502,7 @@ export function useDeleteConcurso() {
   const queryClient = useQueryClient();
   
   const mutation = useMutation(
-    (id: string) => concursoService.deleteConcurso(id, token!),
+    async (id: string) => concursoService.deleteConcurso(id, token!),
     {
       onSuccess: () => {
         // Invalidar queries relacionadas

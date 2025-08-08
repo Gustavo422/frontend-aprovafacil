@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server';
 import { extractAuthToken } from '@/lib/auth-utils';
 
 export async function GET(request: NextRequest) {
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest) {
       extractedToken: extractedToken ? `${extractedToken.substring(0, 10)}...` : null,
       authHeader: authHeader ? `${authHeader.substring(0, 20)}...` : null,
       hasCookieHeader: !!cookieHeader,
-      cookieHeader: cookieHeader,
+      cookieHeader,
       allHeaders: Object.fromEntries(request.headers.entries()),
       url: request.url,
       method: request.method,

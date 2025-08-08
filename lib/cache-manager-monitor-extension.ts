@@ -1,7 +1,8 @@
 import { cacheManagerMonitor } from './cache-manager-monitor';
-import { CacheType, CacheOptions } from './cache-manager';
+import type { CacheOptions } from './cache-manager';
+import { CacheType } from './cache-manager';
 import { logger } from './logger';
-import { CacheOperation } from './cache-manager-monitor';
+import type { CacheOperation } from './cache-manager-monitor';
 
 /**
  * Extended options for setting cache entries with metadata

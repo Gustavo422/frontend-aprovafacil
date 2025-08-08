@@ -97,7 +97,7 @@ export interface PaginatedResponse<T> {
  * Serviço de API para apostilas
  */
 class ApostilaService {
-  private baseUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
+  private readonly baseUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
   
   async getApostilas(filters?: ApostilaFilters, token?: string): Promise<PaginatedResponse<Apostila>> {
     const params = new URLSearchParams();
@@ -331,7 +331,7 @@ export function useApostilas(filters?: ApostilaFilters) {
   const queryKey = ['apostilas', filters ? JSON.stringify(filters) : 'all'];
   const query = useQuery(
     queryKey,
-    () => apostilaService.getApostilas(filters, token || undefined),
+    async () => apostilaService.getApostilas(filters, token || undefined),
     {
       staleTime: 5 * 60 * 1000, // 5 minutos
       onError: (error) => {
@@ -366,7 +366,7 @@ export function useApostila(id: string) {
   
   const query = useQuery(
     ['apostila', id],
-    () => apostilaService.getApostilaById(id, token || undefined),
+    async () => apostilaService.getApostilaById(id, token || undefined),
     {
       enabled: !!id,
       staleTime: 10 * 60 * 1000, // 10 minutos
@@ -393,7 +393,7 @@ export function useApostilaBySlug(slug: string) {
   
   const query = useQuery(
     ['apostila', 'slug', slug],
-    () => apostilaService.getApostilaBySlug(slug, token || undefined),
+    async () => apostilaService.getApostilaBySlug(slug, token || undefined),
     {
       enabled: !!slug,
       staleTime: 10 * 60 * 1000, // 10 minutos
@@ -420,7 +420,7 @@ export function useApostilaComConteudo(id: string) {
   
   const query = useQuery(
     ['apostila', 'conteudo', id],
-    () => apostilaService.getApostilaComConteudo(id, token || undefined),
+    async () => apostilaService.getApostilaComConteudo(id, token || undefined),
     {
       enabled: !!id,
       staleTime: 10 * 60 * 1000, // 10 minutos
@@ -447,7 +447,7 @@ export function useApostilasPorConcurso(concursoId: string) {
   
   const query = useQuery(
     ['apostilas', 'concurso', concursoId],
-    () => apostilaService.getApostilasPorConcurso(concursoId, token || undefined),
+    async () => apostilaService.getApostilasPorConcurso(concursoId, token || undefined),
     {
       enabled: !!concursoId,
       staleTime: 5 * 60 * 1000, // 5 minutos
@@ -474,7 +474,7 @@ export function useCreateApostila() {
   const queryClient = useQueryClient();
   
   const mutation = useMutation(
-    (data: CreateApostilaData) => apostilaService.createApostila(data, token!),
+    async (data: CreateApostilaData) => apostilaService.createApostila(data, token!),
     {
       onSuccess: () => {
         // Invalidar queries relacionadas
@@ -505,7 +505,7 @@ export function useUpdateApostila() {
   const queryClient = useQueryClient();
   
   const mutation = useMutation(
-    ({ id, data }: { id: string; data: UpdateApostilaData }) =>
+    async ({ id, data }: { id: string; data: UpdateApostilaData }) =>
       apostilaService.updateApostila(id, data, token!),
     {
       onSuccess: (updatedApostila) => {
@@ -520,8 +520,8 @@ export function useUpdateApostila() {
   );
   
   return {
-    updateApostila: (id: string, data: UpdateApostilaData) => mutation.mutate({ id, data }),
-    updateApostilaAsync: (id: string, data: UpdateApostilaData) => mutation.mutateAsync({ id, data }),
+    updateApostila: async (id: string, data: UpdateApostilaData) => mutation.mutate({ id, data }),
+    updateApostilaAsync: async (id: string, data: UpdateApostilaData) => mutation.mutateAsync({ id, data }),
     isLoading: mutation.isLoading,
     isError: mutation.isError,
     isSuccess: mutation.isSuccess,
@@ -538,7 +538,7 @@ export function useDeleteApostila() {
   const queryClient = useQueryClient();
   
   const mutation = useMutation(
-    (id: string) => apostilaService.deleteApostila(id, token!),
+    async (id: string) => apostilaService.deleteApostila(id, token!),
     {
       onSuccess: () => {
         // Invalidar queries relacionadas
@@ -569,7 +569,7 @@ export function useMarcarProgresso() {
   const queryClient = useQueryClient();
   
   const mutation = useMutation(
-    (data: MarcarProgressoData) => apostilaService.marcarProgresso(data, token!),
+    async (data: MarcarProgressoData) => apostilaService.marcarProgresso(data, token!),
     {
       onSuccess: () => {
         // Invalidar queries de progresso do usuário

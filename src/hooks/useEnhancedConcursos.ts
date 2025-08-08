@@ -86,7 +86,7 @@ export interface PaginatedResponse<T> {
  * Serviço de API para concursos
  */
 class ConcursoService {
-  private baseUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
+  private readonly baseUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
   
   async getConcursos(filters?: ConcursoFilters, token?: string): Promise<PaginatedResponse<Concurso>> {
     const params = new URLSearchParams();
@@ -308,7 +308,7 @@ export function useEnhancedConcursos(filters?: ConcursoFilters) {
   // Usar hook aprimorado com cache em múltiplas camadas
   const query = useEnhancedQuery<PaginatedResponse<Concurso>>(
     queryKey,
-    () => concursoService.getConcursos(filters, token || undefined),
+    async () => concursoService.getConcursos(filters, token || undefined),
     {
       staleTime: queryUtils.getEntityCacheConfig('concursos', true).staleTime,
       gcTime: queryUtils.getEntityCacheConfig('concursos', true).gcTime,
@@ -345,7 +345,7 @@ export function useEnhancedConcurso(id: string) {
   // Usar hook aprimorado com cache em múltiplas camadas
   const query = useEnhancedQuery<Concurso>(
     queryKey,
-    () => concursoService.getConcursoById(id, token || undefined),
+    async () => concursoService.getConcursoById(id, token || undefined),
     {
       enabled: !!id,
       staleTime: queryUtils.getEntityCacheConfig('concursos').staleTime,
@@ -377,7 +377,7 @@ export function useEnhancedConcurso(id: string) {
 export function useEnhancedCreateConcurso() {
   const { token } = useAuth();
   const mutation = useEnhancedMutation<Concurso, CreateConcursoData>(
-    (data) => concursoService.createConcurso(data, token!),
+    async (data) => concursoService.createConcurso(data, token!),
     {
       cacheOptions: {
         invalidateQueries: [
@@ -397,7 +397,7 @@ export function useEnhancedCreateConcurso() {
 export function useEnhancedUpdateConcurso() {
   const { token } = useAuth();
   const mutation = useEnhancedMutation<Concurso, { id: string; data: UpdateConcursoData }>(
-    ({ id, data }) => concursoService.updateConcurso(id, data, token!),
+    async ({ id, data }) => concursoService.updateConcurso(id, data, token!),
     {
       cacheOptions: {
         invalidateQueries: [
@@ -425,7 +425,7 @@ export function useEnhancedUpdateConcurso() {
 export function useEnhancedDeleteConcurso() {
   const { token } = useAuth();
   const mutation = useEnhancedMutation<void, string>(
-    (id) => concursoService.deleteConcurso(id, token!),
+    async (id) => concursoService.deleteConcurso(id, token!),
     {
       cacheOptions: {
         invalidateQueries: [

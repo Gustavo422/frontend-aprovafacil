@@ -1,5 +1,6 @@
-import React, { forwardRef, InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
-import { FieldError } from 'react-hook-form';
+import type { InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
+import React, { forwardRef } from 'react';
+import type { FieldError } from 'react-hook-form';
 
 /**
  * Props base para campos de formulário
@@ -223,7 +224,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             hasError ? `${props.name}-error` : helpText ? `${props.name}-help` : undefined
           }
           {...props}
-          onChange={e => props.onChange && props.onChange(e.target.value)}
+          onChange={e => props.onChange?.(e.target.value)}
         >
           {placeholder && (
             <option value="" disabled>
@@ -322,7 +323,7 @@ export const Checkbox = forwardRef<HTMLInputElement, BaseFieldProps & {
               hasError ? `${props.name}-error` : helpText ? `${props.name}-help` : undefined
             }
             {...props}
-            onChange={e => props.onChange && props.onChange(e.target.checked)}
+            onChange={e => props.onChange?.(e.target.checked)}
           />
           <label htmlFor={props.name} className="ml-2 block text-sm text-gray-900 cursor-pointer">
             {children}

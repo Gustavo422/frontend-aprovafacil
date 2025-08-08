@@ -1,5 +1,5 @@
 import { logger } from './logger';
-import { AppError } from '../src/types/app-error';
+import type { AppError } from '../src/types/app-error';
 
 export class ErrorHandler {
   private static instance: ErrorHandler;
@@ -116,14 +116,14 @@ export class ValidationError extends Error {
 }
 
 export class AuthenticationError extends Error {
-  constructor(message: string = 'Authentication required') {
+  constructor(message = 'Authentication required') {
     super(message);
     this.name = 'AuthenticationError';
   }
 }
 
 export class AuthorizationError extends Error {
-  constructor(message: string = 'Insufficient permissions') {
+  constructor(message = 'Insufficient permissions') {
     super(message);
     this.name = 'AuthorizationError';
   }

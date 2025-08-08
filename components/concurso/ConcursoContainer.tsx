@@ -1,4 +1,5 @@
-import React, { ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import React from 'react';
 import { useConcurso } from '@/contexts/ConcursoContext';
 import { ConcursoErrorMessage } from './ConcursoErrorMessage';
 import { Loader2 } from 'lucide-react';
@@ -33,7 +34,7 @@ export const ConcursoContainer: React.FC<ConcursoContainerProps> = ({
         <ConcursoErrorMessage 
           error="Erro ao carregar dados do concurso" 
           className="my-4" 
-          onRetry={() => loadUserPreference()} 
+          onRetry={async () => loadUserPreference()} 
         />
       ) : (
         children

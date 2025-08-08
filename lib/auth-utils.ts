@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 /**
  * Sanitiza um token para exibição em logs (mostra apenas primeiros 4 e últimos 4 caracteres)
@@ -29,6 +29,38 @@ function sanitizeCookieHeader(cookieHeader: string): string {
 }
 
 /**
+ * Sanitiza um objeto de headers para logs, mascarando valores sensíveis
+ */
+export function sanitizeHeadersForLog(headers: Headers | Record<string, string>): Record<string, string> {
+  const entries: [string, string][] =
+    headers instanceof Headers
+      ? Array.from(headers.entries())
+      : Object.entries(headers);
+
+  const sanitized: Record<string, string> = {};
+
+  for (const [rawKey, value] of entries) {
+    const key = rawKey.toLowerCase();
+    if (key === 'authorization') {
+      if (typeof value === 'string' && value.startsWith('Bearer ')) {
+        const token = value.slice(7);
+        sanitized[rawKey] = `Bearer ${sanitizeToken(token)}`;
+      } else {
+        sanitized[rawKey] = sanitizeToken(value);
+      }
+    } else if (key === 'cookie' || key === 'set-cookie') {
+      sanitized[rawKey] = sanitizeCookieHeader(value);
+    } else if (key.includes('token') || key.includes('secret') || key.includes('key')) {
+      sanitized[rawKey] = sanitizeToken(value);
+    } else {
+      sanitized[rawKey] = value;
+    }
+  }
+
+  return sanitized;
+}
+
+/**
  * Extrai o token de autenticação do cabeçalho da requisição ou cookies
  * @param request Requisição Next.js
  * @returns Token de autenticação ou null se não encontrado
@@ -38,7 +70,16 @@ export function extractAuthToken(request: Request | NextRequest): string | null 
   
   // Tentar obter do cabeçalho Authorization
   const authHeader = request.headers.get('Authorization');
-  console.log('[DEBUG] Authorization header:', authHeader ? sanitizeToken(authHeader) : 'null');
+  if (authHeader) {
+    if (authHeader.startsWith('Bearer ')) {
+      const tmpToken = authHeader.slice(7);
+      console.log('[DEBUG] Authorization header:', `Bearer ${sanitizeToken(tmpToken)}`);
+    } else {
+      console.log('[DEBUG] Authorization header:', sanitizeToken(authHeader));
+    }
+  } else {
+    console.log('[DEBUG] Authorization header:', 'null');
+  }
   
   if (authHeader) {
     // Formato esperado: "Bearer <token>"
@@ -60,6 +101,15 @@ export function extractAuthToken(request: Request | NextRequest): string | null 
     if (cookies.auth_token) {
       console.log('[DEBUG] Token encontrado no cookie');
       return cookies.auth_token;
+    }
+  }
+  
+  // Tentar obter do localStorage (apenas no lado do cliente)
+  if (typeof window !== 'undefined') {
+    const localStorageToken = localStorage.getItem('auth_token');
+    if (localStorageToken) {
+      console.log('[DEBUG] Token encontrado no localStorage');
+      return localStorageToken;
     }
   }
   

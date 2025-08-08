@@ -1,8 +1,8 @@
-import { PostgrestError } from '@supabase/supabase-js';
+import type { PostgrestError } from '@supabase/supabase-js';
 import { supabase } from '@/src/lib/supabase';
 import { getLogger } from '@/src/lib/logging';
 import { DatabaseError } from '@/src/lib/errors';
-import {
+import type {
   IFullRepository,
   PaginatedResult
 } from './repository.interface';
@@ -25,7 +25,7 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
    */
   constructor(
     protected readonly tableName: string,
-    protected readonly idField: string = 'id',
+    protected readonly idField = 'id',
     protected readonly softDeleteField?: string
   ) {}
   
@@ -68,7 +68,7 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
     try {
       const { data, error } = await this.getQueryBuilder()
         .select('*')
-        .eq(this.idField as string, id as string)
+        .eq(this.idField, id as string)
         .maybeSingle();
       if (error) {
         this.handleError(error, 'findById');
@@ -95,7 +95,7 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
       // Apply soft delete filter if applicable
       if (this.softDeleteField) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        query = (query as any).is(this.softDeleteField, null);
+        query = (query).is(this.softDeleteField, null);
       }
       
       // Apply filters
@@ -103,34 +103,34 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
         for (const [key, value] of Object.entries(filters)) {
           if (value !== undefined && value !== null) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            if (Array.isArray(value)) query = (query as any).in(key, value);
+            if (Array.isArray(value)) query = (query).in(key, value);
             else if (typeof value === 'object') {
               // Handle special operators
               const obj = value as Record<string, unknown>;
               
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              if ('eq' in obj) query = (query as any).eq(key, obj.eq);
+              if ('eq' in obj) query = (query).eq(key, obj.eq);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('neq' in obj) query = (query as any).neq(key, obj.neq);
+              else if ('neq' in obj) query = (query).neq(key, obj.neq);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('gt' in obj) query = (query as any).gt(key, obj.gt);
+              else if ('gt' in obj) query = (query).gt(key, obj.gt);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('gte' in obj) query = (query as any).gte(key, obj.gte);
+              else if ('gte' in obj) query = (query).gte(key, obj.gte);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('lt' in obj) query = (query as any).lt(key, obj.lt);
+              else if ('lt' in obj) query = (query).lt(key, obj.lt);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('lte' in obj) query = (query as any).lte(key, obj.lte);
+              else if ('lte' in obj) query = (query).lte(key, obj.lte);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('like' in obj) query = (query as any).like(key, `%${obj.like}%`);
+              else if ('like' in obj) query = (query).like(key, `%${obj.like}%`);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('ilike' in obj) query = (query as any).ilike(key, `%${obj.ilike}%`);
+              else if ('ilike' in obj) query = (query).ilike(key, `%${obj.ilike}%`);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('in' in obj && Array.isArray(obj.in)) query = (query as any).in(key, obj.in);
+              else if ('in' in obj && Array.isArray(obj.in)) query = (query).in(key, obj.in);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('is' in obj) query = (query as any).is(key, obj.is);
+              else if ('is' in obj) query = (query).is(key, obj.is);
             } else {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              query = (query as any).eq(key, value);
+              query = (query).eq(key, value);
             }
           }
         }
@@ -160,7 +160,7 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
   async create(entity: Omit<T, 'id'>): Promise<T> {
     try {
       const { data, error } = await this.getQueryBuilder()
-        .insert(entity as Omit<T, 'id'>)
+        .insert(entity)
         .select()
         .single();
       
@@ -194,8 +194,8 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
       }
       
       const { data, error } = await this.getQueryBuilder()
-        .update(entity as Partial<T>)
-        .eq(this.idField as string, id as string)
+        .update(entity)
+        .eq(this.idField, id as string)
         .select()
         .single();
       
@@ -229,7 +229,7 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
       
       const { error } = await this.getQueryBuilder()
         .delete()
-        .eq(this.idField as string, id as string);
+        .eq(this.idField, id as string);
       
       if (error) {
         this.handleError(error, 'delete');
@@ -256,39 +256,39 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
       // Apply soft delete filter if applicable
       if (this.softDeleteField) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        query = (query as any).is(this.softDeleteField, null);
+        query = (query).is(this.softDeleteField, null);
       }
       // Apply filters
       if (filters) {
         for (const [key, value] of Object.entries(filters)) {
           if (value !== undefined && value !== null) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            if (Array.isArray(value)) query = (query as any).in(key, value);
+            if (Array.isArray(value)) query = (query).in(key, value);
             else if (typeof value === 'object') {
               const obj = value as Record<string, unknown>;
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              if ('eq' in obj) query = (query as any).eq(key, obj.eq);
+              if ('eq' in obj) query = (query).eq(key, obj.eq);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('neq' in obj) query = (query as any).neq(key, obj.neq);
+              else if ('neq' in obj) query = (query).neq(key, obj.neq);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('gt' in obj) query = (query as any).gt(key, obj.gt);
+              else if ('gt' in obj) query = (query).gt(key, obj.gt);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('gte' in obj) query = (query as any).gte(key, obj.gte);
+              else if ('gte' in obj) query = (query).gte(key, obj.gte);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('lt' in obj) query = (query as any).lt(key, obj.lt);
+              else if ('lt' in obj) query = (query).lt(key, obj.lt);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('lte' in obj) query = (query as any).lte(key, obj.lte);
+              else if ('lte' in obj) query = (query).lte(key, obj.lte);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('like' in obj) query = (query as any).like(key, `%${obj.like}%`);
+              else if ('like' in obj) query = (query).like(key, `%${obj.like}%`);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('ilike' in obj) query = (query as any).ilike(key, `%${obj.ilike}%`);
+              else if ('ilike' in obj) query = (query).ilike(key, `%${obj.ilike}%`);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('in' in obj && Array.isArray(obj.in)) query = (query as any).in(key, obj.in);
+              else if ('in' in obj && Array.isArray(obj.in)) query = (query).in(key, obj.in);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('is' in obj) query = (query as any).is(key, obj.is);
+              else if ('is' in obj) query = (query).is(key, obj.is);
             } else {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              query = (query as any).eq(key, value);
+              query = (query).eq(key, value);
             }
           }
         }
@@ -315,12 +315,12 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
   async exists(id: ID): Promise<boolean> {
     try {
       let query = this.getQueryBuilder()
-        .select(this.idField as string, { count: 'exact', head: true })
-        .eq(this.idField as string, id as string);
+        .select(this.idField, { count: 'exact', head: true })
+        .eq(this.idField, id as string);
       // Apply soft delete filter if applicable
       if (this.softDeleteField) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        query = (query as any).is(this.softDeleteField, null);
+        query = (query).is(this.softDeleteField, null);
       }
       const { count, error } = await query;
       if (error) {
@@ -376,7 +376,7 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
       // Apply soft delete filter if applicable
       if (this.softDeleteField) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        query = (query as any).is(this.softDeleteField, null);
+        query = (query).is(this.softDeleteField, null);
       }
       
       // Apply filters
@@ -384,34 +384,34 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
         for (const [key, value] of Object.entries(filters)) {
           if (value !== undefined && value !== null) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            if (Array.isArray(value)) query = (query as any).in(key, value);
+            if (Array.isArray(value)) query = (query).in(key, value);
             else if (typeof value === 'object') {
               // Handle special operators
               const obj = value as Record<string, unknown>;
               
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              if ('eq' in obj) query = (query as any).eq(key, obj.eq);
+              if ('eq' in obj) query = (query).eq(key, obj.eq);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('neq' in obj) query = (query as any).neq(key, obj.neq);
+              else if ('neq' in obj) query = (query).neq(key, obj.neq);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('gt' in obj) query = (query as any).gt(key, obj.gt);
+              else if ('gt' in obj) query = (query).gt(key, obj.gt);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('gte' in obj) query = (query as any).gte(key, obj.gte);
+              else if ('gte' in obj) query = (query).gte(key, obj.gte);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('lt' in obj) query = (query as any).lt(key, obj.lt);
+              else if ('lt' in obj) query = (query).lt(key, obj.lt);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('lte' in obj) query = (query as any).lte(key, obj.lte);
+              else if ('lte' in obj) query = (query).lte(key, obj.lte);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('like' in obj) query = (query as any).like(key, `%${obj.like}%`);
+              else if ('like' in obj) query = (query).like(key, `%${obj.like}%`);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('ilike' in obj) query = (query as any).ilike(key, `%${obj.ilike}%`);
+              else if ('ilike' in obj) query = (query).ilike(key, `%${obj.ilike}%`);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('in' in obj && Array.isArray(obj.in)) query = (query as any).in(key, obj.in);
+              else if ('in' in obj && Array.isArray(obj.in)) query = (query).in(key, obj.in);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('is' in obj) query = (query as any).is(key, obj.is);
+              else if ('is' in obj) query = (query).is(key, obj.is);
             } else {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              query = (query as any).eq(key, value);
+              query = (query).eq(key, value);
             }
           }
         }
@@ -470,12 +470,12 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
       
       // Soft delete entity
       const updateQuery: { [key: string]: string | Date | null } = {
-        [this.softDeleteField as string]: new Date().toISOString()
+        [this.softDeleteField]: new Date().toISOString()
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (this.getQueryBuilder() as any)
+      const { error } = await (this.getQueryBuilder())
         .update(updateQuery)
-        .eq(this.idField as string, id as string);
+        .eq(this.idField, id as string);
       
       if (error) {
         this.handleError(error, 'softDelete');
@@ -506,9 +506,9 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
     try {
       // Check if entity exists (including deleted)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data, error: checkError } = await (this.getQueryBuilder() as any)
+      const { data, error: checkError } = await (this.getQueryBuilder())
         .select('*')
-        .eq(this.idField as string, id as string)
+        .eq(this.idField, id as string)
         .maybeSingle();
       
       if (checkError) {
@@ -520,13 +520,13 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
       }
       
       const updateQuery: { [key: string]: string | Date | null } = {
-        [this.softDeleteField as string]: null
+        [this.softDeleteField]: null
       };
       // Restore entity
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: restoredData, error } = await (this.getQueryBuilder() as any)
+      const { data: restoredData, error } = await (this.getQueryBuilder())
         .update(updateQuery)
-        .eq(this.idField as string, id as string)
+        .eq(this.idField, id as string)
         .select()
         .single();
       
@@ -564,34 +564,34 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
         for (const [key, value] of Object.entries(filters)) {
           if (value !== undefined && value !== null) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            if (Array.isArray(value)) query = (query as any).in(key, value);
+            if (Array.isArray(value)) query = (query).in(key, value);
             else if (typeof value === 'object') {
               // Handle special operators
               const obj = value as Record<string, unknown>;
               
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              if ('eq' in obj) query = (query as any).eq(key, obj.eq);
+              if ('eq' in obj) query = (query).eq(key, obj.eq);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('neq' in obj) query = (query as any).neq(key, obj.neq);
+              else if ('neq' in obj) query = (query).neq(key, obj.neq);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('gt' in obj) query = (query as any).gt(key, obj.gt);
+              else if ('gt' in obj) query = (query).gt(key, obj.gt);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('gte' in obj) query = (query as any).gte(key, obj.gte);
+              else if ('gte' in obj) query = (query).gte(key, obj.gte);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('lt' in obj) query = (query as any).lt(key, obj.lt);
+              else if ('lt' in obj) query = (query).lt(key, obj.lt);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('lte' in obj) query = (query as any).lte(key, obj.lte);
+              else if ('lte' in obj) query = (query).lte(key, obj.lte);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('like' in obj) query = (query as any).like(key, `%${obj.like}%`);
+              else if ('like' in obj) query = (query).like(key, `%${obj.like}%`);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('ilike' in obj) query = (query as any).ilike(key, `%${obj.ilike}%`);
+              else if ('ilike' in obj) query = (query).ilike(key, `%${obj.ilike}%`);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('in' in obj && Array.isArray(obj.in)) query = (query as any).in(key, obj.in);
+              else if ('in' in obj && Array.isArray(obj.in)) query = (query).in(key, obj.in);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('is' in obj) query = (query as any).is(key, obj.is);
+              else if ('is' in obj) query = (query).is(key, obj.is);
             } else {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              query = (query as any).eq(key, value);
+              query = (query).eq(key, value);
             }
           }
         }
@@ -633,41 +633,41 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
     try {
       let query = this.getQueryBuilder()
         .select('*')
-        .not(this.softDeleteField as string, 'is', null);
+        .not(this.softDeleteField, 'is', null);
       
       // Apply filters
       if (filters) {
         for (const [key, value] of Object.entries(filters)) {
           if (value !== undefined && value !== null) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            if (Array.isArray(value)) query = (query as any).in(key, value);
+            if (Array.isArray(value)) query = (query).in(key, value);
             else if (typeof value === 'object') {
               // Handle special operators
               const obj = value as Record<string, unknown>;
               
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              if ('eq' in obj) query = (query as any).eq(key, obj.eq);
+              if ('eq' in obj) query = (query).eq(key, obj.eq);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('neq' in obj) query = (query as any).neq(key, obj.neq);
+              else if ('neq' in obj) query = (query).neq(key, obj.neq);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('gt' in obj) query = (query as any).gt(key, obj.gt);
+              else if ('gt' in obj) query = (query).gt(key, obj.gt);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('gte' in obj) query = (query as any).gte(key, obj.gte);
+              else if ('gte' in obj) query = (query).gte(key, obj.gte);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('lt' in obj) query = (query as any).lt(key, obj.lt);
+              else if ('lt' in obj) query = (query).lt(key, obj.lt);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('lte' in obj) query = (query as any).lte(key, obj.lte);
+              else if ('lte' in obj) query = (query).lte(key, obj.lte);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('like' in obj) query = (query as any).like(key, `%${obj.like}%`);
+              else if ('like' in obj) query = (query).like(key, `%${obj.like}%`);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('ilike' in obj) query = (query as any).ilike(key, `%${obj.ilike}%`);
+              else if ('ilike' in obj) query = (query).ilike(key, `%${obj.ilike}%`);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('in' in obj && Array.isArray(obj.in)) query = (query as any).in(key, obj.in);
+              else if ('in' in obj && Array.isArray(obj.in)) query = (query).in(key, obj.in);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              else if ('is' in obj) query = (query as any).is(key, obj.is);
+              else if ('is' in obj) query = (query).is(key, obj.is);
             } else {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              query = (query as any).eq(key, value);
+              query = (query).eq(key, value);
             }
           }
         }
@@ -704,9 +704,9 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
   async findByIdTxn(id: ID, txnCtx: { from: (table: string) => unknown }): Promise<T | null> {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data, error } = await (txnCtx.from(this.tableName as string) as any)
+      const { data, error } = await (txnCtx.from(this.tableName) as any)
         .select('*')
-        .eq(this.idField as string, id as string)
+        .eq(this.idField, id as string)
         .maybeSingle();
       
       if (error) {
@@ -733,8 +733,8 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
   async createTxn(entity: Omit<T, 'id'>, txnCtx: { from: (table: string) => unknown }): Promise<T> {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data, error } = await (txnCtx.from(this.tableName as string) as any)
-        .insert(entity as Omit<T, 'id'>)
+      const { data, error } = await (txnCtx.from(this.tableName) as any)
+        .insert(entity)
         .select()
         .single();
       
@@ -768,9 +768,9 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
         return null;
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data, error } = await (txnCtx.from(this.tableName as string) as any)
-        .update(entity as Partial<T>)
-        .eq(this.idField as string, id as string)
+      const { data, error } = await (txnCtx.from(this.tableName) as any)
+        .update(entity)
+        .eq(this.idField, id as string)
         .select()
         .single();
       
@@ -809,9 +809,9 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
         return false;
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (txnCtx.from(this.tableName as string) as any)
+      const { error } = await (txnCtx.from(this.tableName) as any)
         .delete()
-        .eq(this.idField as string, id as string);
+        .eq(this.idField, id as string);
       
       if (error) {
         this.handleError(error, 'deleteTxn');

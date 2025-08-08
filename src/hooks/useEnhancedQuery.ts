@@ -1,6 +1,8 @@
-import { useQuery as useTanstackQuery, UseQueryOptions as TanstackQueryOptions, QueryKey } from '@tanstack/react-query';
+import type { UseQueryOptions as TanstackQueryOptions, QueryKey } from '@tanstack/react-query';
+import { useQuery as useTanstackQuery } from '@tanstack/react-query';
 import { useCallback, useEffect } from 'react';
-import { cacheManager, CacheType, CacheOptions } from '@/lib/cache-manager';
+import type { CacheOptions } from '@/lib/cache-manager';
+import { cacheManager, CacheType } from '@/lib/cache-manager';
 import { logger } from '@/lib/logger';
 import { useAuth } from './useAuth';
 

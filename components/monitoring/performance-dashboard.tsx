@@ -420,14 +420,14 @@ export function PerformanceDashboard() {
                 <Button 
                   size="sm" 
                   variant="outline" 
-                  onClick={() => handleAcknowledgeAlert(alert.id)}
+                  onClick={async () => handleAcknowledgeAlert(alert.id)}
                 >
                   Reconhecer
                 </Button>
                 <Button 
                   size="sm" 
                   variant="outline" 
-                  onClick={() => handleResolveAlert(alert.id)}
+                  onClick={async () => handleResolveAlert(alert.id)}
                 >
                   Resolver
                 </Button>
@@ -474,7 +474,8 @@ export function PerformanceDashboard() {
                           endpoint.method === 'POST' ? 'secondary' :
                           endpoint.method === 'PUT' ? 'outline' :
                           endpoint.method === 'DELETE' ? 'destructive' : 'default'
-                        }>
+                        }
+                        >
                           {endpoint.method}
                         </Badge>
                       </td>
@@ -483,7 +484,8 @@ export function PerformanceDashboard() {
                         <span className={
                           endpoint.avgResponseTime > 1000 ? 'text-destructive' :
                           endpoint.avgResponseTime > 500 ? 'text-secondary' : ''
-                        }>
+                        }
+                        >
                           {endpoint.avgResponseTime.toFixed(0)}ms
                         </span>
                       </td>
@@ -491,7 +493,8 @@ export function PerformanceDashboard() {
                         <span className={
                           endpoint.p95ResponseTime > 1000 ? 'text-destructive' :
                           endpoint.p95ResponseTime > 500 ? 'text-secondary' : ''
-                        }>
+                        }
+                        >
                           {endpoint.p95ResponseTime.toFixed(0)}ms
                         </span>
                       </td>
@@ -499,7 +502,8 @@ export function PerformanceDashboard() {
                         <span className={
                           endpoint.errorRate > 0.1 ? 'text-destructive' :
                           endpoint.errorRate > 0.05 ? 'text-secondary' : ''
-                        }>
+                        }
+                        >
                           {(endpoint.errorRate * 100).toFixed(1)}%
                         </span>
                       </td>

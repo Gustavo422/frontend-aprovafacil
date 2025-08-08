@@ -3,6 +3,7 @@
 import React from 'react';
 import { Button } from './button';
 import { Menu } from 'lucide-react';
+import { UserNav } from '@/components/user-nav';
 
 interface AppHeaderProps {
   onSidebarToggle: () => void;
@@ -21,6 +22,10 @@ export function AppHeader({ onSidebarToggle }: AppHeaderProps) {
           <Menu className="h-4 w-4" />
         </Button>
         <h1 className="text-xl font-semibold">AprovaFácil</h1>
+      </div>
+      
+      <div className="flex items-center space-x-4">
+        <UserNav />
       </div>
     </header>
   );

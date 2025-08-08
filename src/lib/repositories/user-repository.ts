@@ -1,6 +1,7 @@
 import { getLogger } from '@/src/lib/logging';
 import { CachedRepository } from '@/src/lib/repositories/base';
-import { AppUser, mapUserRowToAppUser } from '@/src/features/auth/types/user.types';
+import type { AppUser} from '@/src/features/auth/types/user.types';
+import { mapUserRowToAppUser } from '@/src/features/auth/types/user.types';
 import { supabase } from '@/src/lib/supabase';
 import { DatabaseError } from '@/src/lib/errors';
 
@@ -59,7 +60,7 @@ export class UserRepository extends CachedRepository<AppUser> {
       
       if (error) {
         logger.error('Failed to get user profile', { error });
-        throw new DatabaseError('Failed to get user profile: ' + error.message);
+        throw new DatabaseError(`Failed to get user profile: ${ error.message}`);
       }
       
       return mapUserRowToAppUser(data);
@@ -100,7 +101,7 @@ export class UserRepository extends CachedRepository<AppUser> {
       
       if (error) {
         logger.error('Failed to update user profile', { error });
-        throw new DatabaseError('Failed to update user profile: ' + error.message);
+        throw new DatabaseError(`Failed to update user profile: ${ error.message}`);
       }
       
       // Invalidate cache
@@ -138,7 +139,7 @@ export class UserRepository extends CachedRepository<AppUser> {
       
       if (error) {
         logger.error('Failed to get user stats', { error });
-        throw new DatabaseError('Failed to get user stats: ' + error.message);
+        throw new DatabaseError(`Failed to get user stats: ${ error.message}`);
       }
       
       return {
@@ -186,7 +187,7 @@ export class UserRepository extends CachedRepository<AppUser> {
         .single();
       if (error) {
         logger.error('Failed to update user stats', { error });
-        throw new DatabaseError('Failed to update user stats: ' + error.message);
+        throw new DatabaseError(`Failed to update user stats: ${ error.message}`);
       }
       this.invalidateByIdCache(usuario_id);
       return {
@@ -224,7 +225,7 @@ export class UserRepository extends CachedRepository<AppUser> {
       
       if (error) {
         logger.error('Failed to get user preferences', { error });
-        throw new DatabaseError('Failed to get user preferences: ' + error.message);
+        throw new DatabaseError(`Failed to get user preferences: ${ error.message}`);
       }
       
       // If no preferences found, return defaults
@@ -270,7 +271,7 @@ export class UserRepository extends CachedRepository<AppUser> {
         .maybeSingle();
       if (checkError) {
         logger.error('Failed to check user preferences', { error: checkError });
-        throw new DatabaseError('Failed to check user preferences: ' + checkError.message);
+        throw new DatabaseError(`Failed to check user preferences: ${ checkError.message}`);
       }
       let result;
       if (existingPrefs) {
@@ -293,13 +294,13 @@ export class UserRepository extends CachedRepository<AppUser> {
           .single();
         if (error) {
           logger.error('Failed to update user preferences', { error });
-          throw new DatabaseError('Failed to update user preferences: ' + error.message);
+          throw new DatabaseError(`Failed to update user preferences: ${ error.message}`);
         }
         result = data;
       } else {
         const insertData = {
-          usuario_id: usuario_id,
-          tema: (prefs.tema || 'system') as 'light' | 'dark' | 'system',
+          usuario_id,
+          tema: (prefs.tema || 'system'),
           notificacoes_email: prefs.notificacoes_email !== undefined ? prefs.notificacoes_email : true,
           notificacoes_push: prefs.notificacoes_push !== undefined ? prefs.notificacoes_push : true
         };
@@ -311,7 +312,7 @@ export class UserRepository extends CachedRepository<AppUser> {
           .single();
         if (error) {
           logger.error('Failed to create user preferences', { error });
-          throw new DatabaseError('Failed to create user preferences: ' + error.message);
+          throw new DatabaseError(`Failed to create user preferences: ${ error.message}`);
         }
         result = data;
       }
@@ -345,7 +346,7 @@ export class UserRepository extends CachedRepository<AppUser> {
       
       if (error) {
         logger.error('Failed to find user by email', { error, email });
-        throw new DatabaseError('Failed to find user by email: ' + error.message);
+        throw new DatabaseError(`Failed to find user by email: ${ error.message}`);
       }
       
       return mapUserRowToAppUser(data);
@@ -384,7 +385,7 @@ export class UserRepository extends CachedRepository<AppUser> {
         .single();
       if (error) {
         logger.error('Failed to update user stats', { error, usuarioId });
-        throw new DatabaseError('Failed to update user stats: ' + error.message);
+        throw new DatabaseError(`Failed to update user stats: ${ error.message}`);
       }
       this.invalidateByIdCache(usuarioId);
       return mapUserRowToAppUser(data);
@@ -415,7 +416,7 @@ export class UserRepository extends CachedRepository<AppUser> {
         .eq('id', usuarioId);
       if (error) {
         logger.error('Failed to deactivate user account', { error, usuarioId });
-        throw new DatabaseError('Failed to deactivate user account: ' + error.message);
+        throw new DatabaseError(`Failed to deactivate user account: ${ error.message}`);
       }
       this.invalidateByIdCache(usuarioId);
       return true;
@@ -446,7 +447,7 @@ export class UserRepository extends CachedRepository<AppUser> {
         .eq('id', usuarioId);
       if (error) {
         logger.error('Failed to activate user account', { error, usuarioId });
-        throw new DatabaseError('Failed to activate user account: ' + error.message);
+        throw new DatabaseError(`Failed to activate user account: ${ error.message}`);
       }
       this.invalidateByIdCache(usuarioId);
       return true;
@@ -473,7 +474,7 @@ export class UserRepository extends CachedRepository<AppUser> {
       
       if (error) {
         logger.error('Failed to get active users count', { error });
-        throw new DatabaseError('Failed to get active users count: ' + error.message);
+        throw new DatabaseError(`Failed to get active users count: ${ error.message}`);
       }
       
       return count || 0;
@@ -505,7 +506,7 @@ export class UserRepository extends CachedRepository<AppUser> {
       
       if (error) {
         logger.error('Failed to get users registered in last days', { error, days });
-        throw new DatabaseError('Failed to get users registered in last days: ' + error.message);
+        throw new DatabaseError(`Failed to get users registered in last days: ${ error.message}`);
       }
       
       return count || 0;

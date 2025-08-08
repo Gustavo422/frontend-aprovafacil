@@ -1,5 +1,6 @@
-import { BaseRepository } from './base-repository';
-import { CachedRepository, CacheOptions } from './cached-repository';
+import type { BaseRepository } from './base-repository';
+import type { CacheOptions } from './cached-repository';
+import { CachedRepository } from './cached-repository';
 
 /**
  * Repository factory options

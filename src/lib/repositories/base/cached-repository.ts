@@ -62,17 +62,17 @@ export class CachedRepository<T extends { id: ID }, ID = string> extends BaseRep
   /**
    * Cache for findById results
    */
-  private byIdCache = new Map<string, CacheEntry<T | null>>();
+  private readonly byIdCache = new Map<string, CacheEntry<T | null>>();
   
   /**
    * Cache for findAll results
    */
-  private allCache = new Map<string, CacheEntry<T[]>>();
+  private readonly allCache = new Map<string, CacheEntry<T[]>>();
   
   /**
    * Cache for count results
    */
-  private countCache = new Map<string, CacheEntry<number>>();
+  private readonly countCache = new Map<string, CacheEntry<number>>();
   
   /**
    * Create a new cached repository
@@ -84,7 +84,7 @@ export class CachedRepository<T extends { id: ID }, ID = string> extends BaseRep
   constructor(
     tableName: string,
     private readonly options: CacheOptions = {},
-    idField: string = 'id',
+    idField = 'id',
     softDeleteField?: string
   ) {
     super(tableName, idField, softDeleteField);

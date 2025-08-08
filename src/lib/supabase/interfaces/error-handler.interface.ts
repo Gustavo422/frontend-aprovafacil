@@ -1,5 +1,5 @@
-import { ErrorCategory } from '../enums/error-category.enum';
-import { SupabaseError } from '../types/supabase-error.type';
+import type { ErrorCategory } from '../enums/error-category.enum';
+import type { SupabaseError } from '../types/supabase-error.type';
 
 /**
  * Interface for handling Supabase errors

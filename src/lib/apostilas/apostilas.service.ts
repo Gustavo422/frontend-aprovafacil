@@ -23,8 +23,8 @@ class ApostilasService {
    * Busca todas as apostilas ativas com paginação
    */
   async findAll(
-    page: number = 1,
-    pageSize: number = 10,
+    page = 1,
+    pageSize = 10,
     filters?: {
       concursoId?: string;
       categoriaId?: string;
@@ -139,7 +139,7 @@ class ApostilasService {
   /**
    * Busca as apostilas mais recentes
    */
-  async findRecent(limit: number = 5): Promise<Apostila[]> {
+  async findRecent(limit = 5): Promise<Apostila[]> {
     try {
       const res = await fetch(`/api/apostilas?limit=${limit}&recent=true`);
       if (!res.ok) throw new Error('Erro ao buscar apostilas recentes');

@@ -163,7 +163,7 @@ export function AlertIndicator() {
                       variant="ghost"
                       size="icon"
                       className="h-6 w-6"
-                      onClick={() => acknowledgeAlert(alert.id)}
+                      onClick={async () => acknowledgeAlert(alert.id)}
                     >
                       <X className="h-3 w-3" />
                     </Button>

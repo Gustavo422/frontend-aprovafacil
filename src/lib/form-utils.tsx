@@ -353,10 +353,10 @@ export function createFieldProps<T extends FormValues>({
 
 // Helper function to format form errors
 export function formatFormErrors(errors: FieldErrors) {
-  return Object.entries(errors).reduce((acc, [key, value]) => {
+  return Object.entries(errors).reduce<Record<string, string>>((acc, [key, value]) => {
     if (value && typeof value === 'object' && 'message' in value) {
       acc[key] = (value as { message: string }).message;
     }
     return acc;
-  }, {} as Record<string, string>);
+  }, {});
 }

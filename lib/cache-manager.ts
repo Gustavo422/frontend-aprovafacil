@@ -67,9 +67,9 @@ export interface CacheEntry<T = unknown> {
  */
 export class CacheManager {
   private static instance: CacheManager;
-  private memoryCache: Map<string, CacheEntry> = new Map();
-  private keyRelationships: Map<string, Set<string>> = new Map();
-  private pendingInvalidations: Set<string> = new Set();
+  private readonly memoryCache: Map<string, CacheEntry> = new Map();
+  private readonly keyRelationships: Map<string, Set<string>> = new Map();
+  private readonly pendingInvalidations: Set<string> = new Set();
   private invalidationTimeout: ReturnType<typeof setTimeout> | null = null;
   
   private constructor() {
@@ -212,7 +212,7 @@ export class CacheManager {
   private setInMemory<T>(
     key: string,
     data: T,
-    ttlMinutes: number = 5,
+    ttlMinutes = 5,
     relatedKeys?: string[]
   ): void {
     const expiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000);
@@ -260,7 +260,7 @@ export class CacheManager {
   private setInLocalStorage<T>(
     key: string,
     data: T,
-    ttlMinutes: number = 30,
+    ttlMinutes = 30,
     relatedKeys?: string[]
   ): void {
     if (typeof window === 'undefined') return;
@@ -317,7 +317,7 @@ export class CacheManager {
   private setInSessionStorage<T>(
     key: string,
     data: T,
-    ttlMinutes: number = 30,
+    ttlMinutes = 30,
     relatedKeys?: string[]
   ): void {
     if (typeof window === 'undefined') return;
@@ -390,7 +390,7 @@ export class CacheManager {
     usuarioId: string,
     key: string,
     data: T,
-    ttlMinutes: number = 30,
+    ttlMinutes = 30,
     relatedKeys?: string[]
   ): Promise<void> {
     try {

@@ -1,7 +1,7 @@
 export class RateLimiter {
-  private attempts = new Map<string, { count: number; resetTime: number; blocked: boolean }>();
+  private readonly attempts = new Map<string, { count: number; resetTime: number; blocked: boolean }>();
   
-  isAllowed(key: string, maxAttempts: number = 5, windowMs: number = 15 * 60 * 1000): boolean {
+  isAllowed(key: string, maxAttempts = 5, windowMs: number = 15 * 60 * 1000): boolean {
     const now = Date.now();
     const attempt = this.attempts.get(key);
     

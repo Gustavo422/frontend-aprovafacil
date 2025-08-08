@@ -464,7 +464,7 @@ export class LoggingService {
    * @returns Memory transport or undefined if not found
    */
   getMemoryTransport(): MemoryTransport | undefined {
-    return this.transports.find(transport => transport instanceof MemoryTransport) as MemoryTransport | undefined;
+    return this.transports.find(transport => transport instanceof MemoryTransport);
   }
   
   /**

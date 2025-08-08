@@ -31,7 +31,7 @@ const chartMargins = {
   bottom: 5,
 };
 
-export const DashboardChart = memo(function DashboardChart({
+export const DashboardChart = memo(({
   titulo,
   data,
   dataKey,
@@ -40,7 +40,7 @@ export const DashboardChart = memo(function DashboardChart({
   showGrid = true,
   showLegend = false,
   children,
-}: DashboardChartProps) {
+}: DashboardChartProps) => {
   // Memoize the data to prevent unnecessary re-renders
   // Only re-create when the data reference changes
   const memoizedData = useMemo(() => data, [data]);

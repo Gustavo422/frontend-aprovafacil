@@ -1,4 +1,4 @@
-import { RetryOptions } from './types/retry-options.type';
+import type { RetryOptions } from './types/retry-options.type';
 import { wrapWithRetry } from './retry-handler';
 
 /**
@@ -53,7 +53,7 @@ export function RetryableClass(options?: Partial<RetryOptions>) {
           
           Object.defineProperty(constructor.prototype, methodName, {
             ...descriptor,
-            value: function (...args: unknown[]) {
+            value (...args: unknown[]) {
               return wrapWithRetry(originalMethod.bind(this), options)(...args);
             }
           });

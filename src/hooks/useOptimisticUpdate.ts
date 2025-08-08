@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { QueryKey } from '@tanstack/react-query';
+import type { QueryKey } from '@tanstack/react-query';
 import { queryClient } from '@/src/providers/query-client';
 import { logger } from '@/lib/logger';
 
@@ -61,7 +61,7 @@ export function useOptimisticUpdate<TData = unknown, TVariables = unknown>() {
         // Invalidar queries relacionadas após sucesso
         if (relatedQueryKeys.length > 0) {
           await Promise.all(
-            relatedQueryKeys.map(key => queryClient.invalidateQueries({ queryKey: key }))
+            relatedQueryKeys.map(async key => queryClient.invalidateQueries({ queryKey: key }))
           );
           
           logger.debug('Queries relacionadas invalidadas', { 

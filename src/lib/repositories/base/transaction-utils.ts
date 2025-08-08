@@ -1,7 +1,7 @@
 import { supabase } from '@/src/lib/supabase';
 import { getLogger } from '@/src/lib/logging';
 import { DatabaseError } from '@/src/lib/errors';
-import { EnhancedSupabaseClient } from '@/src/lib/supabase/enhanced-client';
+import type { EnhancedSupabaseClient } from '@/src/lib/supabase/enhanced-client';
 
 const logger = getLogger('TransactionUtils');
 

@@ -19,7 +19,7 @@ export class ApiClient {
   /**
    * URL base da API
    */
-  private baseUrl: string;
+  private readonly baseUrl: string;
   
   /**
    * Construtor

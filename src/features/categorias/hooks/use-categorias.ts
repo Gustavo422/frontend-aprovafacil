@@ -1,4 +1,5 @@
-import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
+import type { UseQueryOptions } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 export type CategoriaType = {
   id: string;
@@ -90,7 +91,7 @@ export const useListarCategorias = (
 ) => {
   return useQuery<CategoriaType[], Error>({
     queryKey: categoriaKeys.list(filters),
-    queryFn: () => categoriaRepo.buscarTodas(),
+    queryFn: async () => categoriaRepo.buscarTodas(),
     ...options,
   });
 };
@@ -135,7 +136,7 @@ export const useListarCategoriasAtivas = (
 ) => {
   return useQuery<CategoriaType[], Error>({
     queryKey: categoriaKeys.ativas(),
-    queryFn: () => categoriaRepo.findAtivas(),
+    queryFn: async () => categoriaRepo.findAtivas(),
     ...options,
   });
 };
@@ -154,7 +155,7 @@ export const useCriarCategoria = () => {
     CriarCategoriaData,
     { previousCategorias: CategoriaType[] | undefined }
   >({
-    mutationFn: (data) => categoriaRepo.criarCategoria(data),
+    mutationFn: async (data) => categoriaRepo.criarCategoria(data),
     // Otimista UI update
     onMutate: async (newCategoria) => {
       await queryClient.cancelQueries({ queryKey: categoriaKeys.lists() });
@@ -190,7 +191,7 @@ export const useAtualizarCategoria = () => {
     { id: string; data: AtualizarCategoriaData },
     { previousCategoria: CategoriaType | undefined }
   >({
-    mutationFn: ({ id, data }) => categoriaRepo.atualizarCategoria(id, data),
+    mutationFn: async ({ id, data }) => categoriaRepo.atualizarCategoria(id, data),
     // Otimista UI update
     onMutate: async ({ id, data }) => {
       await queryClient.cancelQueries({ queryKey: categoriaKeys.detail(id) });
@@ -228,7 +229,7 @@ export const useDeletarCategoria = () => {
     string,
     { previousCategoria: CategoriaType | undefined }
   >({
-    mutationFn: (id) => categoriaRepo.deletarCategoria(id),
+    mutationFn: async (id) => categoriaRepo.deletarCategoria(id),
     // Otimista UI update
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: categoriaKeys.detail(id) });

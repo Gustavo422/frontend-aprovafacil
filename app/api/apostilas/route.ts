@@ -8,51 +8,58 @@ export async function GET(request: Request) {
     if (!token) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
-    const backendUrl = `${process.env.BACKEND_API_URL}/api/apostilas${new URL(request.url).search}`;
-    const res = await fetch(backendUrl, {
+
+    // Obter preferência do usuário para extrair categoria/concurso
+    const prefRes = await fetch(`${process.env.BACKEND_API_URL}/api/user/concurso-preference`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
+
+    if (!prefRes.ok) {
+      return NextResponse.json({ apostilas: [] }, { status: 200 });
+    }
+
+    const prefData = await prefRes.json();
+    const concursoId = prefData?.data?.concurso_id;
+    const categoriaId = prefData?.data?.categoria_id;
+
+    if (!concursoId || !categoriaId) {
+      return NextResponse.json({ apostilas: [] }, { status: 200 });
+    }
+
+    // Buscar conteúdo filtrado e extrair apenas apostilas
+    const query = new URLSearchParams({ concurso_id: concursoId, categoria_id: categoriaId }).toString();
+    const conteudoUrl = `${process.env.BACKEND_API_URL}/api/conteudo/filtrado?${query}`;
+    const conteudoRes = await fetch(conteudoUrl, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!conteudoRes.ok) {
+      return NextResponse.json({ apostilas: [] }, { status: 200 });
+    }
+
+    const conteudoData = await conteudoRes.json();
+    const apostilas = conteudoData?.data?.apostilas ?? [];
+    return NextResponse.json({ apostilas }, { status: 200 });
   } catch (error) {
     logger.error('Erro ao buscar apostilas:', {
       error: error instanceof Error ? error.message : String(error),
     });
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
-      { status: 500 }
+      { apostilas: [] },
+      { status: 200 }
     );
   }
 }
 
-export async function POST(request: Request) {
-  try {
-    const token = extractAuthToken(request);
-    if (!token) {
-      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
-    }
-    const backendUrl = `${process.env.BACKEND_API_URL}/api/apostilas`;
-    const res = await fetch(backendUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: await request.text(),
-    });
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
-  } catch (error) {
-    logger.error('Erro ao criar apostila:', {
-      error: error instanceof Error ? error.message : String(error),
-    });
-    return NextResponse.json(
-      { error: 'Erro interno do servidor' },
-      { status: 500 }
-    );
-  }
+export async function POST(_request: Request) {
+  // CRUD de apostilas desativado
+  return NextResponse.json({ error: 'Método não permitido' }, { status: 405 });
 }

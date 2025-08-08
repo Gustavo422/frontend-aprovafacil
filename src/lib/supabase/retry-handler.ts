@@ -1,5 +1,5 @@
 import { RetryStrategy } from './enums/retry-strategy.enum';
-import { RetryOptions } from './types/retry-options.type';
+import type { RetryOptions } from './types/retry-options.type';
 import { SupabaseErrorHandler } from './error-handler';
 
 /**
@@ -18,7 +18,7 @@ const DEFAULT_RETRY_OPTIONS: Required<RetryOptions> = {
  * Class for handling retry logic with various strategies
  */
 export class RetryHandler {
-  private errorHandler: SupabaseErrorHandler;
+  private readonly errorHandler: SupabaseErrorHandler;
   
   constructor() {
     this.errorHandler = new SupabaseErrorHandler();
@@ -128,7 +128,7 @@ export class RetryHandler {
    */
   public wrapWithRetry<T extends (...args: unknown[]) => Promise<unknown>>(fn: T, options?: RetryOptions): T {
     return ((...args: Parameters<T>): ReturnType<T> => {
-      return this.withRetry(() => fn(...args), options) as ReturnType<T>;
+      return this.withRetry(async () => fn(...args), options) as ReturnType<T>;
     }) as unknown as T;
   }
 }
@@ -142,7 +142,7 @@ const retryHandler = new RetryHandler();
  * @param options Retry options
  * @returns Result of the operation
  */
-export function withRetry<T>(
+export async function withRetry<T>(
   operation: () => Promise<T>,
   options?: Partial<RetryOptions>
 ): Promise<T> {

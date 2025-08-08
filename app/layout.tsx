@@ -4,6 +4,7 @@ import { Providers } from '@/src/providers';
 import { ErrorBoundaryWrapper } from '@/components/error-boundary-wrapper';
 import { ConcursoProvider } from '@/contexts/ConcursoContext';
 import { AuthProvider } from '@/features/auth/contexts/auth-context';
+import { ConcursoApiSync } from '@/features/concursos/components/ConcursoApiSync';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -61,7 +62,7 @@ export default function RootLayout({
       </head>
       <body 
         className={`${inter.className} min-h-screen bg-background`} 
-        suppressHydrationWarning={true}
+        suppressHydrationWarning
         data-suppress-hydration-warning="true"
         data-extension-attributes="suppress"
       >
@@ -69,6 +70,7 @@ export default function RootLayout({
           <ErrorBoundaryWrapper>
             <AuthProvider>
               <ConcursoProvider>
+                  <ConcursoApiSync />
                   {children}
               </ConcursoProvider>
             </AuthProvider>

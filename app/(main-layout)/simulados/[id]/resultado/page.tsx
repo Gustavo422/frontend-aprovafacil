@@ -85,9 +85,9 @@ export default function ResultadoPage({ params }: { params: Promise<{ id: string
         setSimulado(data.simulado);
         setQuestoes(data.questoes || []);
         setProgress(data.progress);
-      } catch (error) {
+      } catch (err) {
         logger.error('Erro ao buscar dados do simulado:', {
-          error: error instanceof Error ? error.message : String(error),
+          error: err instanceof Error ? err.message : String(err),
         });
         setError('Erro ao carregar dados do simulado. Tente novamente.');
       } finally {
@@ -256,7 +256,7 @@ export default function ResultadoPage({ params }: { params: Promise<{ id: string
                     >
                       <div className="flex h-5 w-5 items-center justify-center rounded-full border">
                           {key}
-                        </div>
+                      </div>
                         <span className="text-sm">{text}</span>
                     </div>
                   ))}
@@ -299,7 +299,7 @@ export default function ResultadoPage({ params }: { params: Promise<{ id: string
                       >
                         <div className="flex h-5 w-5 items-center justify-center rounded-full border">
                             {key}
-                          </div>
+                        </div>
                           <span className="text-sm">{text}</span>
                       </div>
                     ))}
@@ -344,7 +344,7 @@ export default function ResultadoPage({ params }: { params: Promise<{ id: string
                       >
                         <div className="flex h-5 w-5 items-center justify-center rounded-full border">
                             {key}
-                          </div>
+                        </div>
                           <span className="text-sm">{text}</span>
                       </div>
                     ))}

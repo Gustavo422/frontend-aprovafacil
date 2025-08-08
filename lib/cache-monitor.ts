@@ -1,16 +1,19 @@
 import { CacheType } from './cache-manager';
-import { 
-  CacheMetricsCollector, 
+import type { 
   CacheMetric, 
   CacheStatistics,
   CacheOperation,
   CacheOperationResult
 } from './cache-metrics-collector';
+import { 
+  CacheMetricsCollector
+} from './cache-metrics-collector';
 import { cacheLogger, CacheLogLevel } from './cache-logger';
 import { adaptiveCacheLogger } from './cache-adaptive-logger';
 import { cacheManagerMonitor } from './cache-manager-monitor';
+import type {
+  CacheMonitorConfig} from './cache-monitor-config';
 import {
-  CacheMonitorConfig,
   cacheMonitorConfig
 } from './cache-monitor-config';
 // Import dynamically to avoid circular dependencies
@@ -21,21 +24,25 @@ interface ProductionOptimizations {
 }
 
 let productionOptimizations: ProductionOptimizations | null = null;
-import {
-  CacheInspector,
+import type {
   CacheEntryMetadata,
   CacheEntryInfo,
   GetKeysOptions,
   GetAllEntriesOptions
 } from './cache-inspector';
 import {
+  CacheInspector
+} from './cache-inspector';
+import type {
   CacheRelationshipGraph
 } from './cache-relationship-graph';
-import {
-  CacheGraphVisualizer,
+import type {
   GraphVisualizationOptions
 } from './cache-graph-visualizer';
 import {
+  CacheGraphVisualizer
+} from './cache-graph-visualizer';
+import type {
   CacheSizeInfo,
   CacheStatusCounts,
   CacheTypeStatistics,
@@ -50,7 +57,7 @@ import {
 export class CacheMonitor {
   private static instance: CacheMonitor;
   private config: CacheMonitorConfig;
-  private initialized: boolean = false;
+  private initialized = false;
   private metricsCollector: CacheMetricsCollector | null = null;
   private cacheInspector: CacheInspector | null = null;
   
@@ -506,7 +513,7 @@ export class CacheMonitor {
    */
   public async getAllRelatedCacheKeysRecursive(
     key: string,
-    maxDepth: number = 3
+    maxDepth = 3
   ): Promise<string[]> {
     if (!this.initialized || !this.config.enabled || !this.cacheInspector) {
       return [];
