@@ -1,6 +1,7 @@
 import { extractAuthToken } from '@/lib/auth-utils';
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
+import { getBackendUrl, createEnvironmentErrorResponse } from '@/lib/api-utils';
 
 export async function GET(request: Request) {
   try {
@@ -8,8 +9,11 @@ export async function GET(request: Request) {
     if (!token) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
-    const backendUrl = `${process.env.BACKEND_API_URL}/api/questoes-semanais${new URL(request.url).search}`;
-    const res = await fetch(backendUrl, {
+    const urlConfig = getBackendUrl('/api/questoes-semanais', new URL(request.url).search);
+    if (!urlConfig.isValid) {
+      return createEnvironmentErrorResponse(urlConfig);
+    }
+    const res = await fetch(urlConfig.url, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -35,8 +39,11 @@ export async function POST(request: Request) {
     if (!token) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
-    const backendUrl = `${process.env.BACKEND_API_URL}/api/questoes-semanais`;
-    const res = await fetch(backendUrl, {
+    const urlConfig = getBackendUrl('/api/questoes-semanais');
+    if (!urlConfig.isValid) {
+      return createEnvironmentErrorResponse(urlConfig);
+    }
+    const res = await fetch(urlConfig.url, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -63,8 +70,11 @@ export async function PUT(request: Request) {
     if (!token) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
-    const backendUrl = `${process.env.BACKEND_API_URL}/api/questoes-semanais`;
-    const res = await fetch(backendUrl, {
+    const urlConfig = getBackendUrl('/api/questoes-semanais');
+    if (!urlConfig.isValid) {
+      return createEnvironmentErrorResponse(urlConfig);
+    }
+    const res = await fetch(urlConfig.url, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -91,8 +101,11 @@ export async function DELETE(request: Request) {
     if (!token) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
-    const backendUrl = `${process.env.BACKEND_API_URL}/api/questoes-semanais`;
-    const res = await fetch(backendUrl, {
+    const urlConfig = getBackendUrl('/api/questoes-semanais');
+    if (!urlConfig.isValid) {
+      return createEnvironmentErrorResponse(urlConfig);
+    }
+    const res = await fetch(urlConfig.url, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,

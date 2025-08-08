@@ -1,6 +1,7 @@
 import { extractAuthToken } from '@/lib/auth-utils';
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
+import { getBackendUrl, createEnvironmentErrorResponse } from '@/lib/api-utils';
 
 export async function GET(request: Request) {
   try {
@@ -15,10 +16,13 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
     
-    const backendUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/simulados${new URL(request.url).search}`;
-    console.log('[DEBUG] Frontend: Fazendo requisição para backend:', backendUrl);
+    const urlConfig = getBackendUrl('/api/simulados', new URL(request.url).search);
+    if (!urlConfig.isValid) {
+      return createEnvironmentErrorResponse(urlConfig);
+    }
+    console.log('[DEBUG] Frontend: Fazendo requisição para backend:', urlConfig.url);
     
-    const res = await fetch(backendUrl, {
+    const res = await fetch(urlConfig.url, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,

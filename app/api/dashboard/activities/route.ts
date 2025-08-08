@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { extractAuthToken, sanitizeHeadersForLog, sanitizeToken } from '@/lib/auth-utils';
+import { getBackendUrl, createEnvironmentErrorResponse } from '@/lib/api-utils';
 
 export async function GET(request: Request) {
   try {
@@ -17,7 +18,12 @@ export async function GET(request: Request) {
 
     console.log('[DEBUG] Com token:', sanitizeToken(token));
 
-    const response = await fetch(`${process.env.BACKEND_API_URL}/api/dashboard/activities`, {
+    const urlConfig = getBackendUrl('/api/dashboard/activities');
+    if (!urlConfig.isValid) {
+      return createEnvironmentErrorResponse(urlConfig);
+    }
+
+    const response = await fetch(urlConfig.url, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
