@@ -99,7 +99,7 @@ export function useErrorHandler(options: UseErrorHandlerOptions = {}): ErrorHand
   }, []);
   
   // Function to wrap an async function with error handling
-  const withErrorHandling = useCallback(async (fn: () => Promise<T>): Promise<T> => {
+  const withErrorHandling = useCallback(<T,>(fn: () => Promise<T>): Promise<T> => {
     return fn().catch((err) => {
       handleError(err);
       throw err;

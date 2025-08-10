@@ -1,13 +1,23 @@
 import { createSupabaseClient } from '@/src/lib/supabase';
 import { logger } from '@/lib/logger';
 import { NextResponse } from 'next/server';
+import { getBackendUrl, createEnvironmentErrorResponse } from '@/lib/api-utils';
+import { extractAuthToken } from '@/lib/auth-utils';
+
+function ensureCorrelationId(request: Request): string {
+  const incoming = request.headers.get('x-correlation-id');
+  if (incoming) return incoming;
+  const rand = Math.random().toString(16).slice(2);
+  const time = Date.now().toString(16);
+  return `${time}-${rand}`;
+}
 
 // ========================================
 // GET - Buscar categoria por ID
 // ========================================
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -24,10 +34,24 @@ export async function GET(
 
     const { id } = await params;
 
+    // Token de autenticação
+    const token = extractAuthToken(request) || (await supabase.auth.getSession()).data.session?.access_token || '';
+    if (!token) {
+      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+    }
+
+    const urlConfig = getBackendUrl(`/api/concurso-categorias/${id}`);
+    if (!urlConfig.isValid) {
+      return createEnvironmentErrorResponse(urlConfig);
+    }
+
+    const correlationId = ensureCorrelationId(request);
+
     // Repassar a requisição para o backend
-    const response = await fetch(`${process.env.BACKEND_API_URL}/api/concurso-categorias/${id}`, {
+    const response = await fetch(urlConfig.url, {
       headers: {
-        'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        Authorization: `Bearer ${token}`,
+        'x-correlation-id': correlationId,
       },
     });
 
@@ -41,9 +65,7 @@ export async function GET(
 
     const data = await response.json();
 
-    return NextResponse.json({
-      data: data.data,
-    });
+    return NextResponse.json(data, { headers: { 'x-correlation-id': correlationId }, status: 200 });
   } catch (error) {
     logger.error('Erro interno:', {
       error: error instanceof Error ? error.message : String(error),

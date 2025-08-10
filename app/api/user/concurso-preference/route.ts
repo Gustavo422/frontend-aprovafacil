@@ -1,6 +1,15 @@
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { extractAuthToken, sanitizeHeadersForLog, sanitizeToken } from '@/lib/auth-utils';
+import { getBackendUrl, createEnvironmentErrorResponse } from '@/lib/api-utils';
+
+function ensureCorrelationId(request: Request): string {
+  const incoming = request.headers.get('x-correlation-id');
+  if (incoming) return incoming;
+  const rand = Math.random().toString(16).slice(2);
+  const time = Date.now().toString(16);
+  return `${time}-${rand}`;
+}
 
 export async function GET(request: Request) {
   try {
@@ -33,19 +42,24 @@ export async function GET(request: Request) {
       console.log('[DEBUG] Erro ao decodificar token:', error);
     }
 
-    const backendUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/user/concurso-preference${new URL(request.url).search}`;
-    console.log('[DEBUG] Fazendo requisição para:', backendUrl);
+    const urlConfig = getBackendUrl('/api/user/concurso-preference', new URL(request.url).search);
+    if (!urlConfig.isValid) {
+      return createEnvironmentErrorResponse(urlConfig);
+    }
+    console.log('[DEBUG] Fazendo requisição para:', urlConfig.url);
     console.log('[DEBUG] Com token:', `Bearer ${token.substring(0, 4)}...${token.substring(token.length - 4)}`);
+    const correlationId = ensureCorrelationId(request);
     
-    const res = await fetch(backendUrl, {
+    const res = await fetch(urlConfig.url, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
+        'x-correlation-id': correlationId,
       },
     });
     const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
+    return NextResponse.json(data, { status: res.status, headers: { 'x-correlation-id': correlationId } });
   } catch (error) {
     logger.error('Erro ao buscar preferência do usuário:', {
       error: error instanceof Error ? error.message : String(error),
@@ -66,17 +80,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    const backendUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/user/concurso-preference`;
-    const res = await fetch(backendUrl, {
+    const urlConfig = getBackendUrl('/api/user/concurso-preference');
+    if (!urlConfig.isValid) {
+      return createEnvironmentErrorResponse(urlConfig);
+    }
+    const correlationId = ensureCorrelationId(request);
+    const res = await fetch(urlConfig.url, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
+        'x-correlation-id': correlationId,
       },
       body: await request.text(),
     });
     const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
+    return NextResponse.json(data, { status: res.status, headers: { 'x-correlation-id': correlationId } });
   } catch (error) {
     logger.error('Erro ao criar preferência do usuário:', {
       error: error instanceof Error ? error.message : String(error),
@@ -97,17 +116,22 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    const backendUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/user/concurso-preference`;
-    const res = await fetch(backendUrl, {
+    const urlConfig = getBackendUrl('/api/user/concurso-preference');
+    if (!urlConfig.isValid) {
+      return createEnvironmentErrorResponse(urlConfig);
+    }
+    const correlationId = ensureCorrelationId(request);
+    const res = await fetch(urlConfig.url, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
+        'x-correlation-id': correlationId,
       },
       body: await request.text(),
     });
     const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
+    return NextResponse.json(data, { status: res.status, headers: { 'x-correlation-id': correlationId } });
   } catch (error) {
     logger.error('Erro ao atualizar preferência do usuário:', {
       error: error instanceof Error ? error.message : String(error),
@@ -128,16 +152,21 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    const backendUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/user/concurso-preference`;
-    const res = await fetch(backendUrl, {
+    const urlConfig = getBackendUrl('/api/user/concurso-preference');
+    if (!urlConfig.isValid) {
+      return createEnvironmentErrorResponse(urlConfig);
+    }
+    const correlationId = ensureCorrelationId(request);
+    const res = await fetch(urlConfig.url, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
+        'x-correlation-id': correlationId,
       },
     });
     const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
+    return NextResponse.json(data, { status: res.status, headers: { 'x-correlation-id': correlationId } });
   } catch (error) {
     logger.error('Erro ao deletar preferência do usuário:', {
       error: error instanceof Error ? error.message : String(error),

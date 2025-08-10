@@ -21,7 +21,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
-    "test:ci": "vitest run --coverage --run",
+    "test:ci": "vitest run --config vitest.config.ts --coverage --run",
     "test:e2e": "vitest run --config vitest.config.e2e.ts",
     "test:e2e:watch": "vitest --config vitest.config.e2e.ts",
     "test:e2e:ui": "vitest --ui --config vitest.config.e2e.ts",

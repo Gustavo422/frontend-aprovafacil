@@ -38,10 +38,13 @@ import {
 } from 'recharts';
 
 // Components
-import { StatusCard } from '@/components/dashboard/status-card';
-import type { RecentActivity } from '@/components/dashboard/recent-activity';
+import { StatsStatusCards } from '@/src/features/guru/components/StatsStatusCards';
+import { RecentActivitiesList } from '@/src/features/guru/components/RecentActivitiesList';
 import { useConcursoQuery } from '@/src/hooks/useConcursoQuery';
+import { useEnhancedStats } from '@/src/features/guru/hooks/useEnhancedStats';
+import { useRecentActivities } from '@/src/features/guru/hooks/useRecentActivities';
 import { useConcurso } from '@/contexts/ConcursoContext';
+import { ErrorBlock } from '@/src/features/guru/components/ErrorBlock';
 
 interface PerformanceStats {
   totalSimulados: number;
@@ -134,23 +137,14 @@ export default function DashboardPage() {
     error: statsError,
     hasConcurso,
     isLoadingConcurso
-  } = useConcursoQuery<PerformanceStats>({
-    endpoint: '/api/dashboard/enhanced-stats',
-    requireConcurso: true,
-    staleTime: 5 * 60 * 1000, // 5 minutos
-  });
+  } = useEnhancedStats();
 
   // Usar o hook customizado para buscar atividades recentes com filtro automático
   const {
     data: recentActivities = [],
     isLoading: isLoadingActivities,
     error: activitiesError,
-  } = useConcursoQuery<RecentActivity[]>({
-    endpoint: '/api/dashboard/activities',
-    requireConcurso: true,
-    fallbackData: [],
-    staleTime: 2 * 60 * 1000, // 2 minutos
-  });
+  } = useRecentActivities();
 
   // Loading state
   if (isLoadingStats || isLoadingActivities || isLoadingConcurso) {
@@ -172,14 +166,20 @@ export default function DashboardPage() {
       activitiesError: activitiesError instanceof Error ? activitiesError.message : String(activitiesError),
       concursoId: activeConcursoId,
     });
-    
+
     return (
       <div className="flex flex-col gap-4">
         <h1 className="text-3xl font-bold tracking-tight">Guru da Aprovação</h1>
-        <div className="flex items-center gap-2 text-red-600">
-          <AlertCircle className="h-5 w-5" />
-          <p>Erro ao carregar dados do dashboard. Tente novamente.</p>
-        </div>
+        <ErrorBlock
+          title="Falha ao carregar o dashboard"
+          message="Verifique sua conexão ou tente novamente mais tarde."
+          onRetry={() => {
+            // Recarrega a página para forçar nova tentativa das queries
+            if (typeof window !== 'undefined') {
+              window.location.reload();
+            }
+          }}
+        />
       </div>
     );
   }
@@ -250,50 +250,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Status Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatusCard
-          titulo="Probabilidade de Aprovação"
-          value={`${performanceStats.approvalProbability.toFixed(1)}%`}
-          descricao="Baseado no seu desempenho atual"
-          icon={<Award />}
-          trend={{
-            value: performanceStats.approvalProbability > 70 ? '↑' : '↓',
-            type: performanceStats.approvalProbability > 70 ? 'up' : 'down'
-          }}
-          classnome={cn(
-            'border-l-4',
-            performanceStats.approvalProbability >= 80 ? 'border-l-green-500' :
-            performanceStats.approvalProbability >= 60 ? 'border-l-yellow-500' : 'border-l-red-500'
-          )}
-        />
-        
-        <StatusCard
-          titulo="Taxa de Acerto"
-          value={formatAccuracy(performanceStats.accuracyRate)}
-          descricao="Média geral de acertos"
-          icon={<Target />}
-          trend={{
-            value: performanceStats.accuracyRate > 70 ? '↑' : '↓',
-            type: performanceStats.accuracyRate > 70 ? 'up' : 'down'
-          }}
-        />
-        
-        <StatusCard
-          titulo="Tempo de Estudo"
-          value={formatStudyTime(performanceStats.totalStudyTime)}
-          descricao="Total de horas estudadas"
-          icon={<Clock />}
-          trend={{ value: '↑', type: 'up' }}
-        />
-        
-        <StatusCard
-          titulo="Sequência de Estudo"
-          value={`${performanceStats.studyStreak} dias`}
-          descricao="Dias consecutivos estudando"
-          icon={<Calendar />}
-          trend={{ value: '↑', type: 'up' }}
-        />
-      </div>
+      <StatsStatusCards stats={performanceStats} />
 
       {/* Progresso Semanal */}
       <Card>
@@ -496,48 +453,7 @@ export default function DashboardPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {recentActivities.length > 0 ? (
-              recentActivities.map((activity) => (
-                <div key={activity.id} className="flex items-center gap-4 p-3 border rounded-lg">
-                  <div className="flex-shrink-0">
-                    {activity.type === 'simulado' && <FileText className="h-5 w-5 text-blue-500" />}
-                    {activity.type === 'questao' && <Target className="h-5 w-5 text-green-500" />}
-                    {activity.type === 'flashcard' && <Brain className="h-5 w-5 text-purple-500" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-medium truncate">{activity.titulo}</h4>
-                      <span className="text-xs text-muted-foreground">
-                        {formatRelativeTime(activity.created_at)}
-                      </span>
-                    </div>
-                    <p className="text-sm text-muted-foreground truncate">
-                      {activity.descricao}
-                    </p>
-                    {activity.score !== undefined && (
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs font-medium">
-                          Pontuação: {activity.score}%
-                        </span>
-                        {activity.improvement !== undefined && (
-                          <Badge variant={activity.improvement > 0 ? 'default' : 'secondary'}>
-                            {formatScoreImprovement(activity.improvement)}
-                          </Badge>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Nenhuma atividade recente encontrada.</p>
-                <p className="text-sm">Comece a estudar para ver suas atividades aqui.</p>
-              </div>
-            )}
-          </div>
+          <RecentActivitiesList activities={recentActivities} />
         </CardContent>
       </Card>
     </div>

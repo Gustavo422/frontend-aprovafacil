@@ -45,7 +45,7 @@ export async function verificarConcursoSelecionado(
   
   try {
     // Verificar se o usuário está autenticado via API
-    const authResponse = await fetch(`${request.nextUrl.origin}/api/auth/session`, {
+    const authResponse = await fetch(`${request.nextUrl.origin}/api/auth/me`, {
       headers: {
         'Cookie': request.headers.get('cookie') || '',
       },
@@ -121,7 +121,7 @@ export async function verificarConcursoSelecionado(
     }
     
     // Verificar se a categoria do concurso ainda existe e está ativa via API
-    const categoriaResponse = await fetch(`${request.nextUrl.origin}/api/categoria-disciplinas/${concurso.categoria_id}`, {
+    const categoriaResponse = await fetch(`${request.nextUrl.origin}/api/concurso-categorias/${concurso.categoria_id}`, {
       headers: {
         'Cookie': request.headers.get('cookie') || '',
         'Authorization': `Bearer ${authData.access_token}`,

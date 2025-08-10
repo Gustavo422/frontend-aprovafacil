@@ -54,33 +54,49 @@ export function useConcursoQuery<TData = unknown, TError = unknown>(
 
   // Função para fazer a requisição
   const fetchData = async (): Promise<TData> => {
-    console.log('[DEBUG] useConcursoQuery - Token:', token ? `${token.substring(0, 10)}...` : 'null');
     console.log('[DEBUG] useConcursoQuery - Endpoint:', endpoint);
     console.log('[DEBUG] useConcursoQuery - activeConcursoId:', activeConcursoId);
     console.log('[DEBUG] useConcursoQuery - hasSelectedConcurso:', hasSelectedConcurso);
     console.log('[DEBUG] useConcursoQuery - isLoadingConcurso:', isLoadingConcurso);
     
+    const correlationId = generateCorrelationId();
     const response = await fetch(endpoint, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
+        'x-correlation-id': correlationId,
       },
     });
 
-    console.log('[DEBUG] useConcursoQuery - Response status:', response.status);
+    const metaInfo = {
+      responseStatus: response.status,
+      correlationId,
+      requestId: response.headers.get('x-request-id') ?? undefined,
+      serverCorrelationId: response.headers.get('x-correlation-id') ?? undefined,
+      serverCacheHit: response.headers.get('x-cache-hit') === '1',
+      serverDurationMs: Number(response.headers.get('x-duration-ms') ?? '0') || undefined,
+      fetchedAt: new Date().toISOString(),
+    } as const;
+
+    // Anexar no meta da query para aparecer no DevTools do TanStack
+    // @ts-expect-error meta é mutável em runtime
+    (queryOptions as any)?.meta && ((queryOptions as any).meta.lastFetch = metaInfo);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
-    
-    if (!data.success) {
-      throw new Error(data.error || 'Erro na requisição');
+    const body = await response.json();
+    // Suporta ambos formatos: { success, data } e payload direto (para testes/MSW)
+    const hasEnvelope = typeof body === 'object' && body !== null && ('success' in body || 'data' in body);
+    if (hasEnvelope) {
+      if (body.success === false) {
+        throw new Error(body.error || 'Erro na requisição');
+      }
+      return (body.data ?? undefined) as TData;
     }
-
-    return data.data;
+    return body as TData;
   };
 
   // Determinar se a query deve ser executada
@@ -97,6 +113,12 @@ export function useConcursoQuery<TData = unknown, TError = unknown>(
     queryFn: fetchData,
     enabled: shouldEnable,
     initialData: !hasSelectedConcurso && requireConcurso ? fallbackData : undefined,
+    meta: {
+      feature: 'guru',
+      apiVersion: 'v1',
+      endpoint,
+      params: undefined,
+    },
     ...queryOptions,
   });
 
@@ -127,13 +149,15 @@ export function useSimpleQuery<TData = unknown, TError = unknown>(
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
-    
-    if (!data.success) {
-      throw new Error(data.error || 'Erro na requisição');
+    const body = await response.json();
+    const hasEnvelope = typeof body === 'object' && body !== null && ('success' in body || 'data' in body);
+    if (hasEnvelope) {
+      if (body.success === false) {
+        throw new Error(body.error || 'Erro na requisição');
+      }
+      return (body.data ?? undefined) as TData;
     }
-
-    return data.data;
+    return body as TData;
   };
 
   return useQuery({
@@ -185,25 +209,41 @@ export function useConcursoQueryWithParams<TData = unknown, TError = unknown>(
 
     const url = queryParams.toString() ? `${endpoint}?${queryParams.toString()}` : endpoint;
 
+    const correlationId = generateCorrelationId();
     const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
+        'x-correlation-id': correlationId,
       },
     });
+
+    const metaInfo = {
+      responseStatus: response.status,
+      correlationId,
+      requestId: response.headers.get('x-request-id') ?? undefined,
+      serverCorrelationId: response.headers.get('x-correlation-id') ?? undefined,
+      serverCacheHit: response.headers.get('x-cache-hit') === '1',
+      serverDurationMs: Number(response.headers.get('x-duration-ms') ?? '0') || undefined,
+      fetchedAt: new Date().toISOString(),
+    } as const;
+    // @ts-expect-error meta é mutável em runtime
+    (queryOptions as any)?.meta && ((queryOptions as any).meta.lastFetch = metaInfo);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
-    
-    if (!data.success) {
-      throw new Error(data.error || 'Erro na requisição');
+    const body = await response.json();
+    const hasEnvelope = typeof body === 'object' && body !== null && ('success' in body || 'data' in body);
+    if (hasEnvelope) {
+      if (body.success === false) {
+        throw new Error(body.error || 'Erro na requisição');
+      }
+      return (body.data ?? undefined) as TData;
     }
-
-    return data.data;
+    return body as TData;
   };
 
   // Determinar se a query deve ser executada
@@ -220,6 +260,12 @@ export function useConcursoQueryWithParams<TData = unknown, TError = unknown>(
     queryFn: fetchData,
     enabled: shouldEnable,
     initialData: !hasSelectedConcurso && requireConcurso ? fallbackData : undefined,
+    meta: {
+      feature: 'guru',
+      apiVersion: 'v1',
+      endpoint,
+      params,
+    },
     ...queryOptions,
   });
 
@@ -229,6 +275,12 @@ export function useConcursoQueryWithParams<TData = unknown, TError = unknown>(
     concursoId: activeConcursoId,
     isLoadingConcurso,
   };
+}
+
+function generateCorrelationId(): string {
+  const rand = Math.random().toString(16).slice(2);
+  const time = Date.now().toString(16);
+  return `${time}-${rand}`;
 }
 
 /**

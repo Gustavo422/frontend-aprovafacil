@@ -1,0 +1,46 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "entry": [
+    "app/**/*.tsx",
+    "src/**/*.tsx",
+    "src/**/*.ts",
+    "scripts/**/*.js"
+  ],
+  "project": [
+    "**/*.{ts,tsx}",
+    "!**/*.d.ts",
+    "!**/*.test.*",
+    "!**/*.spec.*"
+  ],
+  "ignore": [
+    "**/*.d.ts",
+    "**/*.test.*",
+    "**/*.spec.*",
+    "node_modules/**",
+    ".next/**",
+    "coverage/**"
+  ],
+  "ignoreDependencies": [
+    "@sentry/nextjs",
+    "next",
+    "react",
+    "react-dom"
+  ],
+  "ignoreBinaries": [
+    "next",
+    "vitest",
+    "cypress",
+    "playwright"
+  ],
+  "rules": {
+    "dependencies": "warn",
+    "devDependencies": "warn",
+    "exports": "warn",
+    "files": "warn",
+    "nsExports": "warn",
+    "types": "warn",
+    "unlisted": "warn"
+  }
+}
+
+
