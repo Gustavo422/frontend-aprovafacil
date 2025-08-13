@@ -1,7 +1,7 @@
 import { getLogger } from '@/src/lib/logging';
 import { CachedRepository } from '@/src/lib/repositories/base';
 import { DatabaseError, NotFoundError } from '@/src/lib/errors';
-import { supabase } from '@/src/lib/supabase';
+import { getSupabase } from '@/src/lib/supabase';
 import type { Tables } from '@/types/supabase.types';
 
 const logger = getLogger('ConcursoRepository');
@@ -110,7 +110,7 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
    */
   async findBySlug(slug: string): Promise<Concurso | null> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from('concursos')
         .select('*, categoria:categorias(*)')
         .eq('slug', slug)
@@ -140,7 +140,7 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
    */
   async findByIdWithCategory(id: string): Promise<Concurso | null> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from('concursos')
         .select('*, categoria:categorias(*)')
         .eq('id', id)
@@ -340,7 +340,7 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
         const searchTerm = String(filtros.search).toLowerCase();
         
         // Use ilike for case-insensitive search
-        const { data, error } = await supabase
+        const { data, error } = await getSupabase()
           .from('concursos')
           .select('*, categoria:categorias(*)')
           .or(`nome.ilike.%${searchTerm}%,descricao.ilike.%${searchTerm}%`);
@@ -431,7 +431,7 @@ export class ConcursoRepository extends CachedRepository<Concurso> {
       const ativos = await this.count({ ativo: true });
       
       // Get count by category
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from('concursos')
         .select('categoria_id, categorias:categorias(nome)');
       

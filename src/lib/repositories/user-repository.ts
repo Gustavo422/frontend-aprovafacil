@@ -2,7 +2,7 @@ import { getLogger } from '@/src/lib/logging';
 import { CachedRepository } from '@/src/lib/repositories/base';
 import type { AppUser} from '@/src/features/auth/types/user.types';
 import { mapUserRowToAppUser } from '@/src/features/auth/types/user.types';
-import { supabase } from '@/src/lib/supabase';
+import { getSupabase } from '@/src/lib/supabase';
 import { DatabaseError } from '@/src/lib/errors';
 
 const logger = getLogger('UserRepository');
@@ -52,7 +52,7 @@ export class UserRepository extends CachedRepository<AppUser> {
         return null;
       }
       // Get user from database
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from('usuarios')
         .select('*')
         .eq('id', usuario_id)
@@ -92,7 +92,7 @@ export class UserRepository extends CachedRepository<AppUser> {
         atualizado_em: new Date().toISOString(),
       };
        
-      const { data: updatedData, error } = await supabase
+      const { data: updatedData, error } = await getSupabase()
         .from('usuarios')
         .update(updateData)
         .eq('id', usuario_id)
@@ -131,7 +131,7 @@ export class UserRepository extends CachedRepository<AppUser> {
       }
       
       // Get user from database
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from('usuarios')
         .select('total_questoes_respondidas, total_acertos, tempo_estudo_minutos, pontuacao_media')
         .eq('id', usuario_id)
@@ -179,7 +179,7 @@ export class UserRepository extends CachedRepository<AppUser> {
         atualizado_em: new Date().toISOString(),
       };
        
-      const { data: updatedData, error } = await supabase
+      const { data: updatedData, error } = await getSupabase()
         .from('usuarios')
         .update(updateData)
         .eq('id', usuario_id)
@@ -217,7 +217,7 @@ export class UserRepository extends CachedRepository<AppUser> {
       }
       
       // Get user preferences from database
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from('preferencias_usuario')
         .select('*')
         .eq('usuario_id', usuario_id)
@@ -264,7 +264,7 @@ export class UserRepository extends CachedRepository<AppUser> {
         logger.warn('Usuário não autenticado');
         return null;
       }
-      const { data: existingPrefs, error: checkError } = await supabase
+      const { data: existingPrefs, error: checkError } = await getSupabase()
         .from('preferencias_usuario')
         .select('*')
         .eq('usuario_id', usuario_id)
@@ -286,7 +286,7 @@ export class UserRepository extends CachedRepository<AppUser> {
           atualizado_em: new Date().toISOString(),
         };
          
-        const { data, error } = await supabase
+        const { data, error } = await getSupabase()
           .from('preferencias_usuario')
           .update(updateData)
           .eq('usuario_id', usuario_id)
@@ -305,7 +305,7 @@ export class UserRepository extends CachedRepository<AppUser> {
           notificacoes_push: prefs.notificacoes_push !== undefined ? prefs.notificacoes_push : true
         };
          
-        const { data, error } = await supabase
+        const { data, error } = await getSupabase()
           .from('preferencias_usuario')
           .insert([insertData])
           .select()
@@ -338,7 +338,7 @@ export class UserRepository extends CachedRepository<AppUser> {
   async findByEmail(email: string): Promise<AppUser | null> {
     try {
       // Get user from database
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from('usuarios')
         .select('*')
         .eq('email', email)
@@ -377,7 +377,7 @@ export class UserRepository extends CachedRepository<AppUser> {
         atualizado_em: new Date().toISOString(),
       };
        
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from('usuarios')
         .update(updateData)
         .eq('id', usuarioId)
@@ -410,7 +410,7 @@ export class UserRepository extends CachedRepository<AppUser> {
         atualizado_em: new Date().toISOString(),
       };
        
-      const { error } = await supabase
+      const { error } = await getSupabase()
         .from('usuarios')
         .update(updateData)
         .eq('id', usuarioId);
@@ -441,7 +441,7 @@ export class UserRepository extends CachedRepository<AppUser> {
         atualizado_em: new Date().toISOString(),
       };
        
-      const { error } = await supabase
+      const { error } = await getSupabase()
         .from('usuarios')
         .update(updateData)
         .eq('id', usuarioId);
@@ -467,7 +467,7 @@ export class UserRepository extends CachedRepository<AppUser> {
   async getActiveUsersCount(): Promise<number> {
     try {
       // Ajuste para contagem de usuários ativos
-      const { count, error } = await supabase
+      const { count, error } = await getSupabase()
         .from('usuarios')
         .select('*', { count: 'exact', head: true })
         .eq('ativo', true);
@@ -499,7 +499,7 @@ export class UserRepository extends CachedRepository<AppUser> {
       const date = new Date();
       date.setDate(date.getDate() - days);
       
-      const { count, error } = await supabase
+      const { count, error } = await getSupabase()
         .from('usuarios')
         .select('*', { count: 'exact', head: true })
         .gte('criado_em', date.toISOString());

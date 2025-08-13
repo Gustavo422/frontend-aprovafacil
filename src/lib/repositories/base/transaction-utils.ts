@@ -1,4 +1,4 @@
-import { supabase } from '@/src/lib/supabase';
+import { getSupabase } from '@/src/lib/supabase';
 import { getLogger } from '@/src/lib/logging';
 import { DatabaseError } from '@/src/lib/errors';
 import type { EnhancedSupabaseClient } from '@/src/lib/supabase/enhanced-client';
@@ -18,7 +18,7 @@ export async function withTransaction<T>(
     logger.debug('Starting transaction');
     
     // Execute function with transaction context
-    const result = await fn(supabase as unknown as EnhancedSupabaseClient);
+    const result = await fn(getSupabase() as unknown as EnhancedSupabaseClient);
     
     logger.debug('Transaction completed successfully');
     

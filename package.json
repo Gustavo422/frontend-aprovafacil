@@ -17,6 +17,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --format=compact",
     "lint:fix": "next lint --fix",
     "lint:auto-fix": "node scripts/fix-linting.js",
+    "perf:summary": "node -e \"console.log('Front perf metrics are logged in console via metrics.ts (TTFB/TTD, cache hit-rate).')\"",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -49,7 +50,9 @@
     "build:analyze": "npm run build && npm run analyze:bundle",
     "optimize:images": "node scripts/optimize-images.js",
     "type-check": "tsc --noEmit",
-    "prepare": "husky install || true"
+    "prepare": "husky install || true",
+    "ci:quality": "npm run type-check && npm run lint && npm run test:ci",
+    "ci:knip": "npx knip --reporter json > knip-report-frontend.json"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
@@ -98,6 +101,7 @@
     "dotenv": "^17.2.0",
     "express-rate-limit": "7.5.1",
     "framer-motion": "12.22.0",
+    "fuse.js": "^7.1.0",
     "helmet": "8.1.0",
     "immer": "10.1.1",
     "intl-messageformat": "10.7.16",
@@ -177,6 +181,7 @@
     "function.prototype.name": "^1.1.8",
     "globals": "^16.3.0",
     "husky": "8.0.3",
+    "is-potential-custom-element-name": "^1.0.1",
     "jsdom": "^23.0.0",
     "knip": "^5.61.3",
     "lint": "^1.1.2",
@@ -192,7 +197,8 @@
     "vite": "7.0.2",
     "vite-tsconfig-paths": "^4.2.0",
     "vitest": "3.2.4",
-    "webpack": "5.99.9"
+    "webpack": "5.99.9",
+    "xml-name-validator": "^5.0.0"
   },
   "engines": {
     "node": ">=16.0.0"

@@ -187,7 +187,7 @@ export interface Database {
           dificuldade: string;
           criado_em: string;
           concurso_id: string | null;
-          is_public: boolean;
+          publico: boolean;
           atualizado_em: string;
           deleted_at: string | null;
           created_by: string | null;
@@ -203,7 +203,7 @@ export interface Database {
           dificuldade: string;
           criado_em?: string;
           concurso_id?: string | null;
-          is_public?: boolean;
+          publico?: boolean;
           atualizado_em?: string;
           deleted_at?: string | null;
           created_by?: string | null;
@@ -219,7 +219,7 @@ export interface Database {
           dificuldade?: string;
           criado_em?: string;
           concurso_id?: string | null;
-          is_public?: boolean;
+          publico?: boolean;
           atualizado_em?: string;
           deleted_at?: string | null;
           created_by?: string | null;

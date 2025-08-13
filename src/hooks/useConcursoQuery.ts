@@ -80,7 +80,6 @@ export function useConcursoQuery<TData = unknown, TError = unknown>(
     } as const;
 
     // Anexar no meta da query para aparecer no DevTools do TanStack
-    // @ts-expect-error meta é mutável em runtime
     (queryOptions as any)?.meta && ((queryOptions as any).meta.lastFetch = metaInfo);
 
     if (!response.ok) {
@@ -228,7 +227,7 @@ export function useConcursoQueryWithParams<TData = unknown, TError = unknown>(
       serverDurationMs: Number(response.headers.get('x-duration-ms') ?? '0') || undefined,
       fetchedAt: new Date().toISOString(),
     } as const;
-    // @ts-expect-error meta é mutável em runtime
+    
     (queryOptions as any)?.meta && ((queryOptions as any).meta.lastFetch = metaInfo);
 
     if (!response.ok) {

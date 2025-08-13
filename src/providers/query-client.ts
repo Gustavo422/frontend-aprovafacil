@@ -1,4 +1,19 @@
 import { QueryClient } from '@tanstack/react-query';
+import { recordCacheHit } from '@/src/features/simulados/lib/metrics';
+
+/**
+ * Definição de chaves padrão para a feature "simulados".
+ */
+export const simuladosKeys = {
+  root: ['simulados'] as const,
+  list: (params: { activeConcursoId?: string | null; filters?: Record<string, unknown> }) =>
+    ['simulados', 'list', { activeConcursoId: params.activeConcursoId ?? null, filters: params.filters ?? {} }] as const,
+  detail: (slug: string, activeConcursoId?: string | null) =>
+    ['simulados', 'detail', slug, activeConcursoId ?? null] as const,
+  questoes: (slug: string, activeConcursoId?: string | null) =>
+    ['simulados', 'questoes', slug, activeConcursoId ?? null] as const,
+  progresso: (slug: string) => ['simulados', 'progresso', slug] as const,
+};
 
 /**
  * Configuração avançada do cliente React Query
@@ -10,8 +25,14 @@ export const queryClient = new QueryClient({
       gcTime: 60 * 60 * 1000, // 1 hour (replaced cacheTime in v5+)
       refetchOnMount: true,
       refetchOnReconnect: true,
+      refetchOnWindowFocus: true,
       retryOnMount: true,
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
+      // Anexar meta padrão útil para telemetria
+      meta: {
+        feature: 'simulados',
+      },
+      structuralSharing: true,
     },
     mutations: {
       retry: 1,
@@ -93,3 +114,18 @@ export const queryUtils = {
     return config;
   }
 };
+
+// Defaults específicos para as chaves de simulados
+queryClient.setQueryDefaults(simuladosKeys.root, {
+  staleTime: 30_000,
+  gcTime: 5 * 60_000,
+  retry: 2,
+  refetchOnWindowFocus: true,
+  refetchOnReconnect: true,
+  networkMode: 'always',
+  placeholderData: (prev) => {
+    if (prev) recordCacheHit('list');
+    return prev;
+  },
+});
+

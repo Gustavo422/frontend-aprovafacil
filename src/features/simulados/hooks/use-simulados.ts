@@ -1,21 +1,7 @@
 import type { UseQueryOptions } from '@tanstack/react-query';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@/lib/api';
-
-export type SimuladoType = {
-  id: string;
-  titulo: string;
-  descricao?: string | null;
-  questions_count: number;
-  time_minutes: number;
-  dificuldade: string;
-  criado_em: string;
-  concurso_id: string | null;
-  is_public: boolean;
-  atualizado_em: string;
-  deleted_at: string | null;
-  created_by: string | null;
-};
+import type { Simulado } from '../api/contracts';
 
 // Repositório para chamadas à API de simulados
 const simuladoRepo = {
@@ -24,7 +10,12 @@ const simuladoRepo = {
     
     if (filters.concursoId) params.append('concurso_id', filters.concursoId);
     if (filters.dificuldade) params.append('dificuldade', filters.dificuldade);
-    if (filters.isPublic !== undefined) params.append('is_public', String(filters.isPublic));
+    const publicoFlag =
+      filters.publico !== undefined ? filters.publico : filters.isPublic;
+    if (publicoFlag !== undefined) {
+      // preferir snake_case 'publico'; manter alias legado 'isPublic' no filtro
+      params.append('publico', String(publicoFlag));
+    }
     if (filters.search) params.append('search', filters.search);
     
     const queryString = params.toString();
@@ -69,6 +60,9 @@ const simuladoRepo = {
 type SimuladoFilters = {
   concursoId?: string;
   dificuldade?: string;
+  // preferencial
+  publico?: boolean;
+  // legado (deprecated): mantido temporariamente como alias
   isPublic?: boolean;
   search?: string;
   [key: string]: unknown; // Permite filtros adicionais
@@ -89,9 +83,9 @@ const simuladoKeys = {
 // Hook para listar simulados
 export const useListarSimulados = (
   filters: SimuladoFilters = {},
-  options?: Omit<UseQueryOptions<SimuladoType[], Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<Simulado[], Error>, 'queryKey' | 'queryFn'>
 ) => {
-  return useQuery<SimuladoType[], Error>({
+  return useQuery<Simulado[], Error>({
     queryKey: simuladoKeys.list(filters),
     queryFn: async () => simuladoRepo.buscarTodos(filters),
     ...options,
@@ -101,9 +95,9 @@ export const useListarSimulados = (
 // Hook para buscar simulado por ID
 export const useBuscarSimulado = (
   id: string,
-  options?: Omit<UseQueryOptions<SimuladoType | null, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<Simulado | null, Error>, 'queryKey' | 'queryFn'>
 ) => {
-  return useQuery<SimuladoType | null, Error>({
+  return useQuery<Simulado | null, Error>({
     queryKey: simuladoKeys.detail(id),
     queryFn: async () => {
       if (!id) return null;
@@ -118,9 +112,9 @@ export const useBuscarSimulado = (
 // Hook para buscar simulados por concurso
 export const useListarSimuladosPorConcurso = (
   concursoId: string,
-  options?: Omit<UseQueryOptions<SimuladoType[], Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<Simulado[], Error>, 'queryKey' | 'queryFn'>
 ) => {
-  return useQuery<SimuladoType[], Error>({
+  return useQuery<Simulado[], Error>({
     queryKey: simuladoKeys.byConcurso(concursoId),
     queryFn: async () => simuladoRepo.findByConcurso(concursoId),
     enabled: !!concursoId,
@@ -131,9 +125,9 @@ export const useListarSimuladosPorConcurso = (
 // Hook para buscar simulados por dificuldade
 export const useListarSimuladosPorDificuldade = (
   dificuldade: string,
-  options?: Omit<UseQueryOptions<SimuladoType[], Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<Simulado[], Error>, 'queryKey' | 'queryFn'>
 ) => {
-  return useQuery<SimuladoType[], Error>({
+  return useQuery<Simulado[], Error>({
     queryKey: simuladoKeys.byDificuldade(dificuldade),
     queryFn: async () => simuladoRepo.findByDificuldade(dificuldade),
     enabled: !!dificuldade,
@@ -143,28 +137,28 @@ export const useListarSimuladosPorDificuldade = (
 
 // Hook para buscar simulados públicos
 export const useListarSimuladosPublicos = (
-  options?: Omit<UseQueryOptions<SimuladoType[], Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<Simulado[], Error>, 'queryKey' | 'queryFn'>
 ) => {
-  return useQuery<SimuladoType[], Error>({
+  return useQuery<Simulado[], Error>({
     queryKey: simuladoKeys.publicos(),
-    queryFn: async () => simuladoRepo.buscarTodos({ isPublic: true }),
+    queryFn: async () => simuladoRepo.buscarTodos({ publico: true }),
     ...options,
   });
 };
 
 // Tipos para mutations
-type CriarSimuladoData = Omit<SimuladoType, 'id' | 'criado_em' | 'atualizado_em' | 'deleted_at'>;
-type AtualizarSimuladoData = Partial<Omit<SimuladoType, 'id' | 'criado_em' | 'atualizado_em' | 'deleted_at'>>;
+type CriarSimuladoData = Partial<Omit<Simulado, 'id' | 'criado_em' | 'atualizado_em'>>;
+type AtualizarSimuladoData = Partial<Omit<Simulado, 'id' | 'criado_em' | 'atualizado_em'>>;
 
 // Hook para criar simulado
 export const useCriarSimulado = () => {
   const queryClient = useQueryClient();
   
   return useMutation<
-    SimuladoType, 
+    Simulado, 
     Error, 
     CriarSimuladoData,
-    { previousSimulados: SimuladoType[] | undefined }
+    { previousSimulados: Simulado[] | undefined }
   >({
     mutationFn: async (data: CriarSimuladoData) => {
       const response = await simuladoRepo.criarSimulado(data);
@@ -174,10 +168,10 @@ export const useCriarSimulado = () => {
     onMutate: async (newSimulado) => {
       await queryClient.cancelQueries({ queryKey: simuladoKeys.lists() });
       
-      const previousSimulados = queryClient.getQueryData<SimuladoType[]>(simuladoKeys.list());
+      const previousSimulados = queryClient.getQueryData<Simulado[]>(simuladoKeys.list());
       
       if (previousSimulados) {
-        queryClient.setQueryData<SimuladoType[]>(simuladoKeys.list(), [...previousSimulados, { ...newSimulado, id: 'temp-id' } as SimuladoType]);
+        queryClient.setQueryData<Simulado[]>(simuladoKeys.list(), [...previousSimulados, { ...newSimulado, id: 'temp-id' } as Simulado]);
       }
       
       return { previousSimulados };
@@ -200,10 +194,10 @@ export const useAtualizarSimulado = () => {
   const queryClient = useQueryClient();
   
   return useMutation<
-    SimuladoType, 
+    Simulado, 
     Error, 
     { id: string; data: AtualizarSimuladoData },
-    { previousSimulado: SimuladoType | undefined }
+    { previousSimulado: Simulado | undefined }
   >({
     mutationFn: async ({ id, data }: { id: string; data: AtualizarSimuladoData }) => {
       const response = await simuladoRepo.atualizarSimulado(id, data);
@@ -214,7 +208,7 @@ export const useAtualizarSimulado = () => {
       await queryClient.cancelQueries({ queryKey: simuladoKeys.detail(id) });
       await queryClient.cancelQueries({ queryKey: simuladoKeys.lists() });
       
-      const previousSimulado = queryClient.getQueryData<SimuladoType>(simuladoKeys.detail(id));
+      const previousSimulado = queryClient.getQueryData<Simulado>(simuladoKeys.detail(id));
       
       if (previousSimulado) {
         queryClient.setQueryData(simuladoKeys.detail(id), { ...previousSimulado, ...data });
@@ -241,10 +235,10 @@ export const useDeletarSimulado = () => {
   const queryClient = useQueryClient();
   
   return useMutation<
-    SimuladoType, 
+    Simulado, 
     Error, 
     string,
-    { previousSimulado: SimuladoType | undefined }
+    { previousSimulado: Simulado | undefined }
   >({
     mutationFn: async (id: string) => {
       const response = await simuladoRepo.deletarSimulado(id);
@@ -255,7 +249,7 @@ export const useDeletarSimulado = () => {
       await queryClient.cancelQueries({ queryKey: simuladoKeys.detail(id) });
       await queryClient.cancelQueries({ queryKey: simuladoKeys.lists() });
       
-      const previousSimulado = queryClient.getQueryData<SimuladoType>(simuladoKeys.detail(id));
+      const previousSimulado = queryClient.getQueryData<Simulado>(simuladoKeys.detail(id));
       
       if (previousSimulado) {
         queryClient.setQueryData(simuladoKeys.detail(id), { ...previousSimulado, deleted_at: new Date().toISOString() });

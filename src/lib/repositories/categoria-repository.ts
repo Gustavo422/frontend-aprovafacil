@@ -1,7 +1,7 @@
 import { getLogger } from '@/src/lib/logging';
 import { CachedRepository } from '@/src/lib/repositories/base';
 import { DatabaseError, NotFoundError } from '@/src/lib/errors';
-import { supabase } from '@/src/lib/supabase';
+import { getSupabase } from '@/src/lib/supabase';
 // import type { Database } from '@/types/supabase.types';
 
 const logger = getLogger('CategoriaRepository');
@@ -144,7 +144,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
   async findBySlug(slug: string): Promise<Categoria | null> {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data, error } = await (supabase.from as any)('categorias_concursos')
+      const { data, error } = await (getSupabase().from as any)('categorias_concursos')
         .select('*')
         .eq('slug', slug)
         .maybeSingle();
@@ -200,7 +200,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       };
       // Start transaction
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: categoria, error: categoriaError } = await (supabase.from as any)('categorias_concursos')
+      const { data: categoria, error: categoriaError } = await (getSupabase().from as any)('categorias_concursos')
         .insert(categoriaData)
         .select()
         .single();
@@ -227,7 +227,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
           atualizado_em: new Date().toISOString()
         }));
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { error: disciplinasError } = await (supabase.from as any)('disciplinas_categoria')
+        const { error: disciplinasError } = await (getSupabase().from as any)('disciplinas_categoria')
           .insert(disciplinasData);
         if (disciplinasError) {
           logger.error('Failed to create disciplinas', { error: disciplinasError });
@@ -236,7 +236,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       }
       // Get categoria with disciplinas
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: result, error: getError } = await (supabase.from as any)('categorias_concursos')
+      const { data: result, error: getError } = await (getSupabase().from as any)('categorias_concursos')
         .select('*')
         .eq('id', (categoria as CategoriaRow).id)
         .single();
@@ -282,7 +282,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       
       // Update categoria
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error: categoriaError } = await (supabase.from as any)('categorias_concursos')
+      const { error: categoriaError } = await (getSupabase().from as any)('categorias_concursos')
         .update(categoriaData)
         .eq('id', id)
         .select()
@@ -297,7 +297,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       if (disciplinas && disciplinas.length > 0) {
         // Get existing disciplinas
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data: existingDisciplinas, error: getDisciplinasError } = await (supabase.from as any)('disciplinas_categoria')
+        const { data: existingDisciplinas, error: getDisciplinasError } = await (getSupabase().from as any)('disciplinas_categoria')
           .select('*')
           .eq('categoria_id', id);
         
@@ -311,7 +311,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
           if (disciplina.id) {
             // Update existing disciplina
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const { error: updateError } = await (supabase.from as any)('disciplinas_categoria')
+            const { error: updateError } = await (getSupabase().from as any)('disciplinas_categoria')
               .update({
                 ...disciplina,
                 atualizado_em: new Date().toISOString()
@@ -326,7 +326,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
           } else {
             // Create new disciplina
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const { error: insertError } = await (supabase.from as any)('disciplinas_categoria')
+            const { error: insertError } = await (getSupabase().from as any)('disciplinas_categoria')
               .insert({
                 nome: disciplina.nome ?? '',
                 categoria_id: id,
@@ -348,7 +348,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       
       // Get updated categoria with disciplinas
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: result, error: getError } = await (supabase.from as any)('categorias_concursos')
+      const { data: result, error: getError } = await (getSupabase().from as any)('categorias_concursos')
         .select('*')
         .eq('id', id)
         .single();
@@ -390,7 +390,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       
       // Update categoria
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data, error } = await (supabase.from as any)('categorias_concursos')
+      const { data, error } = await (getSupabase().from as any)('categorias_concursos')
         .update({
           ativo: false,
           atualizado_em: new Date().toISOString()
@@ -436,7 +436,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       
       // Update categoria
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data, error } = await (supabase.from as any)('categorias_concursos')
+      const { data, error } = await (getSupabase().from as any)('categorias_concursos')
         .update({
           ativo: true,
           atualizado_em: new Date().toISOString()
@@ -475,7 +475,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
     try {
       // Convert filters to Supabase format
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let query = (supabase.from as any)('categorias_concursos')
+      let query = (getSupabase().from as any)('categorias_concursos')
         .select('*');
       
       // Apply filters
@@ -527,7 +527,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
   async findByParentId(parentId: string | null): Promise<Categoria[]> {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let query = (supabase.from as any)('categorias_concursos')
+      let query = (getSupabase().from as any)('categorias_concursos')
         .select('*');
       
       if (parentId) {
@@ -563,7 +563,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
     try {
       // Get all categorias
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data, error } = await (supabase.from as any)('categorias_concursos')
+      const { data, error } = await (getSupabase().from as any)('categorias_concursos')
         .select('*')
         .order('nome');
       
@@ -631,7 +631,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       
       // Check if categoria has children
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: children, error: childrenError } = await (supabase.from as any)('categorias_concursos')
+      const { data: children, error: childrenError } = await (getSupabase().from as any)('categorias_concursos')
         .select('id')
         .eq('parent_id', id);
       
@@ -649,7 +649,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       
       // Check if categoria has concursos
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: concursos, error: concursosError } = await (supabase.from as any)('concursos')
+      const { data: concursos, error: concursosError } = await (getSupabase().from as any)('concursos')
         .select('id')
         .eq('categoria_id', id);
       
@@ -667,7 +667,7 @@ export class CategoriaRepository extends CachedRepository<Categoria> {
       
       // Check if categoria has disciplinas
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: disciplinas, error: disciplinasError } = await (supabase.from as any)('disciplinas_categoria')
+      const { data: disciplinas, error: disciplinasError } = await (getSupabase().from as any)('disciplinas_categoria')
         .select('id')
         .eq('categoria_id', id);
       

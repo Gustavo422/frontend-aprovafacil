@@ -115,7 +115,7 @@ export async function validatePublicAccess(
     const supabase = await createServerSupabaseClient();
     const { data, error } = await supabase
       .from(tablenome)
-      .select('is_public')
+      .select('publico')
       .eq('id', recordId)
       .is('deleted_at', null)
       .single();
@@ -124,7 +124,7 @@ export async function validatePublicAccess(
       return false;
     }
 
-    return data.is_public === true;
+    return (data as any).publico === true;
   } catch (error) {
     logger.error('Erro ao validar acesso público:', {
       error: error instanceof Error ? error.message : String(error),
@@ -204,7 +204,7 @@ export async function filterByAccess(
     const { data, error } = await supabase
       .from(tablenome)
       .select('*')
-      .or(`${resourceUserIdField}.eq.${usuarioId},is_public.eq.true`)
+      .or(`${resourceUserIdField}.eq.${usuarioId},publico.eq.true`)
       .is('deleted_at', null)
       .order('criado_em', { ascending: false });
 
@@ -308,7 +308,7 @@ export async function getSharedResources(
     const { data, error } = await supabase
       .from(tablenome)
       .select('*')
-      .or(`shared_with.cs.{${usuarioId}},is_public.eq.true`)
+      .or(`shared_with.cs.{${usuarioId}},publico.eq.true`)
       .is('deleted_at', null)
       .order('criado_em', { ascending: false });
 

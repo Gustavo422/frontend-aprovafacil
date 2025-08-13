@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, memo, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, memo, useMemo, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -57,28 +57,34 @@ interface QuestionPlayerProps {
   timeLimit?: number; // em minutos
   onComplete?: (answers: Record<number, string>, timeSpent: number) => void;
   showCorrectAnswers?: boolean;
+  onProgressChange?: (info: { hasProgress: boolean; answered: number; total: number }) => void;
 }
 
 // Função para converter questões do novo esquema para o formato do componente
 // Memoized to prevent unnecessary conversions
-const useNormalizedQuestions = (questions: Question[] | SimuladoQuestion[]): Question[] => {
+const useNormalizedQuestions = (questions: Question[] | SimuladoQuestion[] | undefined | null): Question[] => {
   return useMemo(() => {
-    if (Array.isArray(questions) && questions.length > 0 && 'alternativas' in questions[0]) {
-      return (questions as SimuladoQuestion[]).map(q => ({
-        id: q.question_number,
-        text: q.enunciado,
-        options: Object.entries(q.alternativas).map(([key, value]) => ({
-          id: key,
-          text: value,
-        })),
-        respostaCorreta: q.resposta_correta,
-        explicacao: q.explicacao,
-        disciplina: q.disciplina,
-        tema: q.tema,
-        dificuldade: q.dificuldade,
-      }));
+    const source = Array.isArray(questions) ? questions : [];
+    if (source.length > 0 && 'alternativas' in (source[0] as any)) {
+      return (source as any[]).map((q: any) => {
+        const alternativas: Record<string, unknown> = (q?.alternativas && typeof q.alternativas === 'object') ? q.alternativas : {};
+        const entries = Object.entries(alternativas);
+        return {
+          id: typeof q?.numero_questao !== 'undefined' ? q.numero_questao : q?.question_number,
+          text: String(q?.enunciado ?? ''),
+          options: entries.map(([key, value]) => ({
+            id: String(key),
+            text: String(value ?? ''),
+          })),
+          respostaCorreta: String(q?.resposta_correta ?? ''),
+          explicacao: q?.explicacao,
+          disciplina: q?.disciplina,
+          tema: (q?.tema ?? q?.assunto) as string | undefined,
+          dificuldade: q?.dificuldade,
+        } as Question;
+      });
     }
-    return questions as Question[];
+    return source as Question[];
   }, [questions]);
 };
 
@@ -234,6 +240,7 @@ export const QuestionPlayer = memo(({
   timeLimit,
   onComplete,
   showCorrectAnswers = false,
+  onProgressChange,
 }: QuestionPlayerProps) => {
   // Use memoized normalized questions
   const normalizedQuestions = useNormalizedQuestions(questions);
@@ -247,7 +254,8 @@ export const QuestionPlayer = memo(({
   // Finalizar quiz - memoized to prevent recreation on each render
   const finishQuiz = useCallback(() => {
     setIsFinished(true);
-    const timeSpent = Math.floor((Date.now() - startTime) / 1000 / 60); // em minutos
+    const elapsedSeconds = Math.max(0, Math.floor((Date.now() - startTime) / 1000));
+    const timeSpent = Math.max(1, Math.ceil(elapsedSeconds / 60)); // em minutos (mínimo 1 quando houve atividade)
     if (onComplete) {
       onComplete(answers, timeSpent);
     }
@@ -289,6 +297,27 @@ export const QuestionPlayer = memo(({
     setAnswers(prev => ({ ...prev, [currentQuestion]: value }));
   }, [currentQuestion]);
 
+  // Notificar progresso (se há respostas) evitando loops de atualização
+  const progressCallbackRef = useRef(onProgressChange);
+  useEffect(() => {
+    progressCallbackRef.current = onProgressChange;
+  }, [onProgressChange]);
+
+  const lastProgressRef = useRef<{ answered: number; total: number; hasProgress: boolean } | null>(null);
+  useEffect(() => {
+    const answered = Object.keys(answers).length;
+    const total = normalizedQuestions.length;
+    const hasProgress = answered > 0;
+    const current = { answered, total, hasProgress };
+    const prev = lastProgressRef.current;
+    if (!prev || prev.answered !== current.answered || prev.total !== current.total || prev.hasProgress !== current.hasProgress) {
+      if (typeof progressCallbackRef.current === 'function') {
+        progressCallbackRef.current(current);
+      }
+      lastProgressRef.current = current;
+    }
+  }, [answers, normalizedQuestions.length]);
+
   // Calcular progresso - memoized
   const progress = useMemo(() => {
     return ((currentQuestion + 1) / normalizedQuestions.length) * 100;
@@ -308,6 +337,21 @@ export const QuestionPlayer = memo(({
   const formattedTimeLeft = useMemo(() => {
     return formatTime(timeLeft);
   }, [timeLeft]);
+
+  if (normalizedQuestions.length === 0) {
+    return (
+      <div className="flex flex-col gap-4 max-w-4xl mx-auto">
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle className="text-base md:text-lg">Nenhuma questão disponível</CardTitle>
+          </CardHeader>
+          <CardContent className="pb-4">
+            <p className="text-sm text-muted-foreground">Não há questões para este simulado no momento.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4 max-w-4xl mx-auto">

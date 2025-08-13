@@ -70,8 +70,8 @@ export default function RootLayout({
           <ErrorBoundaryWrapper>
             <AuthProvider>
               <ConcursoProvider>
-                  <ConcursoApiSync />
-                  {children}
+                <ConcursoApiSync />
+                {children}
               </ConcursoProvider>
             </AuthProvider>
           </ErrorBoundaryWrapper>

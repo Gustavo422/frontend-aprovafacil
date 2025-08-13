@@ -4,7 +4,8 @@
     "app/**/*.tsx",
     "src/**/*.tsx",
     "src/**/*.ts",
-    "scripts/**/*.js"
+    "scripts/**/*.js",
+    "src/features/simulados/lib/**/*.ts"
   ],
   "project": [
     "**/*.{ts,tsx}",

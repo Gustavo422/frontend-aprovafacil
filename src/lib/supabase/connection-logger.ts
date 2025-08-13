@@ -1,10 +1,6 @@
 import type { ConnectionStatus } from './enums/connection-status.enum';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { getSupabase, isSupabaseConfigured } from './index';
+const supabase = isSupabaseConfigured() ? getSupabase() : (null as unknown as ReturnType<typeof getSupabase>);
 
 /**
  * Interface for connection log entry
@@ -83,6 +79,7 @@ export class ConnectionLogger {
    */
   private async getCurrentUserId(): Promise<string | null> {
     try {
+      if (!isSupabaseConfigured() || !supabase) return null;
       const { data } = await supabase.auth.getUser();
       this.usuarioId = data.user?.id || null;
       return this.usuarioId;
@@ -164,6 +161,7 @@ export class ConnectionLogger {
     this.buffer = [];
     
     try {
+      if (!isSupabaseConfigured() || !supabase) return;
       // Insert logs into Supabase
       const logsWithRequiredFields = logs.map(log => ({
         ...log,

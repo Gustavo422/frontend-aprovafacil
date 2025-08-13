@@ -21,7 +21,7 @@ export { SupabaseErrorHandler } from './error-handler';
 export { RetryHandler } from './retry-handler';
 export { RetryDemo } from './retry-demo';
 export { ConnectionMonitorService, getConnectionMonitor } from './connection-monitor';
-export { ConnectionLogger, getConnectionLogger } from './connection-logger';
+// Re-exports de logger removidos para evitar inicialização precoce de cliente
 
 // Functions
 export { withRetry, wrapWithRetry } from './retry-handler';
@@ -35,6 +35,7 @@ export { ConnectionStatusIndicator } from './connection-status-indicator';
 
 // Default export
 import { createClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 // Função para criar cliente Supabase com configurações adequadas
 export function createSupabaseClient() {
@@ -51,8 +52,19 @@ export function createSupabaseClient() {
   );
 }
 
-// Cliente padrão para uso no cliente (browser)
-const supabase = createSupabaseClient();
+// Criação lazy (evita erro quando variáveis não estão definidas em build/import)
+let cachedClient: SupabaseClient | null = null;
 
-export { supabase };
-export { supabase as default };
+export function isSupabaseConfigured(): boolean {
+  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+}
+
+export function getSupabase(): SupabaseClient {
+  if (!isSupabaseConfigured()) {
+    throw new Error('Supabase não configurado: defina NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY.');
+  }
+  if (!cachedClient) {
+    cachedClient = createSupabaseClient();
+  }
+  return cachedClient;
+}

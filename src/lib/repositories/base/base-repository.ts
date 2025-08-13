@@ -1,5 +1,5 @@
 import type { PostgrestError } from '@supabase/supabase-js';
-import { supabase } from '@/src/lib/supabase';
+import { getSupabase } from '@/src/lib/supabase';
 import { getLogger } from '@/src/lib/logging';
 import { DatabaseError } from '@/src/lib/errors';
 import type {
@@ -36,7 +36,7 @@ export abstract class BaseRepository<T extends { id: ID }, ID = string>
    */
   protected getQueryBuilder() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (supabase.from as any)(this.tableName);
+    return (getSupabase().from as any)(this.tableName);
   }
   
   /**

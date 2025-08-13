@@ -1,4 +1,4 @@
-import { supabase } from '@/src/lib/supabase';
+import { getSupabase, isSupabaseConfigured } from '@/src/lib/supabase';
 import type { LogEntry, LogTransport } from './index';
 import { LogLevel } from './index';
 
@@ -131,7 +131,8 @@ export class SupabaseLogTransport implements LogTransport {
       }));
       
       // Insert logs into Supabase
-      const { error } = await supabase
+      if (!isSupabaseConfigured()) return;
+      const { error } = await getSupabase()
         .from('logs_auditoria')
         .insert(logs);
       

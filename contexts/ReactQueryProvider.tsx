@@ -7,7 +7,25 @@ interface Props {
 }
 
 export function ReactQueryProvider({ children }: Props) {
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(() => {
+    const client = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: 2,
+        staleTime: 30_000,
+        gcTime: 5 * 60_000,
+        refetchOnWindowFocus: true,
+        refetchOnReconnect: true,
+        networkMode: 'always',
+      },
+      mutations: {
+        networkMode: 'always',
+      },
+    },
+    });
+    // Padrões moved para query-client.ts (Providers)
+    return client;
+  });
   return (
     <QueryClientProvider client={queryClient}>
       {children}
