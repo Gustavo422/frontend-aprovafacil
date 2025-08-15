@@ -1,6 +1,7 @@
 "use client";
 
 import React, { memo, useMemo } from "react";
+import dynamic from 'next/dynamic';
 import { useListarUsuarios } from "@/features/auth/hooks/use-usuarios";
 import { VirtualizedList } from "@/components/ui/virtualized-list";
 
@@ -58,7 +59,7 @@ const UserRow = memo(({ item, style }: { item: Usuario; style: React.CSSProperti
 });
 UserRow.displayName = 'UserRow';
 
-export default function UsuariosAdminPage() {
+function UsuariosAdminPageImpl() {
   const { data: usuarios, isLoading, error, refetch } = useListarUsuarios();
 
 
@@ -107,3 +108,8 @@ export default function UsuariosAdminPage() {
     </div>
   );
 }
+
+// Evita SSR/prerender desta página para não depender de envs em build
+const UsuariosAdminPage = dynamic(() => Promise.resolve(UsuariosAdminPageImpl), { ssr: false });
+
+export default UsuariosAdminPage;

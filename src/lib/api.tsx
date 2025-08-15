@@ -8,7 +8,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/a
 const ROUTES_REQUIRING_CONCURSO_FILTER = [
   '/api/apostilas',
   '/api/simulados',
-  '/api/questoes-semanais',
+  '/api/questoes-semanais', // ⚠️ DEPRECATED - será removida em 2024-06-01
   '/api/flashcards',
   '/api/mapa-assuntos',
   '/api/conteudo/filtrado',

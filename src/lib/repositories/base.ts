@@ -30,26 +30,35 @@ export interface IRepository<T, ID = string> {
  * Base repository implementation
  */
 export abstract class BaseRepository<T extends { id: string }> implements IRepository<T> {
-  protected client: SupabaseClient;
+	protected client: SupabaseClient | null;
   protected tableName: string;
 
   /**
    * Create a new base repository
    * @param tableName Table name
    */
-  constructor(tableName: string) {
-    this.tableName = tableName;
-    
-    // Get Supabase client from environment variables
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    
-    if (!supabaseUrl || !supabaseKey) {
-      throw new Error('Supabase URL and key must be defined in environment variables');
-    }
-    
-    this.client = createClient(supabaseUrl, supabaseKey);
-  }
+	constructor(tableName: string) {
+		this.tableName = tableName;
+		
+		// Inicialização preguiçosa: só cria o client quando as variáveis existem
+		const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+		const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+		this.client = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
+	}
+
+	/**
+	 * Garante um SupabaseClient válido, inicializando sob demanda.
+	 */
+	protected getClient(): SupabaseClient {
+		if (this.client) return this.client;
+		const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+		const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+		if (!supabaseUrl || !supabaseKey) {
+			throw new DatabaseError('Supabase não configurado: defina NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY.');
+		}
+		this.client = createClient(supabaseUrl, supabaseKey);
+		return this.client;
+	}
 
   /**
    * Find an entity by ID
@@ -58,7 +67,7 @@ export abstract class BaseRepository<T extends { id: string }> implements IRepos
    */
   async findById(id: string): Promise<T | null> {
     try {
-      const { data, error } = await this.client
+		const { data, error } = await this.getClient()
         .from(this.tableName)
         .select('*')
         .eq('id', id)
@@ -88,7 +97,7 @@ export abstract class BaseRepository<T extends { id: string }> implements IRepos
    */
   async findAll(filters?: Record<string, unknown>): Promise<T[]> {
     try {
-      let query = this.client
+		let query = this.getClient()
         .from(this.tableName)
         .select('*');
       
@@ -134,7 +143,7 @@ export abstract class BaseRepository<T extends { id: string }> implements IRepos
         atualizado_em: now
       };
       
-      const { data, error } = await this.client
+		const { data, error } = await this.getClient()
         .from(this.tableName)
         .insert(entityWithTimestamps)
         .select()
@@ -165,7 +174,7 @@ export abstract class BaseRepository<T extends { id: string }> implements IRepos
    */
   async update(id: string, entity: Partial<T>): Promise<T | null> {
     try {
-      const { data, error } = await this.client
+		const { data, error } = await this.getClient()
         .from(this.tableName)
         .update({
           ...entity,
@@ -199,7 +208,7 @@ export abstract class BaseRepository<T extends { id: string }> implements IRepos
    */
   async delete(id: string): Promise<boolean> {
     try {
-      const { error } = await this.client
+		const { error } = await this.getClient()
         .from(this.tableName)
         .delete()
         .eq('id', id);
@@ -228,7 +237,7 @@ export abstract class BaseRepository<T extends { id: string }> implements IRepos
    */
   async count(filters?: Record<string, unknown>): Promise<number> {
     try {
-      let query = this.client
+		let query = this.getClient()
         .from(this.tableName)
         .select('*', { count: 'exact', head: true });
       

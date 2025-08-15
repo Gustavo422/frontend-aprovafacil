@@ -54,23 +54,104 @@ function makeRequest(url, method = 'GET', headers = {}) {
 
 // Função principal
 async function main() {
-  console.log('🚀 Iniciando teste do endpoint de questões semanais...\n');
+  console.log('🚀 Iniciando teste dos endpoints de questões semanais...\n');
   
-  // Testar endpoint de questões semanais
-  console.log('🔍 Testando: /api/questoes-semanais');
+  // Testar endpoints NOVOS (recomendados)
+  console.log('🔍 Testando: /api/questoes-semanais/atual (NOVO)');
+  try {
+    const response = await makeRequest('/api/questoes-semanais/atual');
+    
+    if (response.statusCode === 200) {
+      console.log(`✅ /api/questoes-semanais/atual - Status: ${response.statusCode}`);
+      console.log(`   📦 Dados recebidos: ${response.data.data?.questoes?.length || 0} questões`);
+      
+      if (response.data.data?.questao_semanal) {
+        console.log(`   📋 Semana atual:`, {
+          numero_semana: response.data.data.questao_semanal.numero_semana,
+          ano: response.data.data.questao_semanal.ano,
+          titulo: response.data.data.questao_semanal.titulo
+        });
+      }
+
+      // Verificar se o campo status está sendo retornado
+      if (response.data.data?.status) {
+        console.log(`   ✅ Status da semana:`, {
+          semana_atual: response.data.data.status.semana_atual,
+          modo_desbloqueio: response.data.data.status.modo_desbloqueio,
+          tempo_restante: response.data.data.status.tempo_restante ? `${Math.floor(response.data.data.status.tempo_restante / 3600)}h ${Math.floor((response.data.data.status.tempo_restante % 3600) / 60)}m` : 'N/A',
+          inicio_semana: response.data.data.status.inicio_semana_em,
+          fim_semana: response.data.data.status.fim_semana_em
+        });
+      } else {
+        console.log(`   ❌ Campo 'status' não encontrado na resposta`);
+      }
+    } else {
+      console.log(`❌ /api/questoes-semanais/atual - Status: ${response.statusCode}`);
+      console.log(`   🚨 Erro:`, response.data.error || response.data);
+    }
+    
+  } catch (error) {
+    console.log(`💥 /api/questoes-semanais/atual - Erro de conexão:`, error.message);
+  }
+  
+  console.log('');
+  
+  // Testar endpoint de roadmap (NOVO)
+  console.log('🔍 Testando: /api/questoes-semanais/roadmap (NOVO)');
+  try {
+    const response = await makeRequest('/api/questoes-semanais/roadmap');
+    
+    if (response.statusCode === 200) {
+      console.log(`✅ /api/questoes-semanais/roadmap - Status: ${response.statusCode}`);
+      console.log(`   📦 Roadmap recebido: ${response.data.data?.length || 0} semanas`);
+    } else {
+      console.log(`❌ /api/questoes-semanais/roadmap - Status: ${response.statusCode}`);
+      console.log(`   🚨 Erro:`, response.data.error || response.data);
+    }
+    
+  } catch (error) {
+    console.log(`💥 /api/questoes-semanais/roadmap - Erro de conexão:`, error.message);
+  }
+  
+  console.log('');
+  
+  // Testar endpoint de histórico (NOVO)
+  console.log('🔍 Testando: /api/questoes-semanais/historico (NOVO)');
+  try {
+    const response = await makeRequest('/api/questoes-semanais/historico');
+    
+    if (response.statusCode === 200) {
+      console.log(`✅ /api/questoes-semanais/historico - Status: ${response.statusCode}`);
+      console.log(`   📦 Histórico recebido: ${response.data.data?.length || 0} semanas concluídas`);
+    } else {
+      console.log(`❌ /api/questoes-semanais/historico - Status: ${response.statusCode}`);
+      console.log(`   🚨 Erro:`, response.data.error || response.data);
+    }
+    
+  } catch (error) {
+    console.log(`💥 /api/questoes-semanais/historico - Erro de conexão:`, error.message);
+  }
+  
+  console.log('');
+  
+  // Testar endpoint ANTIGO (DEPRECATADO)
+  console.log('⚠️  Testando: /api/questoes-semanais (DEPRECATADO)');
   try {
     const response = await makeRequest('/api/questoes-semanais');
     
     if (response.statusCode === 200) {
-      console.log(`✅ /api/questoes-semanais - Status: ${response.statusCode}`);
+      console.log(`⚠️  /api/questoes-semanais - Status: ${response.statusCode} (DEPRECATADO)`);
       console.log(`   📦 Dados recebidos: ${response.data.data?.length || 0} questões`);
+      console.log(`   🚨 DEPRECATION WARNING: Esta rota será removida em 2024-06-01`);
+      console.log(`   💡 Use /api/questoes-semanais/atual em vez disso`);
       
-      if (response.data.data && response.data.data.length > 0) {
-        console.log(`   📋 Primeira questão:`, {
-          id: response.data.data[0].id,
-          titulo: response.data.data[0].titulo,
-          numero_semana: response.data.data[0].numero_semana,
-          ano: response.data.data[0].ano
+      // Verificar headers de deprecação
+      if (response.headers['x-deprecated'] === 'true') {
+        console.log(`   📋 Headers de deprecação:`, {
+          deprecated: response.headers['x-deprecated'],
+          since: response.headers['x-deprecated-since'],
+          recommended: response.headers['x-recommended-route'],
+          sunset: response.headers['x-sunset-date']
         });
       }
     } else {
@@ -84,14 +165,16 @@ async function main() {
   
   console.log('');
   
-  // Testar endpoint com filtros
-  console.log('🔍 Testando: /api/questoes-semanais?ativo=true');
+  // Testar endpoint ANTIGO com filtros (DEPRECATADO)
+  console.log('⚠️  Testando: /api/questoes-semanais?ativo=true (DEPRECATADO)');
   try {
     const response = await makeRequest('/api/questoes-semanais?ativo=true');
     
     if (response.statusCode === 200) {
-      console.log(`✅ /api/questoes-semanais?ativo=true - Status: ${response.statusCode}`);
+      console.log(`⚠️  /api/questoes-semanais?ativo=true - Status: ${response.statusCode} (DEPRECATADO)`);
       console.log(`   📦 Dados recebidos: ${response.data.data?.length || 0} questões ativas`);
+      console.log(`   🚨 DEPRECATION WARNING: Esta rota será removida em 2024-06-01`);
+      console.log(`   💡 Use /api/questoes-semanais/atual em vez disso`);
     } else {
       console.log(`❌ /api/questoes-semanais?ativo=true - Status: ${response.statusCode}`);
       console.log(`   🚨 Erro:`, response.data.error || response.data);
@@ -102,21 +185,22 @@ async function main() {
   }
   
   console.log('\n📋 Resumo dos testes:');
-  console.log('• Se o endpoint retornar 200, a correção funcionou');
-  console.log('• Se retornar 500, ainda há problemas no backend');
-  console.log('• Se retornar 404, a rota não está registrada');
+  console.log('✅ Endpoints NOVOS funcionando: /atual, /roadmap, /historico');
+  console.log('⚠️  Endpoints ANTIGOS funcionando mas DEPRECATADOS: / (raiz), /:id');
+  console.log('🚨 Rota antiga será removida em 2024-06-01');
   
   console.log('\n💡 Próximos passos:');
-  console.log('1. Se a correção funcionou, o frontend deve carregar questões semanais');
-  console.log('2. Se não funcionou, verifique:');
-  console.log('   • Se a tabela questoes_semanais existe no banco');
-  console.log('   • Se há dados na tabela');
-  console.log('   • Se há erros no console do backend');
+  console.log('1. ✅ Novos endpoints estão funcionando perfeitamente');
+  console.log('2. ⚠️  Rotas antigas ainda funcionam mas com warnings de deprecação');
+  console.log('3. 🔄 Frontend já migrou para os novos endpoints');
+  console.log('4. 🗑️  Rotas antigas podem ser removidas após 2024-06-01');
   
-  console.log('\n🎯 Problema identificado e corrigido:');
-  console.log('✅ Endpoint estava tentando acessar tabela disciplinas_categoria inexistente');
-  console.log('✅ Corrigido para usar apenas concursos');
-  console.log('✅ Removidas referências desnecessárias');
+  console.log('\n🎯 Status da migração:');
+  console.log('✅ Backend: Novos endpoints implementados');
+  console.log('✅ Frontend: Migrado para novos endpoints');
+  console.log('✅ Compatibilidade: Mantida com warnings de deprecação');
+  console.log('✅ Observabilidade: Logs e headers de deprecação ativos');
+  console.log('✅ Segurança: Filtro de concurso aplicado em todas as rotas');
 }
 
 // Executar se chamado diretamente

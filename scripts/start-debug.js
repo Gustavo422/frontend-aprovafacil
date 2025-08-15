@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 const { exec } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
 console.log('🌐 Iniciando AprovaFácil Frontend em modo DEBUG...\n');
 
@@ -17,6 +19,18 @@ console.log('  • Logs de parsing de dados');
 console.log('  • Logs de autenticação');
 console.log('  • API URL: http://localhost:5000/api\n');
 
+// Limpeza preventiva do cache do Next/Turbopack (evita ENOENT em Windows)
+try {
+  const projectRoot = process.cwd();
+  const nextDir = path.join(projectRoot, '.next');
+  if (fs.existsSync(nextDir)) {
+    fs.rmSync(nextDir, { recursive: true, force: true });
+    console.log('🧹 Cache do Next (.next) limpo com sucesso.');
+  }
+} catch (e) {
+  console.warn('⚠️  Não foi possível limpar o cache do Next automaticamente:', e?.message);
+}
+
 // Função para executar comando
 function runCommand(command, args, name) {
   console.log(`🔄 Iniciando ${name}...`);
@@ -28,7 +42,9 @@ function runCommand(command, args, name) {
       ...process.env,
       NODE_ENV: 'development',
       NEXT_PUBLIC_DEBUG: 'true',
-      NEXT_PUBLIC_API_URL: 'http://localhost:5000/api'
+      NEXT_PUBLIC_API_URL: 'http://localhost:5000/api',
+      TURBOPACK: '0',
+      NEXT_TELEMETRY_DISABLED: '1'
     }
   }, (error, stdout, stderr) => {
     if (error) {
@@ -55,7 +71,8 @@ function runCommand(command, args, name) {
 }
 
 // Iniciar frontend
-const frontendProcess = runCommand('npm', ['run', 'dev'], 'Frontend');
+// Forçar execução sem Turbopack para evitar erros ENOENT de manifest no Windows
+const frontendProcess = runCommand('npm', ['run', 'dev:no-turbo'], 'Frontend');
 
 // Gerenciar encerramento
 process.on('SIGINT', () => {

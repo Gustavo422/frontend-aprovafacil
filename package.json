@@ -52,7 +52,9 @@
     "type-check": "tsc --noEmit",
     "prepare": "husky install || true",
     "ci:quality": "npm run type-check && npm run lint && npm run test:ci",
-    "ci:knip": "npx knip --reporter json > knip-report-frontend.json"
+    "ci:knip": "npx knip --reporter json > knip-report-frontend.json",
+    "types:generate": "supabase gen types typescript --project-id $NEXT_PUBLIC_SUPABASE_PROJECT_ID --schema public > lib/database.types.tsx",
+    "types:generate:local": "supabase gen types typescript --local > lib/database.types.tsx"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",

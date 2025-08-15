@@ -112,8 +112,7 @@ export async function calculateSimuladosStats(usuarioId: string): Promise<{
     const { data, error } = await supabase
       .from('progresso_usuario_simulado') // Tabela correta
       .select('pontuacao, tempo_gasto_minutos')
-      .eq('usuario_id', usuarioId) // Coluna correta
-      .is('deleted_at', null);
+      .eq('usuario_id', usuarioId); // Coluna correta
       
     if (error) {
       throw error;
@@ -156,8 +155,7 @@ export async function calculateQuestoesStats(usuarioId: string): Promise<{
     const { data, error } = await supabase
       .from('progresso_usuario_questoes_semanais')
       .select('pontuacao, respostas') // 'answers' -> 'respostas'
-      .eq('usuario_id', usuarioId)
-      .is('deleted_at', null);
+      .eq('usuario_id', usuarioId);
         
     if (error) {
       throw error;
@@ -262,14 +260,12 @@ export async function calculateWeeklyProgress(usuarioId: string): Promise<{
         .from('progresso_usuario_simulado') // Tabela correta
         .select('pontuacao, tempo_gasto_minutos')
         .eq('usuario_id', usuarioId) // Coluna correta
-        .gte('criado_em', weekAgo)
-        .is('deleted_at', null),
+        .gte('criado_em', weekAgo),
       supabase
         .from('progresso_usuario_questoes_semanais')
         .select('pontuacao')
         .eq('usuario_id', usuarioId) // Coluna correta
-        .gte('criado_em', weekAgo)
-        .is('deleted_at', null),
+        .gte('criado_em', weekAgo),
     ]);
 
     if (simuladosResult.error) {
@@ -297,14 +293,12 @@ export async function calculateWeeklyProgress(usuarioId: string): Promise<{
         .select('pontuacao')
         .eq('usuario_id', usuarioId) // Coluna correta
         .gte('criado_em', twoWeeksAgo)
-        .lt('criado_em', weekAgo2)
-        .is('deleted_at', null),
+        .lt('criado_em', weekAgo2),
       supabase
         .from('progresso_usuario_simulado') // Tabela correta
         .select('pontuacao')
         .eq('usuario_id', usuarioId) // Coluna correta
-        .gte('criado_em', weekAgo)
-        .is('deleted_at', null),
+        .gte('criado_em', weekAgo),
     ]);
 
     if (previousWeekResult.error) {
@@ -446,7 +440,7 @@ export async function updateUserStats(
     const { data: user } = await supabase
       .from('usuarios')
       .select(
-        'total_questoes_respondidas, total_resposta_corretas, tempo_estudo_minutos, pontuacao_media'
+        'total_questoes_respondidas, total_acertos, tempo_estudo_minutos, pontuacao_media'
       )
       .eq('id', usuarioId)
       .single();
@@ -454,7 +448,7 @@ export async function updateUserStats(
     if (user) {
       const newTotalQuestions =
         user.total_questoes_respondidas + questionsAnswered;
-      const newCorrectAnswers = user.total_resposta_corretas + correctAnswers;
+      const newCorrectAnswers = user.total_acertos + correctAnswers;
       const newStudyTime = user.tempo_estudo_minutos + studyTimeMinutes;
       const newAverageScore =
         newTotalQuestions > 0
@@ -465,7 +459,7 @@ export async function updateUserStats(
         .from('usuarios')
         .update({
           total_questoes_respondidas: newTotalQuestions,
-          total_resposta_corretas: newCorrectAnswers,
+          total_acertos: newCorrectAnswers,
           tempo_estudo_minutos: newStudyTime,
           pontuacao_media: newAverageScore,
           atualizado_em: new Date().toISOString(),
@@ -508,7 +502,7 @@ export async function recordSimuladoCompletion(
       pontuacao: score,
       tempo_gasto_minutos: timeTaken,
       respostas: answers,
-      concluido_at: new Date().toISOString(),
+      concluido_em: new Date().toISOString(),
     });
 
     // Atualizar estatísticas
@@ -561,7 +555,7 @@ export async function recordQuestaoCompletion(
       questoes_semanais_id: questaoId,
       pontuacao: score,
       respostas: answers,
-      concluido_at: new Date().toISOString(),
+      concluido_em: new Date().toISOString(),
     });
 
     // Calcular estatísticas das respostas

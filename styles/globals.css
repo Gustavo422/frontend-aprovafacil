@@ -653,3 +653,213 @@
     page-break-before: always;
   }
 }
+/* C
+lasses específicas para FlipCard e GameBoard */
+@layer utilities {
+  /* 3D Transform utilities */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+
+  /* Grid utilities para GameBoard */
+  .grid-cols-auto-fit {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .grid-cols-auto-fill {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  /* Aspect ratio utilities */
+  .aspect-square {
+    aspect-ratio: 1 / 1;
+  }
+
+  .aspect-card {
+    aspect-ratio: 3 / 4;
+  }
+
+  /* Animation delays */
+  .delay-75 {
+    animation-delay: 75ms;
+  }
+
+  .delay-100 {
+    animation-delay: 100ms;
+  }
+
+  .delay-150 {
+    animation-delay: 150ms;
+  }
+
+  .delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .delay-500 {
+    animation-delay: 500ms;
+  }
+
+  /* Hover effects específicos */
+  .hover-lift {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .hover-lift:hover {
+    @apply -translate-y-2 shadow-xl;
+  }
+
+  .hover-glow {
+    @apply transition-all duration-300;
+  }
+
+  .hover-glow:hover {
+    @apply shadow-lg;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1), 0 0 20px currentColor;
+    opacity: 0.1;
+  }
+
+  /* Status colors específicos para WeekCard */
+  .status-completed {
+    @apply bg-gradient-to-br from-green-50 to-green-100 border-green-200 text-green-800;
+  }
+
+  .status-current {
+    @apply bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 text-blue-800 ring-2 ring-blue-200;
+  }
+
+  .status-upcoming {
+    @apply bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200 text-yellow-800;
+  }
+
+  .status-failed {
+    @apply bg-gradient-to-br from-red-50 to-red-100 border-red-200 text-red-800;
+  }
+
+  .status-locked {
+    @apply bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 text-gray-600 opacity-60 cursor-not-allowed;
+  }
+
+  /* Countdown específico */
+  .countdown-unit {
+    @apply bg-white rounded-lg border border-gray-200 text-center p-2;
+  }
+
+  .countdown-value {
+    @apply text-lg font-bold text-gray-900 font-mono;
+  }
+
+  .countdown-label {
+    @apply text-xs text-gray-600 font-medium;
+  }
+
+  /* Loading states */
+  .loading-shimmer {
+    background: linear-gradient(90deg, 
+      hsl(var(--muted)) 25%, 
+      hsl(var(--muted-foreground) / 0.1) 50%, 
+      hsl(var(--muted)) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  /* Responsive grid específico para GameBoard */
+  .game-board-grid {
+    @apply grid gap-4;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    .game-board-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .game-board-grid {
+      grid-template-columns: repeat(6, 1fr);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .game-board-grid {
+      grid-template-columns: repeat(8, 1fr);
+    }
+  }
+
+  /* Utilities para acessibilidade */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .focus-visible {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .status-completed {
+      @apply border-2 border-green-600;
+    }
+
+    .status-current {
+      @apply border-2 border-blue-600;
+    }
+
+    .status-upcoming {
+      @apply border-2 border-yellow-600;
+    }
+
+    .status-failed {
+      @apply border-2 border-red-600;
+    }
+
+    .status-locked {
+      @apply border-2 border-gray-600;
+    }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in-up,
+    .animate-flip-horizontal,
+    .hover-lift,
+    .hover-glow {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+}

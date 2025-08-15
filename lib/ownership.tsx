@@ -35,7 +35,6 @@ export async function checkOwnership(
       .from(resource)
       .select(resourceUserIdField)
       .eq('id', resourceId)
-      .is('deleted_at', null)
       .single();
 
     if (error || !data) {
@@ -117,7 +116,6 @@ export async function validatePublicAccess(
       .from(tablenome)
       .select('publico')
       .eq('id', recordId)
-      .is('deleted_at', null)
       .single();
 
     if (error || !data) {
@@ -171,7 +169,6 @@ export async function filterByOwnership(
       .from(tablenome)
       .select('*')
       .eq(resourceUserIdField, usuarioId)
-      .is('deleted_at', null)
       .order('criado_em', { ascending: false });
 
     if (error) {
@@ -205,7 +202,6 @@ export async function filterByAccess(
       .from(tablenome)
       .select('*')
       .or(`${resourceUserIdField}.eq.${usuarioId},publico.eq.true`)
-      .is('deleted_at', null)
       .order('criado_em', { ascending: false });
 
     if (error) {
@@ -309,7 +305,6 @@ export async function getSharedResources(
       .from(tablenome)
       .select('*')
       .or(`shared_with.cs.{${usuarioId}},publico.eq.true`)
-      .is('deleted_at', null)
       .order('criado_em', { ascending: false });
 
     if (error) {

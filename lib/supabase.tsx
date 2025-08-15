@@ -47,8 +47,7 @@ export const createServerSupabaseClient = async () => {
   }
 };
 
-// Manter compatibilidade com código existente
-export const supabase = createClient();
+// Removido: criação global de cliente para evitar falhas de build/prerender
 
 
 

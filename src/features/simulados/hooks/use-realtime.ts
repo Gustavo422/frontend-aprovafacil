@@ -58,7 +58,7 @@ export function useSimuladosRealtime(filter: Filter) {
 
     return () => {
       channels.forEach((c) => {
-        try { void supabase.removeChannel(c); } catch { /* noop */ }
+        try { supabase.removeChannel(c); } catch { /* noop */ }
       });
     };
   }, [filter.concurso_id, filter.simulado_id, filter.slug, queryClient]);

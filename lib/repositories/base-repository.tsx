@@ -15,22 +15,33 @@ interface ApiResponse<T = unknown> {
   error?: string;
 }
 export abstract class BaseRepository<T extends BaseEntity> {
-  protected client: SupabaseClient;
+	protected client: SupabaseClient | null;
   protected tablenome: string;
 
-  constructor(tablenome: string) {
-    this.client = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-    this.tablenome = tablenome;
-  }
+	constructor(tablenome: string) {
+		this.tablenome = tablenome;
+		const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+		const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+		this.client = url && key ? createClient(url, key) : null;
+	}
+
+	protected getClient(): SupabaseClient {
+		const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+		const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+		if (!this.client) {
+			if (!url || !key) {
+				throw new DatabaseError('Supabase não configurado: defina NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY.');
+			}
+			this.client = createClient(url, key);
+		}
+		return this.client;
+	}
 
   protected async executeQuery<R>(
     queryFn: () => Promise<{ data: R | null; error: unknown }>
   ): Promise<ApiResponse<R>> {
     try {
-      const { data, error } = await queryFn();
+		const { data, error } = await queryFn();
 
       if (error) {
         logger.error('Database query error', { error, table: this.tablenome });
@@ -49,7 +60,7 @@ export abstract class BaseRepository<T extends BaseEntity> {
 
   public async findById(id: string): Promise<ApiResponse<T>> {
     return this.executeQuery(async () => {
-      const result = await this.client
+		const result = await this.getClient()
         .from(this.tablenome)
         .select('*')
         .eq('id', id)
@@ -62,7 +73,7 @@ export abstract class BaseRepository<T extends BaseEntity> {
     limit?: number,
     offset?: number
   ): Promise<ApiResponse<T[]>> {
-    let query = this.client
+		let query = this.getClient()
       .from(this.tablenome)
       .select('*', { count: 'exact' });
 
@@ -84,7 +95,7 @@ export abstract class BaseRepository<T extends BaseEntity> {
     data: Omit<T, 'id' | 'criado_em' | 'atualizado_em'>
   ): Promise<ApiResponse<T>> {
     return this.executeQuery(async () => {
-      const result = await this.client
+		const result = await this.getClient()
         .from(this.tablenome)
         .insert(data)
         .select()
@@ -98,7 +109,7 @@ export abstract class BaseRepository<T extends BaseEntity> {
     data: Partial<Omit<T, 'id' | 'criado_em'>>
   ): Promise<ApiResponse<T>> {
     return this.executeQuery(async () => {
-      const result = await this.client
+		const result = await this.getClient()
         .from(this.tablenome)
         .update({ ...data, atualizado_em: new Date().toISOString() })
         .eq('id', id)
@@ -110,7 +121,7 @@ export abstract class BaseRepository<T extends BaseEntity> {
 
   public async delete(id: string): Promise<ApiResponse<boolean>> {
     return this.executeQuery(async () => {
-      const { error } = await this.client
+		const { error } = await this.getClient()
         .from(this.tablenome)
         .delete()
         .eq('id', id);
@@ -124,7 +135,7 @@ export abstract class BaseRepository<T extends BaseEntity> {
     value: unknown
   ): Promise<ApiResponse<T[]>> {
     return this.executeQuery(async () => {
-      const result = await this.client
+		const result = await this.getClient()
         .from(this.tablenome)
         .select('*')
         .eq(field as string, value);
@@ -137,7 +148,7 @@ export abstract class BaseRepository<T extends BaseEntity> {
     value: unknown
   ): Promise<ApiResponse<T>> {
     return this.executeQuery(async () => {
-      const result = await this.client
+		const result = await this.getClient()
         .from(this.tablenome)
         .select('*')
         .eq(field as string, value)

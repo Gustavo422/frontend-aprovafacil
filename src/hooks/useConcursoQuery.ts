@@ -80,7 +80,9 @@ export function useConcursoQuery<TData = unknown, TError = unknown>(
     } as const;
 
     // Anexar no meta da query para aparecer no DevTools do TanStack
-    (queryOptions as any)?.meta && ((queryOptions as any).meta.lastFetch = metaInfo);
+    if ((queryOptions as any)?.meta) {
+      (queryOptions as any).meta.lastFetch = metaInfo;
+    }
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -228,7 +230,9 @@ export function useConcursoQueryWithParams<TData = unknown, TError = unknown>(
       fetchedAt: new Date().toISOString(),
     } as const;
     
-    (queryOptions as any)?.meta && ((queryOptions as any).meta.lastFetch = metaInfo);
+    if ((queryOptions as any)?.meta) {
+      (queryOptions as any).meta.lastFetch = metaInfo;
+    }
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

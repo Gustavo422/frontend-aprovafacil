@@ -192,8 +192,7 @@ async function fetchSimuladosData(
       simulados!inner(*)
     `
     )
-    .eq('usuario_id', usuarioId) // CORRIGIDO
-    .is('deleted_at', null);
+    .eq('usuario_id', usuarioId); // CORRIGIDO
 
   if (period === 'week') {
     const weekAgo = new Date(
@@ -246,8 +245,7 @@ async function fetchQuestoesData(
       questoes_semanais!inner(*)
     `
     )
-    .eq('usuario_id', usuarioId) // CORRIGIDO
-    .is('deleted_at', null);
+    .eq('usuario_id', usuarioId); // CORRIGIDO
 
   if (period === 'week') {
     const weekAgo = new Date(
@@ -289,12 +287,7 @@ async function fetchDisciplinasData(
 ) {
   const { data, error } = await supabase
     .from('estatisticas_usuario_disciplina') // Tabela corrigida
-    .select(
-      `
-      *,
-      disciplinas!inner(*)
-    `
-    )
+    .select('*')
     .eq('usuario_id', usuarioId); // CORRIGIDO
 
   if (error) {

@@ -260,7 +260,7 @@ export function SupabaseProvider({
       // Verificar saúde inicial
       checkHealth();
     }
-  }, [supabaseUrl, supabaseAnonKey, createSupabaseClient, checkHealth]);
+  }, [createSupabaseClient, checkHealth]);
   
   // Efeito para configurar token de autenticação
   useEffect(() => {

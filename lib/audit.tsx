@@ -168,9 +168,9 @@ export class AuditLogger {
       tablenome: 'progresso_usuario_simulado',
       recordId: simuladoId,
       newValues: {
-        score,
-        time_taken_minutes: timeTaken,
-        concluido_at: new Date().toISOString(),
+        pontuacao: score,
+        tempo_gasto_minutos: timeTaken,
+        concluido_em: new Date().toISOString(),
       },
     });
   }
@@ -186,8 +186,8 @@ export class AuditLogger {
       tablenome: 'progresso_usuario_questoes_semanais',
       recordId: questaoId,
       newValues: {
-        score,
-        concluido_at: new Date().toISOString(),
+        pontuacao: score,
+        concluido_em: new Date().toISOString(),
       },
     });
   }

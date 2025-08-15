@@ -39,17 +39,18 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 // Função para criar cliente Supabase com configurações adequadas
 export function createSupabaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      auth: {
-        persistSession: true,
-        detectSessionInUrl: true,
-        autoRefreshToken: true
-      }
-    }
-  );
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) {
+    throw new Error('Supabase não configurado: defina NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY.');
+  }
+  return createClient(url, key, {
+    auth: {
+      persistSession: true,
+      detectSessionInUrl: true,
+      autoRefreshToken: true,
+    },
+  });
 }
 
 // Criação lazy (evita erro quando variáveis não estão definidas em build/import)
@@ -60,10 +61,8 @@ export function isSupabaseConfigured(): boolean {
 }
 
 export function getSupabase(): SupabaseClient {
-  if (!isSupabaseConfigured()) {
-    throw new Error('Supabase não configurado: defina NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY.');
-  }
   if (!cachedClient) {
+    // Deferir a checagem até runtime para evitar erro no import durante build/prerender
     cachedClient = createSupabaseClient();
   }
   return cachedClient;
